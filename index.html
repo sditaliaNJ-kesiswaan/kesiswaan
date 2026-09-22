@@ -232,16 +232,34 @@
       </div>
 
       <!-- User Profile Pill -->
-      <div class="flex items-center space-x-2.5 pl-2 border-l border-slate-200 cursor-pointer" onclick="navigateTo('pengguna')">
-        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" 
-             onerror="this.src='https://placehold.co/100x100/0D7A53/ffffff?text=RJ'" 
-             alt="Riandy Julfriamdony" 
-             class="w-9 h-9 rounded-full object-cover border-2 border-brand-500 shadow-xs" />
-        <div class="hidden lg:block text-left">
-          <div id="headerUserName" class="text-xs font-bold text-slate-800 leading-tight">Riandy Julfriamdony, S. Kom</div>
-          <div class="text-[10px] text-slate-400 font-semibold flex items-center">
-            <span id="headerUserRole">Administrator Kesiswaan</span>
-            <i class="fa-solid fa-chevron-down text-[8px] ml-1.5 text-slate-400"></i>
+      <div class="relative">
+        <div class="flex items-center space-x-2.5 pl-2 border-l border-slate-200 cursor-pointer group" onclick="toggleUserDropdown()" title="Klik untuk ganti akun aktif atau kelola profil">
+          <img id="headerUserAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" 
+               onerror="this.src='https://placehold.co/100x100/0D7A53/ffffff?text=RJ'" 
+               alt="Avatar Pengguna" 
+               class="w-9 h-9 rounded-full object-cover border-2 border-brand-500 shadow-xs" />
+          <div class="hidden lg:block text-left">
+            <div id="headerUserName" class="text-xs font-bold text-slate-800 leading-tight">Riandy Julfriamdony, S. Kom</div>
+            <div class="text-[10px] text-slate-400 font-semibold flex items-center">
+              <span id="headerUserRole">Administrator Kesiswaan</span>
+              <i class="fa-solid fa-chevron-down text-[8px] ml-1.5 text-slate-400"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Switch Persona Dropdown -->
+        <div id="userQuickDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 text-xs">
+          <div class="px-4 py-2 border-b border-slate-100">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ganti Akun Aktif</p>
+            <p class="text-slate-700 font-semibold text-[11px] truncate">Pilih profil untuk simulasi tampilan</p>
+          </div>
+          <div id="quickUserList" class="max-h-56 overflow-y-auto divide-y divide-slate-50">
+            <!-- Populated dynamically via JS -->
+          </div>
+          <div class="p-2 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
+            <button onclick="navigateTo('pengguna'); toggleUserDropdown();" class="w-full py-1.5 px-3 text-center font-bold text-brand-700 hover:bg-brand-50 rounded-xl transition text-[11px]">
+              <i class="fa-solid fa-users-gear mr-1"></i> Kelola Semua Pengguna
+            </button>
           </div>
         </div>
       </div>
@@ -269,7 +287,7 @@
             <div>
               <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-sm leading-tight">
                 Selamat Datang <br class="hidden sm:inline">
-                <span class="text-white drop-shadow-md">Riandy Julfriamdony, S. Kom</span>
+                <span id="bannerActiveUserGreeting" class="text-white drop-shadow-md">Riandy Julfriamdony, S. Kom</span>
               </h2>
               <p class="text-xs sm:text-sm text-emerald-100 font-medium mt-1">
                 di Sistem Informasi Kesiswaan <strong id="bannerSchoolName" class="underline decoration-emerald-400 font-extrabold text-white">SDIT Alia Nurul Jihadi</strong>
@@ -1276,52 +1294,52 @@
         <div>
           <label class="block font-bold text-slate-600 mb-1">Nomor Induk Siswa (NIS)*</label>
           <input type="text" id="newNIS" required placeholder="12006" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-500">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">NISN*</label>
-          <input type="text" id="newNISN" required placeholder="001239999" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-500">
-        </div>
+<!-- 9. MODAL EDIT PENGGUNA -->
+<div id="modalEditUser" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in fade-in duration-200">
+    <div class="bg-brand-700 text-white p-4 px-6 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-user-pen"></i>
+        <h3 class="font-bold text-sm">Edit Data Pengguna</h3>
+      </div>
+      <button onclick="closeEditUserModal()" class="text-white hover:text-emerald-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <form onsubmit="handleSaveEditedUser(event)" class="p-6 space-y-3.5 text-xs">
+      <input type="hidden" id="editUserId">
+      <div>
+        <label class="block font-bold text-slate-600 mb-1">Nama Lengkap & Gelar*</label>
+        <input type="text" id="editUserNama" required placeholder="Contoh: Riandy Julfriamdony, S. Kom" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-brand-500">
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Nama Lengkap Siswa*</label>
-        <input type="text" id="newNama" required placeholder="Nama lengkap siswa" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-500">
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Kelas*</label>
-          <select id="newKelas" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl font-medium">
-            <!-- Populated dynamically via JS with all 25 classes -->
-          </select>
-        </div>
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Jenis Kelamin*</label>
-          <select id="newJK" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl font-medium">
-            <option value="L">Laki-laki (L)</option>
-            <option value="P">Perempuan (P)</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Nama Ayah</label>
-          <input type="text" id="newAyah" placeholder="Nama ayah kandung" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Nama Ibu</label>
-          <input type="text" id="newIbu" placeholder="Nama ibu kandung" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl">
-        </div>
+        <label class="block font-bold text-slate-600 mb-1">Username Login*</label>
+        <input type="text" id="editUserUsername" required placeholder="username" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl font-mono text-slate-700 focus:ring-2 focus:ring-brand-500">
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">No HP / WhatsApp Wali</label>
-        <input type="text" id="newHP" placeholder="0812xxxxxxxx" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl">
+        <label class="block font-bold text-slate-600 mb-1">Jabatan / Peran*</label>
+        <select id="editUserJabatan" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl font-medium focus:ring-2 focus:ring-brand-500">
+          <option value="Administrator">Administrator</option>
+          <option value="Kesiswaan">Kesiswaan</option>
+          <option value="Wali Kelas">Wali Kelas</option>
+          <option value="Guru">Guru Mata Pelajaran</option>
+          <option value="Kepala Sekolah">Kepala Sekolah</option>
+        </select>
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Alamat Domisili</label>
-        <input type="text" id="newAlamat" placeholder="Alamat lengkap" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl">
+        <label class="block font-bold text-slate-600 mb-1">Status Akun</label>
+        <select id="editUserStatus" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl font-medium focus:ring-2 focus:ring-brand-500">
+          <option value="Aktif">Aktif</option>
+          <option value="Nonaktif">Nonaktif</option>
+        </select>
       </div>
-      <div class="pt-3 flex space-x-2">
-        <button type="button" onclick="closeAddStudentModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-        <button type="submit" class="w-1/2 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow">Simpan Siswa</button>
+      <div class="pt-2 flex items-center space-x-2 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100">
+        <input type="checkbox" id="editUserSetActive" class="w-4 h-4 text-brand-700 rounded focus:ring-brand-500 border-slate-300">
+        <label for="editUserSetActive" class="font-bold text-emerald-900 text-[11px] cursor-pointer">
+          Jadikan Pengguna Ini Sebagai Akun yang Sedang Aktif (Login)
+        </label>
+      </div>
+      <div class="pt-2 flex space-x-2">
+        <button type="button" onclick="closeEditUserModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Batal</button>
+        <button type="submit" class="w-1/2 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow transition">Simpan Perubahan</button>
       </div>
     </form>
   </div>
@@ -1533,187 +1551,188 @@
   </div>
 </div>
 
-<!-- TOAST MESSAGE NOTIFICATION -->
-<div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
-  <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
-  <span id="toastMessage">Pemberitahuan berhasil</span>
-</div>
+  const STORAGE_KEY_USERS = 'sdit_users_v3';
+  const STORAGE_KEY_ACTIVE_USER = 'sdit_active_user_id_v3';
 
-<!-- PRINT CONTAINER (ONLY VISIBLE ON PRINT) -->
-<div id="printAreaContainer" class="print-only p-8">
-  <div class="border-b-2 border-slate-800 pb-4 mb-6 flex items-center space-x-4">
-    <div class="w-16 h-16" id="printHeaderLogo"></div>
-    <div>
-      <h2 class="text-xl font-bold uppercase tracking-tight" id="printHeaderSchoolName">SDIT ALIA NURUL JIHADI</h2>
-      <p class="text-xs text-slate-600 italic" id="printHeaderSchoolMotto">Mendidik dengan Ilmu, Membimbing dengan Akhlak, Mewujudkan Generasi Qur’ani</p>
-      <p class="text-xs text-slate-500">Tahun Ajaran 2026/2027 • Laporan Kesiswaan & Kedisiplinan</p>
-    </div>
-  </div>
-  <div id="printDynamicContent"></div>
-</div>
+  let appUsers = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || initialUsers;
+  let activeUserId = Number(localStorage.getItem(STORAGE_KEY_ACTIVE_USER)) || (appUsers[0] ? appUsers[0].no : 1);
 
-<script>
-  /* ================= DEFAULT ASSETS & LOGOS ================= */
-  const DEFAULT_SDIT_LOGO_SVG = `
-    <svg class="w-full h-full" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="92" r="75" fill="#6B9B37" stroke="#46691E" stroke-width="3"/>
-      <path id="svgArcText" d="M 32 95 A 68 68 0 1 1 168 95" fill="none" />
-      <text font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="11.5" font-weight="900" fill="#ffffff" letter-spacing="1.5">
-        <textPath href="#svgArcText" startOffset="50%" text-anchor="middle">
-          SEKOLAH DASAR ISLAM TERPADU
-        </textPath>
-      </text>
-      <circle cx="100" cy="92" r="54" fill="#75A63F"/>
-      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.9">
-        <line x1="100" y1="42" x2="100" y2="52"/>
-        <line x1="78" y1="48" x2="84" y2="57"/>
-        <line x1="122" y1="48" x2="116" y2="57"/>
-        <line x1="60" y1="65" x2="68" y2="72"/>
-        <line x1="140" y1="65" x2="132" y2="72"/>
-      </g>
-      <g fill="#ffffff">
-        <path d="M60 88 C60 78 70 70 70 70 C70 70 80 78 80 88 L80 110 L60 110 Z"/>
-        <path d="M120 88 C120 78 130 70 130 70 C130 70 140 78 140 88 L140 110 L120 110 Z"/>
-        <path d="M85 82 C85 64 100 52 100 52 C100 52 115 64 115 82 L115 110 L85 110 Z"/>
-        <circle cx="100" cy="50" r="3.5" fill="#ffffff"/>
-      </g>
-      <path d="M100 114 C85 105 56 108 52 120 C65 125 90 125 100 132 C110 125 135 125 148 120 C144 108 115 105 100 114 Z" fill="#ffffff"/>
-      <path d="M100 114 L100 132" stroke="#6B9B37" stroke-width="2"/>
-      <path d="M110 92 L128 72 C129 71 131 71 132 72 L133 73 C134 74 134 76 133 77 L115 97 L110 98 Z" fill="#ffffff"/>
-      <circle cx="113" cy="94" r="1.5" fill="#6B9B37"/>
-      <g>
-        <path d="M22 142 L42 126 L52 146 L100 149 L148 146 L158 126 L178 142 L164 168 L100 176 L36 168 Z" fill="#6B9B37" stroke="#46691E" stroke-width="2"/>
-        <path d="M38 134 Q100 142 162 134 L154 165 Q100 173 46 165 Z" fill="#ffffff"/>
-        <text x="100" y="147" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="900" fill="#46691E" text-anchor="middle" letter-spacing="2">ALIA</text>
-        <text x="100" y="161" font-family="'Plus Jakarta Sans', sans-serif" font-size="10.5" font-weight="900" fill="#46691E" text-anchor="middle" letter-spacing="1">NURUL JIHADI</text>
-      </g>
-    </svg>
-  `;
+  function syncActiveUserUI() {
+    const active = appUsers.find(u => u.no === activeUserId) || appUsers[0] || { nama: "Riandy Julfriamdony, S. Kom", jabatan: "Administrator" };
+    
+    // Update Header
+    const headerName = document.getElementById('headerUserName');
+    const headerRole = document.getElementById('headerUserRole');
+    if (headerName) headerName.textContent = active.nama;
+    if (headerRole) headerRole.textContent = active.jabatan;
 
-  const DEFAULT_SDIT_BUILDING_IMG = "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1600&auto=format&fit=crop&q=80";
+    // Update Avatar fallback initials
+    const headerAvatar = document.getElementById('headerUserAvatar');
+    if (headerAvatar) {
+      const initials = active.nama.split(' ').map(n => n[0]).slice(0, 2).join('');
+      headerAvatar.onerror = function() {
+        this.src = `https://placehold.co/100x100/0D7A53/ffffff?text=${encodeURIComponent(initials)}`;
+      };
+    }
 
-  const DEFAULT_SCHOOL_CONFIG = {
-    name: "SDIT Alia Nurul Jihadi",
-    motto: "“Mendidik dengan Ilmu, Membimbing dengan Akhlak, Mewujudkan Generasi Qur’ani”",
-    academicYear: "Tahun Ajaran 2026/2027",
-    tagline: "Berilmu, Beradab, Berprestasi"
-  };
+    // Update Dashboard Banner Greeting
+    const bannerGreeting = document.getElementById('bannerActiveUserGreeting');
+    if (bannerGreeting) {
+      bannerGreeting.textContent = active.nama;
+    }
+  }
 
-  const STORAGE_KEY_LOGO = 'sdit_custom_logo_data_v3';
-  const STORAGE_KEY_BG = 'sdit_custom_bg_building_v3';
-  const STORAGE_KEY_CONFIG = 'sdit_school_config_v3';
+  function toggleUserDropdown() {
+    const dd = document.getElementById('userQuickDropdown');
+    if (!dd) return;
+    dd.classList.toggle('hidden');
+    if (!dd.classList.contains('hidden')) {
+      renderQuickUserList();
+    }
+  }
 
-  /* ================= INITIAL MOCK DATA ================= */
-  const initialStudents = [
-    { id: 1, nis: "12001", nisn: "001234567", nama: "Andi Saputra", kelas: "1A", jk: "L", status: "Aktif", foto: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80", ttl: "Surabaya, 12 April 2018", alamat: "Jl. Melati No. 10, Surabaya", hp: "081234567890", ayah: "Bambang Supriyanto", ibu: "Dewi Sartika", kontak: "0812-7711-4455" },
-    { id: 2, nis: "12002", nisn: "001234578", nama: "Siti Aisyah", kelas: "1B", jk: "P", status: "Aktif", foto: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80", ttl: "Sidoarjo, 18 Mei 2018", alamat: "Perum Graha Indah Blok B-3", hp: "081298765432", ayah: "H. Ahmad Dahlan", ibu: "Nurul Hidayati", kontak: "0812-9988-1122" },
-    { id: 3, nis: "12003", nisn: "001234589", nama: "Fadli Aditya", kelas: "2A", jk: "L", status: "Aktif", foto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80", ttl: "Gresik, 05 Januari 2017", alamat: "Jl. Pahlawan No. 45", hp: "085612344321", ayah: "Suryono", ibu: "Endang Susanti", kontak: "0856-1122-3344" },
-    { id: 4, nis: "12004", nisn: "001234590", nama: "Putri Anggraini", kelas: "3A", jk: "P", status: "Aktif", foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80", ttl: "Surabaya, 22 Agustus 2016", alamat: "Jl. Mawar Putih No. 12", hp: "087812998800", ayah: "Rahmat Hidayat", ibu: "Siti Khadijah", kontak: "0878-3344-5566" },
-    { id: 5, nis: "12005", nisn: "0005678901", nama: "Bima Kusuma", kelas: "5A", jk: "L", status: "Aktif", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80", ttl: "Surabaya, 30 September 2014", alamat: "Komplek Rungkut Asri Timur", hp: "081399882211", ayah: "Kusumo Wardhana", ibu: "Sri Rejeki", kontak: "0813-8899-7766" }
-  ];
+  function renderQuickUserList() {
+    const list = document.getElementById('quickUserList');
+    if (!list) return;
+    list.innerHTML = '';
+    appUsers.forEach(u => {
+      const isActive = u.no === activeUserId;
+      const item = document.createElement('div');
+      item.className = `p-2.5 px-3 hover:bg-slate-50 cursor-pointer flex items-center justify-between transition ${isActive ? 'bg-emerald-50/60 font-bold' : ''}`;
+      item.onclick = () => switchActiveUser(u.no);
+      item.innerHTML = `
+        <div class="min-w-0 pr-2">
+          <p class="text-xs text-slate-800 truncate ${isActive ? 'text-brand-800 font-extrabold' : 'font-semibold'}">${u.nama}</p>
+          <p class="text-[10px] text-slate-400 font-medium">${u.jabatan} • @${u.username}</p>
+        </div>
+        ${isActive ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-700 text-white font-bold">Aktif</span>' : '<button class="text-[10px] text-slate-400 hover:text-brand-700 font-semibold">Pilih</button>'}
+      `;
+      list.appendChild(item);
+    });
+  }
 
-  /* COMPLETE 25 ROMBEL: 1A-1E, 2A-2D, 3A-3D, 4A-4D, 5A-5D, 6A-6D */
-  const ALL_25_CLASSES = [
-    // Tingkat 1 (5 Rombel)
-    { id: '1A', tingkat: 1, nama: 'Kelas 1 - Abu Bakar', wali: 'Usth. Sarah, S. Pd', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 1' },
-    { id: '1B', tingkat: 1, nama: 'Kelas 1 - Umar bin Khattab', wali: 'Usth. Maryam, S. Pd', total: 28, l: 15, p: 13, ruang: 'Gedung A Lt. 1' },
-    { id: '1C', tingkat: 1, nama: 'Kelas 1 - Utsman bin Affan', wali: 'Usth. Salma, S. Pd', total: 27, l: 13, p: 14, ruang: 'Gedung A Lt. 1' },
-    { id: '1D', tingkat: 1, nama: 'Kelas 1 - Ali bin Abi Thalib', wali: 'Usth. Khadijah, S. Pd.I', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 1' },
-    { id: '1E', tingkat: 1, nama: 'Kelas 1 - Bilal bin Rabah', wali: 'Usth. Hafshah, S. Pd', total: 27, l: 14, p: 13, ruang: 'Gedung A Lt. 1' },
+  function switchActiveUser(id) {
+    activeUserId = id;
+    localStorage.setItem(STORAGE_KEY_ACTIVE_USER, String(id));
+    syncActiveUserUI();
+    const dd = document.getElementById('userQuickDropdown');
+    if (dd) dd.classList.add('hidden');
+    renderUsersTable();
+    showToast(`Beralih ke akun: ${appUsers.find(u => u.no === id)?.nama}`);
+  }
 
-    // Tingkat 2 (4 Rombel)
-    { id: '2A', tingkat: 2, nama: 'Kelas 2 - Thariq bin Ziyad', wali: 'Ust. Hasan Basri, S. Pd', total: 29, l: 15, p: 14, ruang: 'Gedung A Lt. 2' },
-    { id: '2B', tingkat: 2, nama: 'Kelas 2 - Khalid bin Walid', wali: 'Usth. Zainab, S. Pd', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 2' },
-    { id: '2C', tingkat: 2, nama: 'Kelas 2 - Sa\'ad bin Abi Waqqas', wali: 'Ust. Salman, S. Pd', total: 28, l: 13, p: 15, ruang: 'Gedung A Lt. 2' },
-    { id: '2D', tingkat: 2, nama: 'Kelas 2 - Hamzah bin Abdul Muthalib', wali: 'Usth. Fatimah, S. Pd.I', total: 29, l: 16, p: 13, ruang: 'Gedung A Lt. 2' },
+  /* ================= 8. AKUN PENGGUNA FUNCTIONS ================= */
+  function renderUsersTable() {
+    const tbody = document.getElementById('userTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    appUsers.forEach((u, i) => {
+      const isActive = u.no === activeUserId;
+      const tr = document.createElement('tr');
+      tr.className = `hover:bg-slate-50 transition ${isActive ? 'bg-emerald-50/30' : ''}`;
+      tr.innerHTML = `
+        <td class="py-3 px-4 text-center font-bold text-slate-400">${i + 1}</td>
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-800 flex items-center space-x-2">
+            <span>${u.nama}</span>
+            ${isActive ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-700 text-white tracking-wide uppercase">Login Aktif</span>' : ''}
+          </div>
+        </td>
+        <td class="py-3 px-4 text-slate-500 font-mono">@${u.username}</td>
+        <td class="py-3 px-4">
+          <span class="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700">${u.jabatan}</span>
+        </td>
+        <td class="py-3 px-4 text-center">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">${u.status || 'Aktif'}</span>
+        </td>
+        <td class="py-3 px-4 text-center">
+          <div class="flex items-center justify-center space-x-1.5">
+            <button onclick="openEditUserModal(${u.no})" class="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center shadow-xs transition" title="Edit Akun & Nama">
+              <i class="fa-solid fa-pencil text-xs"></i>
+            </button>
+            ${!isActive ? `
+            <button onclick="switchActiveUser(${u.no})" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center shadow-xs transition" title="Jadikan Akun Aktif">
+              <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+            </button>` : ''}
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
-    // Tingkat 3 (4 Rombel)
-    { id: '3A', tingkat: 3, nama: 'Kelas 3 - Zaid bin Tsabit', wali: 'Ust. Firman, S. Pd', total: 29, l: 14, p: 15, ruang: 'Gedung B Lt. 1' },
-    { id: '3B', tingkat: 3, nama: 'Kelas 3 - Mu\'adz bin Jabal', wali: 'Usth. Rania, S. Pd', total: 30, l: 16, p: 14, ruang: 'Gedung B Lt. 1' },
-    { id: '3C', tingkat: 3, nama: 'Kelas 3 - Abdullah bin Mas\'ud', wali: 'Ust. Hilman, S. Pd.I', total: 28, l: 14, p: 14, ruang: 'Gedung B Lt. 1' },
-    { id: '3D', tingkat: 3, nama: 'Kelas 3 - Abu Ubaidah', wali: 'Usth. Aisyah Rahmi, S. Pd', total: 29, l: 15, p: 14, ruang: 'Gedung B Lt. 1' },
+  function openEditUserModal(userId) {
+    const user = appUsers.find(u => u.no === userId);
+    if (!user) return;
 
-    // Tingkat 4 (4 Rombel)
-    { id: '4A', tingkat: 4, nama: 'Kelas 4 - Imam Syafi\'i', wali: 'Ust. Anshori, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung B Lt. 2' },
-    { id: '4B', tingkat: 4, nama: 'Kelas 4 - Imam Maliki', wali: 'Usth. Halimah, S. Pd', total: 29, l: 14, p: 15, ruang: 'Gedung B Lt. 2' },
-    { id: '4C', tingkat: 4, nama: 'Kelas 4 - Imam Hanafi', wali: 'Ust. Lukman Hakim, S. Pd', total: 30, l: 16, p: 14, ruang: 'Gedung B Lt. 2' },
-    { id: '4D', tingkat: 4, nama: 'Kelas 4 - Imam Hanbali', wali: 'Usth. Wardah, S. Pd.I', total: 29, l: 14, p: 15, ruang: 'Gedung B Lt. 2' },
+    document.getElementById('editUserId').value = user.no;
+    document.getElementById('editUserNama').value = user.nama;
+    document.getElementById('editUserUsername').value = user.username;
+    document.getElementById('editUserJabatan').value = user.jabatan;
+    document.getElementById('editUserStatus').value = user.status || 'Aktif';
+    document.getElementById('editUserSetActive').checked = (user.no === activeUserId);
 
-    // Tingkat 5 (4 Rombel)
-    { id: '5A', tingkat: 5, nama: 'Kelas 5 - Ibnu Sina', wali: 'Siti Rahma, S. Pd', total: 31, l: 16, p: 15, ruang: 'Gedung C Lt. 1' },
-    { id: '5B', tingkat: 5, nama: 'Kelas 5 - Al-Khawarizmi', wali: 'Ahmad Fadli, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung C Lt. 1' },
-    { id: '5C', tingkat: 5, nama: 'Kelas 5 - Al-Biruni', wali: 'Lina Marlina, S. Pd', total: 31, l: 17, p: 14, ruang: 'Gedung C Lt. 1' },
-    { id: '5D', tingkat: 5, nama: 'Kelas 5 - Jabir bin Hayyan', wali: 'Ust. Zulkifli, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung C Lt. 1' },
+    const modal = document.getElementById('modalEditUser');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
 
-    // Tingkat 6 (4 Rombel)
-    { id: '6A', tingkat: 6, nama: 'Kelas 6 - Shalahuddin Al-Ayyubi', wali: 'Ust. Mahmud, S. Pd.I', total: 30, l: 14, p: 16, ruang: 'Gedung C Lt. 2' },
-    { id: '6B', tingkat: 6, nama: 'Kelas 6 - Muhammad Al-Fatih', wali: 'Usth. Fauziah, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung C Lt. 2' },
-    { id: '6C', tingkat: 6, nama: 'Kelas 6 - Tariq bin Ziyad', wali: 'Ust. Ridwan, M. Pd', total: 29, l: 14, p: 15, ruang: 'Gedung C Lt. 2' },
-    { id: '6D', tingkat: 6, nama: 'Kelas 6 - Fatih Al-Quds', wali: 'Usth. Mutmainnah, S. Pd', total: 29, l: 15, p: 14, ruang: 'Gedung C Lt. 2' }
-  ];
+  function closeEditUserModal() {
+    const modal = document.getElementById('modalEditUser');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
 
-  const initialClasses = ALL_25_CLASSES;
+  function handleSaveEditedUser(e) {
+    e.preventDefault();
+    const id = Number(document.getElementById('editUserId').value);
+    const userIndex = appUsers.findIndex(u => u.no === id);
 
-  const initialUsers = [
-    { no: 1, nama: "Riandy Julfriamdony, S. Kom", username: "riandy", jabatan: "Administrator", status: "Aktif" },
-    { no: 2, nama: "Siti Rahma, S. Pd", username: "srahma", jabatan: "Kesiswaan", status: "Aktif" },
-    { no: 3, nama: "Ahmad Fadli, S. Pd", username: "afadli", jabatan: "Wali Kelas", status: "Aktif" },
-    { no: 4, nama: "Lina Marlina, S. Pd", username: "lina", jabatan: "Guru", status: "Aktif" },
-    { no: 5, nama: "Drs. H. Maimun, M. Pd.I", username: "kepsek", jabatan: "Kepala Sekolah", status: "Aktif" }
-  ];
+    if (userIndex !== -1) {
+      appUsers[userIndex].nama = document.getElementById('editUserNama').value.trim();
+      appUsers[userIndex].username = document.getElementById('editUserUsername').value.trim().toLowerCase();
+      appUsers[userIndex].jabatan = document.getElementById('editUserJabatan').value;
+      appUsers[userIndex].status = document.getElementById('editUserStatus').value;
 
-  const initialViolations = [
-    { id: 101, tanggal: "2026-09-21", nama: "Fadli Aditya", kelas: "2A", jenis: "Terlambat Masuk Sekolah", poin: 5, tindakLanjut: "Teguran lisan & Dzikir Pagi", status: "Selesai" },
-    { id: 102, tanggal: "2026-09-20", nama: "Bima Kusuma", kelas: "5A", jenis: "Tidak Memakai Atribut Lengkap", poin: 5, tindakLanjut: "Peringatan Buku Saku", status: "Selesai" },
-    { id: 103, tanggal: "2026-09-19", nama: "Andi Saputra", kelas: "1A", jenis: "Berbicara saat guru menjelaskan", poin: 5, tindakLanjut: "Bimbingan Wali Kelas", status: "Selesai" }
-  ];
-
-  const initialPrestasi = [
-    { id: 201, judul: "Juara 1 Musabaqah Hifdzil Qur'an 5 Juz", peraih: "Andi Saputra (1A)", kategori: "Keagamaan", tingkat: "Tingkat Kota", tahun: "2026", icon: "fa-book-quran" },
-    { id: 202, judul: "Medali Emas Olimpiade Sains Dasar (OSN)", peraih: "Siti Aisyah (1B)", kategori: "Akademik", tingkat: "Tingkat Provinsi", tahun: "2026", icon: "fa-flask" },
-    { id: 203, judul: "Juara 2 Kaligrafi Kontemporer Islami", peraih: "Putri Anggraini (3A)", kategori: "Kesenian", tingkat: "Tingkat Kota", tahun: "2026", icon: "fa-palette" }
-  ];
-
-  const initialIzin = [
-    { id: 301, no: "IZN-2026/09/012", nama: "Siti Aisyah", kelas: "1B", jenis: "Sakit (Flu/Demam)", durasi: "2 Hari (21-22 Sep)", status: "Disetujui" },
-    { id: 302, no: "IZN-2026/09/013", nama: "Bima Kusuma", kelas: "5A", jenis: "Acara Keluarga", durasi: "1 Hari (22 Sep)", status: "Disetujui" }
-  ];
-
-  const initialBK = [
-    { id: 401, nama: "Bima Kusuma", kelas: "5A", tanggal: "2026-09-22", konselor: "Ust. Mahmud, S. Pd.I", catatan: "Pembinaan kedisiplinan dan penguatan motivasi tahfidz juz 30.", status: "Dalam Pembinaan" },
-    { id: 402, nama: "Putri Anggraini", kelas: "3A", tanggal: "2026-09-21", konselor: "Siti Rahma, S. Pd", catatan: "Konseling pemantapan mental dan adab tawadhu menjelang MHQ.", status: "Selesai" }
-  ];
-
-  /* State Store - initialize with complete 25 classes */
-  let students = JSON.parse(localStorage.getItem('sdit_students_v3')) || initialStudents;
-  let classes = ALL_25_CLASSES;
-  localStorage.setItem('sdit_classes_v3', JSON.stringify(ALL_25_CLASSES));
-  let currentClassFilterLevel = 'ALL';
-  let attendanceStore = JSON.parse(localStorage.getItem('sdit_attendance_v3')) || {};
-  let violations = JSON.parse(localStorage.getItem('sdit_viol_v3')) || initialViolations;
-  let prestasis = JSON.parse(localStorage.getItem('sdit_prestasi_v3')) || initialPrestasi;
-  let izinList = JSON.parse(localStorage.getItem('sdit_izin_v3')) || initialIzin;
-  let bkNotes = JSON.parse(localStorage.getItem('sdit_bk_v3')) || initialBK;
-  let appUsers = JSON.parse(localStorage.getItem('sdit_users_v3')) || initialUsers;
-
-  function loadBranding() {
-    const savedLogo = localStorage.getItem(STORAGE_KEY_LOGO);
-    const savedBg = localStorage.getItem(STORAGE_KEY_BG);
-    const schoolConfig = JSON.parse(localStorage.getItem(STORAGE_KEY_CONFIG)) || DEFAULT_SCHOOL_CONFIG;
-
-    // Apply Logo
-    const logoContainers = [
-      document.getElementById('schoolLogoContainer'),
-      document.getElementById('settingsLogoPreview'),
-      document.getElementById('printHeaderLogo')
-    ];
-    logoContainers.forEach(container => {
-      if (!container) return;
-      if (savedLogo) {
-        container.innerHTML = `<img src="${savedLogo}" alt="Logo SDIT" class="w-full h-full object-contain">`;
-      } else {
-        container.innerHTML = DEFAULT_SDIT_LOGO_SVG;
+      if (document.getElementById('editUserSetActive').checked) {
+        activeUserId = id;
+        localStorage.setItem(STORAGE_KEY_ACTIVE_USER, String(id));
       }
+
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(appUsers));
+      syncActiveUserUI();
+      renderUsersTable();
+      closeEditUserModal();
+      showToast(`Data akun "${appUsers[userIndex].nama}" berhasil diperbarui!`);
+    }
+  }
+
+  function openAddUserModal() {
+    document.getElementById('modalAddUser').classList.remove('hidden');
+    document.getElementById('modalAddUser').classList.add('flex');
+  }
+
+  function closeAddUserModal() {
+    document.getElementById('modalAddUser').classList.add('hidden');
+    document.getElementById('modalAddUser').classList.remove('flex');
+  }
+
+  function handleSaveNewUser(e) {
+    e.preventDefault();
+    const newU = {
+      no: Date.now(),
+      nama: document.getElementById('newUserNama').value.trim(),
+      username: document.getElementById('newUserUsername').value.toLowerCase().trim(),
+      jabatan: document.getElementById('newUserJabatan').value,
+      status: "Aktif"
+    };
+
+    appUsers.push(newU);
+    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(appUsers));
+    renderUsersTable();
+    closeAddUserModal();
+    showToast(`Pengguna baru "${newU.nama}" berhasil didaftarkan!`);
+  }
     });
 
     // Apply BG
@@ -2905,6 +2924,7 @@
   /* DOM Content Loaded Initializer */
   window.addEventListener('DOMContentLoaded', () => {
     loadBranding();
+    syncActiveUserUI();
     populateClassDropdowns();
     updateLiveClock();
     setInterval(updateLiveClock, 1000);
