@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Informasi Kesiswaan SDIT Alia Nurul Jihadi</title>
   
-  <!-- Google Fonts: Plus Jakarta Sans for UI, Dancing Script & Caveat for cursive slogan -->
+  <!-- Google Fonts: Plus Jakarta Sans for UI, Dancing Script & Caveat for cursive script slogan -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
-  <!-- Font Awesome Icons -->
+  <!-- Font Awesome Icons CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   
   <!-- Tailwind CSS CDN with custom Purple Theme -->
@@ -49,10 +49,11 @@
   </script>
 
   <style>
+    /* Custom scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #faf5ff; }
     ::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+    ::-webkit-scrollbar-thumb:hover { background: #9333ea; }
 
     .font-slogan {
       font-family: 'Dancing Script', 'Caveat', cursive;
@@ -71,8 +72,8 @@
       content: '';
       position: absolute;
       inset: 0;
-      /* Elegant Royal Purple overlay gradient with soft shadow contrast */
-      background: linear-gradient(135deg, rgba(59, 7, 100, 0.92) 0%, rgba(88, 28, 135, 0.86) 45%, rgba(126, 34, 206, 0.78) 100%);
+      /* Royal Purple gradient overlay with soft contrast */
+      background: linear-gradient(135deg, rgba(59, 7, 100, 0.90) 0%, rgba(88, 28, 135, 0.84) 45%, rgba(126, 34, 206, 0.78) 100%);
       border-radius: inherit;
       z-index: 1;
       backdrop-filter: blur(1.5px);
@@ -105,16 +106,18 @@
   <div>
     <!-- Logo & Brand Header with Cursive Slogan -->
     <div class="p-4 border-b border-purple-50 flex items-center justify-between">
-      <div class="flex items-center space-x-3 cursor-pointer group relative" title="Klik untuk mengganti logo sekolah" onclick="triggerLogoUpload()">
+      <div class="flex items-center space-x-3 cursor-pointer group relative" title="SDIT Alia Nurul Jihadi" onclick="triggerLogoUpload()">
         <div class="relative w-12 h-12 flex-shrink-0 flex items-center justify-center p-1 bg-white rounded-2xl border border-brand-200 shadow-sm overflow-hidden">
-          <div id="schoolLogoContainer" class="w-full h-full flex items-center justify-center"></div>
+          <div id="schoolLogoContainer" class="w-full h-full flex items-center justify-center">
+            <!-- Will be dynamically populated with image fallback sequence -->
+          </div>
           <div class="absolute inset-0 bg-brand-950/60 text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
             <i class="fa-solid fa-camera text-xs"></i>
           </div>
         </div>
         <div class="min-w-0 flex-1">
           <h1 id="sidebarSchoolName" class="text-xs font-black text-brand-900 tracking-tight leading-tight uppercase truncate">SDIT Alia Nurul Jihadi</h1>
-          <p id="sidebarSchoolMotto" class="font-slogan text-xs text-brand-700 font-bold leading-tight mt-0.5 break-words">Mendidik Dengan Keakraban dan Kasih Sayang</p>
+          <p id="sidebarSchoolMotto" class="font-slogan text-sm text-brand-700 font-bold leading-tight mt-0.5 break-words">Mendidik Dengan Keakraban dan Kasih Sayang</p>
         </div>
       </div>
       <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-brand-900 p-1.5 rounded-lg">
@@ -154,7 +157,7 @@
       </button>
       <button onclick="navigateTo('kelas')" id="nav-kelas" class="nav-item w-full flex items-center px-3.5 py-2.5 font-semibold text-slate-600 hover:bg-brand-50 hover:text-brand-900 rounded-xl transition-all">
         <i class="fa-solid fa-chalkboard-user w-5 mr-3 text-center text-slate-400"></i>
-        <span>Data Kelas</span>
+        <span>Data Kelas (25 Rombel)</span>
       </button>
       <button onclick="navigateTo('pengguna')" id="nav-pengguna" class="nav-item w-full flex items-center px-3.5 py-2.5 font-semibold text-slate-600 hover:bg-brand-50 hover:text-brand-900 rounded-xl transition-all">
         <i class="fa-solid fa-user-shield w-5 mr-3 text-center text-slate-400"></i>
@@ -200,11 +203,11 @@
       <!-- Mobile school info shown when sidebar is closed -->
       <div class="md:hidden flex items-center space-x-2 truncate">
         <div class="w-8 h-8 rounded-lg bg-white border border-brand-200 flex-shrink-0 flex items-center justify-center p-0.5 overflow-hidden">
-          <img src="Logo SDIT Vektor.jpg" onerror="this.onerror=null; this.src='logo.png';" alt="Logo" class="w-full h-full object-contain">
+          <img src="Logo.jpg" onerror="this.onerror=null; this.src='Logo%20SDIT%20Vektor.png'; this.onerror=function(){this.src='logo.png';};" alt="Logo" class="w-full h-full object-contain">
         </div>
         <div class="truncate">
-          <p class="text-[11px] font-black text-brand-950 uppercase truncate">SDIT Alia Nurul Jihadi</p>
-          <p class="font-slogan text-[11px] text-brand-700 font-bold truncate">Mendidik Dengan Keakraban...</p>
+          <p class="text-[11px] font-black text-brand-950 uppercase truncate">SDIT ALIA NURUL JIHADI</p>
+          <p class="font-slogan text-xs text-brand-700 font-bold truncate">Mendidik Dengan Keakraban...</p>
         </div>
       </div>
 
@@ -247,7 +250,7 @@
       </div>
 
       <!-- Current User Profile Pill -->
-      <div class="flex items-center space-x-2.5 pl-2 border-l border-purple-100 cursor-pointer" onclick="navigateTo('pengguna')" title="Klik untuk mengelola Pengguna">
+      <div class="flex items-center space-x-2.5 pl-2 border-l border-purple-100 cursor-pointer" onclick="navigateTo('pengguna')" title="Klik untuk mengelola Akun Pengguna">
         <div class="w-9 h-9 rounded-full bg-brand-800 text-white flex items-center justify-center font-bold text-xs shadow-xs border-2 border-brand-400" id="headerAvatarText">
           RJ
         </div>
@@ -287,7 +290,7 @@
               </p>
             </div>
             
-            <!-- Hand-drawn cursive slogan -->
+            <!-- Hand-drawn cursive script slogan -->
             <div class="pt-2 border-l-4 border-purple-300 pl-4 py-1">
               <p id="bannerSchoolMotto" class="font-slogan text-2xl sm:text-3xl text-purple-100 tracking-wide drop-shadow-lg">
                 “Mendidik Dengan Keakraban dan Kasih Sayang”
@@ -295,7 +298,7 @@
             </div>
           </div>
 
-          <!-- Real-Time Digital Clock Widget -->
+          <!-- Real-Time Digital Clock Widget (WIB) -->
           <div class="lg:col-span-4 flex lg:justify-end">
             <div class="w-full sm:w-auto bg-brand-950/80 backdrop-blur-md border border-purple-300/30 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-2.5 min-w-[260px]">
               <div class="flex items-center justify-between text-white font-bold text-xs sm:text-sm border-b border-purple-300/20 pb-2">
@@ -336,7 +339,7 @@
             <div class="text-[11px] font-bold text-slate-400 uppercase">Jumlah Siswa</div>
             <div class="text-2xl font-black text-slate-800" id="dashCardTotalSiswa">325</div>
             <div class="text-[11px] font-bold text-brand-700 flex items-center mt-0.5">
-              <i class="fa-solid fa-arrow-trend-up mr-1 text-[10px]"></i> +5 baru
+              <i class="fa-solid fa-arrow-trend-up mr-1 text-[10px]"></i> Aktif 25 Rombel
             </div>
           </div>
         </div>
@@ -526,7 +529,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Presensi & Absensi Siswa</h2>
-          <p class="text-xs text-slate-500">Pencatatan kehadiran harian per rombel (25 kelas).</p>
+          <p class="text-xs text-slate-500">Pencatatan kehadiran harian per rombel (25 rombel belajar).</p>
         </div>
         <div class="flex space-x-2">
           <button onclick="markAllAttendance('H')" class="px-3.5 py-2 text-xs font-bold bg-brand-100 text-brand-900 rounded-xl hover:bg-brand-200 transition">
@@ -683,7 +686,7 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 8: DATA KELAS ================= -->
+    <!-- ================= VIEW 8: DATA KELAS (25 ROMBEL) ================= -->
     <section id="view-kelas" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -710,7 +713,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Akun Pengguna</h2>
-          <p class="text-xs text-slate-500">Kelola identitas pengguna. Klik ikon pensil untuk mengubah nama, gelar, dan akun aktif.</p>
+          <p class="text-xs text-slate-500">Kelola identitas pengguna. Klik ikon pensil untuk mengubah nama, gelar, dan peran pengguna aktif.</p>
         </div>
         <button onclick="openAddUserModal()" class="px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition space-x-2">
           <i class="fa-solid fa-user-plus"></i>
@@ -783,7 +786,7 @@
             </div>
             <div>
               <h3 class="text-sm font-bold text-slate-800">Logo Resmi Sekolah</h3>
-              <p class="text-xs text-slate-400">Logo hijau melingkar SDIT Alia Nurul Jihadi.</p>
+              <p class="text-xs text-slate-400">Logo asli 2D bulat hijau SDIT Alia Nurul Jihadi.</p>
             </div>
           </div>
 
@@ -1202,13 +1205,18 @@
 </div>
 
 <script>
-  /* ================= ASSET PATHS & OFFICIAL VECTOR EMBED ================= */
-  // Direct file references to the uploaded images in GitHub repo
-  const REPO_LOGO_FILE = 'Logo SDIT Vektor.jpg';
-  const REPO_LOGO_ALT = 'logo.png';
+  /* ================= PURGE LEGACY OVERRIDES ================= */
+  // Strictly prevent any old cached base64 logo from overriding the user's authentic logo
+  try {
+    localStorage.removeItem('school_logo');
+    localStorage.removeItem('custom_logo');
+    localStorage.removeItem('sdit_custom_logo_data_v6');
+  } catch(e) {}
+
+  /* ================= ASSET PATHS & VECTOR FALLBACK ================= */
   const REPO_BUILDING_FILE = 'Gedung Sekolah SDIT.jpg';
 
-  // Exact green-white vector replica of SDIT Alia Nurul Jihadi circular emblem
+  // Exact green & white 2D flat emblem replica for SDIT Alia Nurul Jihadi
   const OFFICIAL_SDIT_LOGO_SVG = `
     <svg class="w-full h-full" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="150" cy="150" r="142" fill="#719441" stroke="#5d7b34" stroke-width="4"/>
@@ -1226,20 +1234,16 @@
         <line x1="82" y1="120" x2="65" y2="108"/>
         <line x1="218" y1="120" x2="235" y2="108"/>
       </g>
-      <!-- Mosque Domes and Minarets -->
+      <!-- Mosque Dome & Minarets -->
       <g fill="#ffffff">
-        <!-- Center Dome -->
         <path d="M125 150 C125 105 150 90 150 90 C150 90 175 105 175 150 Z"/>
-        <!-- Left Minaret Dome -->
         <path d="M85 160 C85 130 105 120 105 120 C105 120 120 130 120 160 Z"/>
-        <!-- Right Minaret Dome -->
         <path d="M180 160 C180 130 195 120 195 120 C195 120 215 130 215 160 Z"/>
-        <!-- Pen / Feather -->
         <path d="M165 145 L195 105 C198 100 205 102 202 108 L175 152 Z" opacity="0.95"/>
       </g>
-      <!-- Holy Quran Open Book Base -->
+      <!-- Open Book -->
       <path d="M150 175 C120 155 75 160 70 182 C95 190 135 190 150 202 C165 190 205 190 230 182 C225 160 180 155 150 175 Z" fill="#ffffff"/>
-      <!-- Ribbon Banner at Bottom -->
+      <!-- Bottom Ribbon -->
       <g>
         <path d="M30 210 L65 185 L85 220 L150 225 L215 220 L235 185 L270 210 L250 255 L150 270 L50 255 Z" fill="#ffffff" stroke="#719441" stroke-width="4"/>
         <path d="M60 200 Q150 212 240 200 L228 245 Q150 258 72 245 Z" fill="#719441"/>
@@ -1256,11 +1260,10 @@
     tagline: "Mendidik Dengan Keakraban dan Kasih Sayang"
   };
 
-  const STORAGE_KEY_LOGO = 'sdit_custom_logo_data_v6';
-  const STORAGE_KEY_BG = 'sdit_custom_bg_building_v6';
-  const STORAGE_KEY_CONFIG = 'sdit_school_config_v6';
-  const STORAGE_KEY_USERS = 'sdit_users_v6';
-  const STORAGE_KEY_CURRENT_USER = 'sdit_current_user_v6';
+  const STORAGE_KEY_BG = 'sdit_custom_bg_building_v7';
+  const STORAGE_KEY_CONFIG = 'sdit_school_config_v7';
+  const STORAGE_KEY_USERS = 'sdit_users_v7';
+  const STORAGE_KEY_CURRENT_USER = 'sdit_current_user_v7';
 
   const ALL_25_CLASSES = [
     { id: '1A', tingkat: 1, nama: 'Kelas 1 - Abu Bakar', wali: 'Usth. Sarah, S. Pd', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 1' },
@@ -1325,14 +1328,14 @@
   ];
 
   /* State Store */
-  let students = JSON.parse(localStorage.getItem('sdit_students_v6')) || initialStudents;
+  let students = JSON.parse(localStorage.getItem('sdit_students_v7')) || initialStudents;
   let classes = ALL_25_CLASSES;
   let currentClassFilterLevel = 'ALL';
-  let attendanceStore = JSON.parse(localStorage.getItem('sdit_attendance_v6')) || {};
-  let violations = JSON.parse(localStorage.getItem('sdit_viol_v6')) || initialViolations;
-  let prestasis = JSON.parse(localStorage.getItem('sdit_prestasi_v6')) || initialPrestasi;
-  let izinList = JSON.parse(localStorage.getItem('sdit_izin_v6')) || initialIzin;
-  let bkNotes = JSON.parse(localStorage.getItem('sdit_bk_v6')) || initialBK;
+  let attendanceStore = JSON.parse(localStorage.getItem('sdit_attendance_v7')) || {};
+  let violations = JSON.parse(localStorage.getItem('sdit_viol_v7')) || initialViolations;
+  let prestasis = JSON.parse(localStorage.getItem('sdit_prestasi_v7')) || initialPrestasi;
+  let izinList = JSON.parse(localStorage.getItem('sdit_izin_v7')) || initialIzin;
+  let bkNotes = JSON.parse(localStorage.getItem('sdit_bk_v7')) || initialBK;
   let appUsers = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || defaultUsers;
   let currentActiveUser = JSON.parse(localStorage.getItem(STORAGE_KEY_CURRENT_USER)) || appUsers[0];
 </script>
@@ -1422,7 +1425,7 @@
     }, 2500);
   };
 
-  /* BRANDING, SLOGAN & USER PERSONA */
+  /* USER PROFILE & SYNCHRONIZATION */
   window.syncActiveUserUI = function() {
     if (!currentActiveUser) {
       currentActiveUser = appUsers[0] || { nama: "Riandy Julfriamdony, S. Kom", jabatan: "Administrator" };
@@ -1441,15 +1444,21 @@
     }
   };
 
+  /* BRANDING, MOTTO & IMAGE LOADER */
   window.loadBranding = function() {
-    const savedLogo = localStorage.getItem(STORAGE_KEY_LOGO);
     const savedBg = localStorage.getItem(STORAGE_KEY_BG);
     const schoolConfig = JSON.parse(localStorage.getItem(STORAGE_KEY_CONFIG)) || DEFAULT_SCHOOL_CONFIG;
 
-    // Resilient logo renderer with cascaded fallback: Saved Base64 -> Uploaded 'Logo SDIT Vektor.jpg' -> 'logo.png' -> SVG vector
-    const logoHtml = savedLogo
-      ? `<img src="${savedLogo}" alt="Logo SDIT" class="w-full h-full object-contain">`
-      : `<img src="${REPO_LOGO_FILE}" alt="Logo SDIT" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='${REPO_LOGO_ALT}'; this.onerror=function(){ this.outerHTML=\`${OFFICIAL_SDIT_LOGO_SVG.replace(/"/g, "'")}\`; };">`;
+    // Strict cascaded image loader for the authentic flat green-and-white school logo:
+    // Tries 'Logo.jpg' -> 'Logo SDIT Vektor.png' -> 'Logo%20SDIT%20Vektor.png' -> 'logo.png' -> Clean SVG vector
+    const logoHtml = `
+      <img 
+        src="Logo.jpg" 
+        alt="Logo SDIT Alia Nurul Jihadi" 
+        class="w-full h-full object-contain"
+        onerror="this.onerror=null; this.src='Logo%20SDIT%20Vektor.png'; this.onerror=function(){ this.src='logo.png'; this.onerror=function(){ this.outerHTML=\`${OFFICIAL_SDIT_LOGO_SVG.replace(/"/g, "'")}\`; }; };"
+      />
+    `;
 
     const logoContainers = [
       document.getElementById('schoolLogoContainer'),
@@ -1460,7 +1469,7 @@
       if (container) container.innerHTML = logoHtml;
     });
 
-    // Building background with soft shadow overlay
+    // School building background banner with purple overlay and soft shadows
     const heroBanner = document.getElementById('heroBannerElement');
     const settingsBgPreview = document.getElementById('settingsBgPreview');
     const bgUrl = savedBg || REPO_BUILDING_FILE;
@@ -1483,7 +1492,7 @@
     setTxt('footerSchoolName', schoolConfig.name);
     setTxt('printHeaderSchoolName', schoolConfig.name.toUpperCase());
     
-    // Setting strictly cursive slogan
+    // Setting strictly cursive handwriting slogan
     const bannerSloganEl = document.getElementById('bannerSchoolMotto');
     if (bannerSloganEl) bannerSloganEl.textContent = `“${officialSlogan}”`;
     
@@ -1520,21 +1529,21 @@
     }
     const reader = new FileReader();
     reader.onload = function(e) {
-      try {
-        localStorage.setItem(STORAGE_KEY_LOGO, e.target.result);
-        window.loadBranding();
-        window.showToast('Logo resmi berhasil disimpan!');
-      } catch (err) {
-        window.showToast('Gagal menyimpan gambar di memori browser.', false);
-      }
+      const containers = [
+        document.getElementById('schoolLogoContainer'),
+        document.getElementById('settingsLogoPreview')
+      ];
+      containers.forEach(c => {
+        if (c) c.innerHTML = `<img src="${e.target.result}" alt="Logo SDIT" class="w-full h-full object-contain">`;
+      });
+      window.showToast('Pratinjau logo lokal berhasil ditampilkan!');
     };
     reader.readAsDataURL(file);
   };
 
   window.resetToDefaultLogo = function() {
-    localStorage.removeItem(STORAGE_KEY_LOGO);
     window.loadBranding();
-    window.showToast('Menggunakan berkas logo bawaan sekolah!');
+    window.showToast('Menggunakan berkas logo resmi bawaan sekolah!');
   };
 
   window.triggerBgUpload = function() {
@@ -1801,7 +1810,7 @@
     };
 
     students.unshift(newStudent);
-    localStorage.setItem('sdit_students_v6', JSON.stringify(students));
+    localStorage.setItem('sdit_students_v7', JSON.stringify(students));
     window.renderStudentTable();
     window.closeAddStudentModal();
     window.loadBranding();
@@ -1810,7 +1819,7 @@
 
   window.deleteStudent = function(id) {
     students = students.filter(s => s.id !== id);
-    localStorage.setItem('sdit_students_v6', JSON.stringify(students));
+    localStorage.setItem('sdit_students_v7', JSON.stringify(students));
     window.renderStudentTable();
     window.loadBranding();
     window.showToast('Data santri berhasil dihapus.');
@@ -1878,7 +1887,7 @@
 
   window.setStudentAtt = function(key, status) {
     attendanceStore[key] = status;
-    localStorage.setItem('sdit_attendance_v6', JSON.stringify(attendanceStore));
+    localStorage.setItem('sdit_attendance_v7', JSON.stringify(attendanceStore));
     window.renderAttendanceSheet();
   };
 
@@ -1888,7 +1897,7 @@
     students.filter(s => s.kelas === selectedClass).forEach(st => {
       attendanceStore[`${date}_${st.id}`] = status;
     });
-    localStorage.setItem('sdit_attendance_v6', JSON.stringify(attendanceStore));
+    localStorage.setItem('sdit_attendance_v7', JSON.stringify(attendanceStore));
     window.renderAttendanceSheet();
     window.showToast(`Seluruh kelas ${selectedClass} ditandai Hadir.`);
   };
@@ -2007,7 +2016,7 @@
       tindakLanjut: document.getElementById('violTindakLanjut').value,
       status: "Selesai"
     });
-    localStorage.setItem('sdit_viol_v6', JSON.stringify(violations));
+    localStorage.setItem('sdit_viol_v7', JSON.stringify(violations));
     window.renderViolationsTable();
     window.closeAddViolationModal();
     window.showToast(`Pelanggaran santri ${nama} dicatat.`);
@@ -2015,7 +2024,7 @@
 
   window.deleteViolation = function(id) {
     violations = violations.filter(v => v.id !== id);
-    localStorage.setItem('sdit_viol_v6', JSON.stringify(violations));
+    localStorage.setItem('sdit_viol_v7', JSON.stringify(violations));
     window.renderViolationsTable();
     window.showToast('Catatan pelanggaran dihapus.');
   };
@@ -2068,7 +2077,7 @@
       tahun: "2026",
       icon: "fa-trophy"
     });
-    localStorage.setItem('sdit_prestasi_v6', JSON.stringify(prestasis));
+    localStorage.setItem('sdit_prestasi_v7', JSON.stringify(prestasis));
     window.renderPrestasiCards();
     window.closeAddPrestasiModal();
     window.showToast('Prestasi santri dicatat!');
@@ -2076,7 +2085,7 @@
 
   window.deletePrestasi = function(id) {
     prestasis = prestasis.filter(p => p.id !== id);
-    localStorage.setItem('sdit_prestasi_v6', JSON.stringify(prestasis));
+    localStorage.setItem('sdit_prestasi_v7', JSON.stringify(prestasis));
     window.renderPrestasiCards();
     window.showToast('Data prestasi dihapus.');
   };
@@ -2131,7 +2140,7 @@
       durasi: document.getElementById('izinDurasi').value,
       status: "Disetujui"
     });
-    localStorage.setItem('sdit_izin_v6', JSON.stringify(izinList));
+    localStorage.setItem('sdit_izin_v7', JSON.stringify(izinList));
     window.renderIzinTable();
     window.closeAddIzinModal();
     window.showToast(`Surat izin untuk ${nama} diterbitkan.`);
@@ -2201,7 +2210,7 @@
       catatan: document.getElementById('bkCatatanText').value,
       status: "Dalam Pembinaan"
     });
-    localStorage.setItem('sdit_bk_v6', JSON.stringify(bkNotes));
+    localStorage.setItem('sdit_bk_v7', JSON.stringify(bkNotes));
     window.renderBKList();
     document.getElementById('bkCatatanText').value = '';
     window.showToast(`Catatan konseling santri ${nama} disimpan.`);
@@ -2341,11 +2350,11 @@
     reader.onload = function(e) {
       try {
         const data = JSON.parse(e.target.result);
-        if (data.students) localStorage.setItem('sdit_students_v6', JSON.stringify(data.students));
-        if (data.violations) localStorage.setItem('sdit_viol_v6', JSON.stringify(data.violations));
-        if (data.prestasis) localStorage.setItem('sdit_prestasi_v6', JSON.stringify(data.prestasis));
-        if (data.izinList) localStorage.setItem('sdit_izin_v6', JSON.stringify(data.izinList));
-        if (data.bkNotes) localStorage.setItem('sdit_bk_v6', JSON.stringify(data.bkNotes));
+        if (data.students) localStorage.setItem('sdit_students_v7', JSON.stringify(data.students));
+        if (data.violations) localStorage.setItem('sdit_viol_v7', JSON.stringify(data.violations));
+        if (data.prestasis) localStorage.setItem('sdit_prestasi_v7', JSON.stringify(data.prestasis));
+        if (data.izinList) localStorage.setItem('sdit_izin_v7', JSON.stringify(data.izinList));
+        if (data.bkNotes) localStorage.setItem('sdit_bk_v7', JSON.stringify(data.bkNotes));
         if (data.users) localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(data.users));
         if (data.currentUser) localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(data.currentUser));
         if (data.config) localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(data.config));
@@ -2388,7 +2397,7 @@
     }
   };
 
-  /* ================= REAL-TIME CLOCK ================= */
+  /* ================= REAL-TIME CLOCK (WIB) ================= */
   window.updateLiveClock = function() {
     const now = new Date();
     const optionsDate = {
