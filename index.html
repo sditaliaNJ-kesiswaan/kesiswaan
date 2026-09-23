@@ -13,15 +13,17 @@
   <!-- Font Awesome Icons CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   
-  <!-- Tailwind CSS CDN with custom Purple Theme -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- SheetJS CDN for importing & exporting Excel files -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -45,7 +47,7 @@
           }
         }
       }
-    }
+    };
   </script>
 
   <style>
@@ -72,7 +74,6 @@
       content: '';
       position: absolute;
       inset: 0;
-      /* Royal Purple gradient overlay with soft contrast */
       background: linear-gradient(135deg, rgba(59, 7, 100, 0.90) 0%, rgba(88, 28, 135, 0.84) 45%, rgba(126, 34, 206, 0.78) 100%);
       border-radius: inherit;
       z-index: 1;
@@ -89,17 +90,17 @@
       .no-print { display: none !important; }
       .print-only { display: block !important; }
       body { background: white !important; }
-      #printAreaContainer { display: block !important; }
     }
-    .print-only { display: none; }
   </style>
 </head>
+
 <body class="bg-[#F8F5FF] text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
 <!-- Hidden File Inputs -->
 <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
 <input type="file" id="bgFileInput" accept="image/*" class="hidden" onchange="handleBgUpload(event)">
 <input type="file" id="backupFileInput" accept=".json" class="hidden" onchange="handleRestoreBackup(event)">
+<input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelStudentImport(event)">
 
 <!-- SIDEBAR NAVIGATION -->
 <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-72 bg-white border-r border-purple-100 flex flex-col justify-between transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-xl md:shadow-none flex-shrink-0">
@@ -107,10 +108,8 @@
     <!-- Logo & Brand Header with Cursive Slogan -->
     <div class="p-4 border-b border-purple-50 flex items-center justify-between">
       <div class="flex items-center space-x-3 cursor-pointer group relative" title="SDIT Alia Nurul Jihadi" onclick="triggerLogoUpload()">
-        <div class="relative w-12 h-12 flex-shrink-0 flex items-center justify-center p-1 bg-white rounded-2xl border border-brand-200 shadow-sm overflow-hidden">
-          <div id="schoolLogoContainer" class="w-full h-full flex items-center justify-center">
-            <!-- Will be dynamically populated with image fallback sequence -->
-          </div>
+        <div class="relative w-12 h-12 flex-shrink-0 flex items-center justify-center p-0.5 bg-white rounded-2xl border border-brand-200 shadow-sm overflow-hidden">
+          <div id="schoolLogoContainer" class="w-full h-full flex items-center justify-center"></div>
           <div class="absolute inset-0 bg-brand-950/60 text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
             <i class="fa-solid fa-camera text-xs"></i>
           </div>
@@ -190,7 +189,6 @@
   </div>
 </aside>
 
-<!-- MAIN CONTENT WRAPPER -->
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
   
   <!-- TOP NAVBAR -->
@@ -202,9 +200,7 @@
       
       <!-- Mobile school info shown when sidebar is closed -->
       <div class="md:hidden flex items-center space-x-2 truncate">
-        <div class="w-8 h-8 rounded-lg bg-white border border-brand-200 flex-shrink-0 flex items-center justify-center p-0.5 overflow-hidden">
-          <img src="Logo.jpg" onerror="this.onerror=null; this.src='Logo%20SDIT%20Vektor.png'; this.onerror=function(){this.src='logo.png';};" alt="Logo" class="w-full h-full object-contain">
-        </div>
+        <div id="mobileLogoHolder" class="w-8 h-8 rounded-lg bg-white border border-brand-200 flex-shrink-0 flex items-center justify-center p-0.5 overflow-hidden"></div>
         <div class="truncate">
           <p class="text-[11px] font-black text-brand-950 uppercase truncate">SDIT ALIA NURUL JIHADI</p>
           <p class="font-slogan text-xs text-brand-700 font-bold truncate">Mendidik Dengan Keakraban...</p>
@@ -227,30 +223,8 @@
         <span class="hidden sm:inline">Ganti Logo</span>
       </button>
 
-      <!-- Notification Bell -->
-      <div class="relative">
-        <button onclick="toggleNotifications()" class="p-2 text-slate-600 hover:text-brand-900 hover:bg-brand-50 rounded-xl relative transition">
-          <i class="fa-regular fa-bell text-base"></i>
-          <span class="absolute top-1.5 right-1.5 w-4 h-4 bg-brand-600 text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-white">2</span>
-        </button>
-        <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-purple-100 py-2 z-50 text-xs">
-          <div class="px-4 py-2 border-b border-purple-50 font-bold text-slate-800 flex justify-between items-center">
-            <span>Pemberitahuan Sistem</span>
-            <span onclick="showToast('Semua notifikasi ditandai dibaca')" class="text-brand-700 text-[10px] cursor-pointer hover:underline font-bold">Tandai Dibaca</span>
-          </div>
-          <div class="p-3 hover:bg-brand-50/50 border-b border-purple-50 cursor-pointer" onclick="navigateTo('perizinan')">
-            <p class="font-bold text-slate-800">Izin Masuk Siswa</p>
-            <p class="text-slate-500 text-[11px] mt-0.5">Siti Aisyah (Kelas 1B) mengajukan izin sakit.</p>
-          </div>
-          <div class="p-3 hover:bg-brand-50/50 cursor-pointer" onclick="navigateTo('bk')">
-            <p class="font-bold text-slate-800">Bimbingan Akhlak Santri</p>
-            <p class="text-slate-500 text-[11px] mt-0.5">Sesi konsultasi wali santri pkl 08.30 WIB.</p>
-          </div>
-        </div>
-      </div>
-
       <!-- Current User Profile Pill -->
-      <div class="flex items-center space-x-2.5 pl-2 border-l border-purple-100 cursor-pointer" onclick="navigateTo('pengguna')" title="Klik untuk mengelola Akun Pengguna">
+      <div class="flex items-center space-x-2.5 pl-2 border-l border-purple-100 cursor-pointer" onclick="navigateTo('pengguna')" title="Kelola Akun Pengguna">
         <div class="w-9 h-9 rounded-full bg-brand-800 text-white flex items-center justify-center font-bold text-xs shadow-xs border-2 border-brand-400" id="headerAvatarText">
           RJ
         </div>
@@ -268,10 +242,9 @@
   <!-- MAIN SCROLLABLE CONTAINER -->
   <main class="flex-1 overflow-y-auto p-4 md:p-7 space-y-6">
     
-    <!-- ================= VIEW 1: DASHBOARD ================= -->
     <section id="view-dashboard" class="view-panel space-y-6 block">
       
-      <!-- HERO BANNER WITH SCHOOL BUILDING PHOTO & SOFT SHADOW PURPLE OVERLAY -->
+      <!-- HERO BANNER WITH SCHOOL BUILDING PHOTO & PURPLE OVERLAY -->
       <div id="heroBannerElement" class="hero-building-banner rounded-3xl p-6 md:p-8 text-white relative overflow-hidden">
         <div class="hero-content grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
@@ -337,7 +310,7 @@
           </div>
           <div>
             <div class="text-[11px] font-bold text-slate-400 uppercase">Jumlah Siswa</div>
-            <div class="text-2xl font-black text-slate-800" id="dashCardTotalSiswa">325</div>
+            <div class="text-2xl font-black text-slate-800" id="dashCardTotalSiswa">0</div>
             <div class="text-[11px] font-bold text-brand-700 flex items-center mt-0.5">
               <i class="fa-solid fa-arrow-trend-up mr-1 text-[10px]"></i> Aktif 25 Rombel
             </div>
@@ -350,8 +323,8 @@
           </div>
           <div>
             <div class="text-[11px] font-bold text-slate-400 uppercase">Hadir Hari Ini</div>
-            <div class="text-2xl font-black text-slate-800">298</div>
-            <div class="text-[11px] font-semibold text-emerald-700">91,7% hadir</div>
+            <div class="text-2xl font-black text-slate-800" id="dashCardHadir">0</div>
+            <div class="text-[11px] font-semibold text-emerald-700" id="dashCardHadirPercent">100% hadir</div>
           </div>
         </div>
 
@@ -361,8 +334,8 @@
           </div>
           <div>
             <div class="text-[11px] font-bold text-slate-400 uppercase">Sakit</div>
-            <div class="text-2xl font-black text-slate-800">12</div>
-            <div class="text-[11px] font-semibold text-amber-600">3,7% santri</div>
+            <div class="text-2xl font-black text-slate-800" id="dashCardSakit">0</div>
+            <div class="text-[11px] font-semibold text-amber-600">Santri sakit</div>
           </div>
         </div>
 
@@ -372,8 +345,8 @@
           </div>
           <div>
             <div class="text-[11px] font-bold text-slate-400 uppercase">Izin</div>
-            <div class="text-2xl font-black text-slate-800">8</div>
-            <div class="text-[11px] font-semibold text-purple-700">2,5% surat</div>
+            <div class="text-2xl font-black text-slate-800" id="dashCardIzin">0</div>
+            <div class="text-[11px] font-semibold text-purple-700">Surat dispensasi</div>
           </div>
         </div>
 
@@ -383,8 +356,8 @@
           </div>
           <div>
             <div class="text-[11px] font-bold text-slate-400 uppercase">Alfa</div>
-            <div class="text-2xl font-black text-slate-800">7</div>
-            <div class="text-[11px] font-semibold text-rose-600">2,1% tanpa ket.</div>
+            <div class="text-2xl font-black text-slate-800" id="dashCardAlfa">0</div>
+            <div class="text-[11px] font-semibold text-rose-600">Tanpa keterangan</div>
           </div>
         </div>
       </div>
@@ -416,18 +389,18 @@
           <div class="relative my-3 flex items-center justify-center h-48">
             <canvas id="genderChart"></canvas>
             <div class="absolute text-center pointer-events-none">
-              <span class="text-2xl font-black text-slate-800 block" id="dashTotalStudentsGender">325</span>
+              <span class="text-2xl font-black text-slate-800 block" id="dashTotalStudentsGender">0</span>
               <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Siswa</span>
             </div>
           </div>
           <div class="space-y-1.5 text-xs">
             <div class="flex justify-between items-center text-slate-600">
               <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-brand-700 mr-2"></span> Laki-laki</span>
-              <span class="font-bold">170 <span class="text-slate-400 font-normal">(52,3%)</span></span>
+              <span class="font-bold" id="dashCountL">0</span>
             </div>
             <div class="flex justify-between items-center text-slate-600">
               <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-pink-400 mr-2"></span> Perempuan</span>
-              <span class="font-bold">155 <span class="text-slate-400 font-normal">(47,7%)</span></span>
+              <span class="font-bold" id="dashCountP">0</span>
             </div>
           </div>
         </div>
@@ -440,41 +413,55 @@
           <div class="relative my-3 flex items-center justify-center h-48">
             <canvas id="statusChart"></canvas>
             <div class="absolute text-center pointer-events-none">
-              <span class="text-2xl font-black text-slate-800 block">325</span>
+              <span class="text-2xl font-black text-slate-800 block" id="dashTotalStudentsStatus">0</span>
               <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total</span>
             </div>
           </div>
           <div class="space-y-1 text-xs">
             <div class="flex justify-between items-center text-slate-600">
               <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-brand-600 mr-2"></span> Aktif</span>
-              <span class="font-bold">310 (95,4%)</span>
+              <span class="font-bold" id="dashCountAktif">0</span>
             </div>
             <div class="flex justify-between items-center text-slate-600">
               <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-cyan-500 mr-2"></span> Pindah</span>
-              <span class="font-bold">8 (2,5%)</span>
+              <span class="font-bold" id="dashCountPindah">0</span>
             </div>
             <div class="flex justify-between items-center text-slate-600">
               <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2"></span> Lulus</span>
-              <span class="font-bold">5 (1,5%)</span>
+              <span class="font-bold" id="dashCountLulus">0</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= VIEW 2: DATA SISWA ================= -->
     <section id="view-siswa" class="view-panel space-y-6 hidden">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Data Siswa</h2>
-          <p class="text-xs text-slate-500">Kelola data siswa aktif, pindah, maupun alumni SDIT Alia Nurul Jihadi.</p>
+          <p class="text-xs text-slate-500">Kelola data santri SDIT Alia Nurul Jihadi secara manual atau impor massal melalui file Excel/CSV.</p>
         </div>
-        <button onclick="openAddStudentModal()" class="inline-flex items-center justify-center px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition space-x-2">
-          <i class="fa-solid fa-user-plus"></i>
-          <span>Tambah Siswa</span>
-        </button>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="downloadExcelTemplate()" class="inline-flex items-center justify-center px-3.5 py-2.5 bg-white border border-purple-200 hover:bg-purple-50 text-brand-900 text-xs font-bold rounded-xl shadow-xs transition space-x-2" title="Unduh Format Template Excel untuk diisi">
+            <i class="fa-solid fa-file-arrow-down text-brand-700"></i>
+            <span>Download Format Template</span>
+          </button>
+
+          <button onclick="triggerExcelImport()" class="inline-flex items-center justify-center px-3.5 py-2.5 bg-brand-100 hover:bg-brand-200 border border-brand-300 text-brand-950 text-xs font-bold rounded-xl shadow-xs transition space-x-2" title="Upload file Excel (.xlsx) atau CSV">
+            <i class="fa-solid fa-file-excel text-emerald-700 text-sm"></i>
+            <span>Upload Excel / CSV</span>
+          </button>
+
+          <button onclick="openAddStudentModal()" class="inline-flex items-center justify-center px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition space-x-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>+ Tambah Siswa</span>
+          </button>
+        </div>
       </div>
 
+      <!-- Filters Toolbar -->
       <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
         <div class="relative w-full md:w-80">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -499,20 +486,21 @@
         </div>
       </div>
 
+      <!-- Students Table -->
       <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs text-slate-600">
             <thead class="bg-purple-50/80 text-brand-950 font-bold uppercase tracking-wider border-b border-purple-100 text-[11px]">
               <tr>
                 <th class="py-3.5 px-4 w-12 text-center">No</th>
-                <th class="py-3.5 px-4 w-14">Foto</th>
                 <th class="py-3.5 px-4">NIS</th>
                 <th class="py-3.5 px-4">NISN</th>
-                <th class="py-3.5 px-4">Nama Siswa</th>
+                <th class="py-3.5 px-4">Nama Lengkap Siswa</th>
                 <th class="py-3.5 px-4">Kelas</th>
                 <th class="py-3.5 px-4 text-center">JK</th>
+                <th class="py-3.5 px-4">Alamat Domisili</th>
                 <th class="py-3.5 px-4 text-center">Status</th>
-                <th class="py-3.5 px-4 text-center w-28">Aksi</th>
+                <th class="py-3.5 px-4 text-center w-24">Aksi</th>
               </tr>
             </thead>
             <tbody id="studentTableBody" class="divide-y divide-purple-50"></tbody>
@@ -524,12 +512,11 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 3: ABSENSI ================= -->
     <section id="view-absensi" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Presensi & Absensi Siswa</h2>
-          <p class="text-xs text-slate-500">Pencatatan kehadiran harian per rombel (25 rombel belajar).</p>
+          <p class="text-xs text-slate-500">Pencatatan kehadiran harian santri per rombel (25 rombel belajar).</p>
         </div>
         <div class="flex space-x-2">
           <button onclick="markAllAttendance('H')" class="px-3.5 py-2 text-xs font-bold bg-brand-100 text-brand-900 rounded-xl hover:bg-brand-200 transition">
@@ -573,7 +560,6 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 4: PELANGGARAN ================= -->
     <section id="view-pelanggaran" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -597,7 +583,6 @@
               <th class="py-3 px-4 text-center">Poin</th>
               <th class="py-3 px-4">Tindak Lanjut</th>
               <th class="py-3 px-4 text-center">Status</th>
-              <th class="py-3 px-4 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody id="violationLogBody" class="divide-y divide-purple-50"></tbody>
@@ -605,7 +590,6 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 5: PRESTASI ================= -->
     <section id="view-prestasi" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -620,12 +604,11 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="prestasiCardsContainer"></div>
     </section>
 
-    <!-- ================= VIEW 6: PERIZINAN ================= -->
     <section id="view-perizinan" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Perizinan & Dispensasi Santri</h2>
-          <p class="text-xs text-slate-500">Penerbitan surat izin santri dan cetak administrasi sekolah.</p>
+          <p class="text-xs text-slate-500">Penerbitan surat izin santri dan administrasi sekolah.</p>
         </div>
         <button onclick="openAddIzinModal()" class="px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow">
           <i class="fa-solid fa-plus mr-1.5"></i> Buat Surat Izin
@@ -641,7 +624,6 @@
               <th class="py-3 px-4">Jenis Izin</th>
               <th class="py-3 px-4">Durasi / Tanggal</th>
               <th class="py-3 px-4">Status</th>
-              <th class="py-3 px-4 text-center">Cetak</th>
             </tr>
           </thead>
           <tbody id="izinTableBody" class="divide-y divide-purple-50"></tbody>
@@ -649,16 +631,12 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 7: BK / KONSELING ================= -->
     <section id="view-bk" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Bimbingan & Konseling (BK)</h2>
           <p class="text-xs text-slate-500">Membina santri dengan keakraban, kasih sayang, dan pendampingan wali.</p>
         </div>
-        <button onclick="openPanggilanOrtuModal()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow">
-          <i class="fa-solid fa-envelope mr-1.5"></i> Panggilan Wali Santri
-        </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm">
@@ -686,7 +664,6 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 8: DATA KELAS (25 ROMBEL) ================= -->
     <section id="view-kelas" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -708,12 +685,11 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="kelasListContainer"></div>
     </section>
 
-    <!-- ================= VIEW 9: PENGGUNA ================= -->
     <section id="view-pengguna" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Akun Pengguna</h2>
-          <p class="text-xs text-slate-500">Kelola identitas pengguna. Klik ikon pensil untuk mengubah nama, gelar, dan peran pengguna aktif.</p>
+          <p class="text-xs text-slate-500">Kelola identitas pengguna. Klik ikon pensil untuk mengubah nama, gelar, dan peran akun aktif.</p>
         </div>
         <button onclick="openAddUserModal()" class="px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition space-x-2">
           <i class="fa-solid fa-user-plus"></i>
@@ -740,7 +716,6 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 10: LAPORAN ================= -->
     <section id="view-laporan" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -750,11 +725,11 @@
         <div class="flex space-x-2">
           <button onclick="exportToExcel()" class="px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow transition flex items-center space-x-1.5">
             <i class="fa-solid fa-file-excel"></i>
-            <span>Export CSV</span>
+            <span>Export Excel</span>
           </button>
-          <button onclick="printReport()" class="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-xl shadow transition flex items-center space-x-1.5">
+          <button onclick="window.print()" class="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-xl shadow transition flex items-center space-x-1.5">
             <i class="fa-solid fa-file-pdf"></i>
-            <span>Cetak Laporan</span>
+            <span>Cetak Dokumen</span>
           </button>
         </div>
       </div>
@@ -770,7 +745,6 @@
       </div>
     </section>
 
-    <!-- ================= VIEW 11: PENGATURAN ================= -->
     <section id="view-pengaturan" class="view-panel space-y-6 hidden">
       <div>
         <h2 class="text-2xl font-black text-slate-800">Pengaturan Sekolah & Branding</h2>
@@ -797,7 +771,7 @@
             <div class="space-y-2.5 w-full">
               <button onclick="triggerLogoUpload()" class="w-full py-2.5 px-4 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow transition flex items-center justify-center space-x-2">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Unggah Logo Kustom (Lokal)</span>
+                <span>Unggah Logo Kustom</span>
               </button>
               <button onclick="resetToDefaultLogo()" class="w-full py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-brand-900 text-xs font-bold rounded-xl transition flex items-center justify-center space-x-2">
                 <i class="fa-solid fa-rotate-left"></i>
@@ -814,7 +788,7 @@
               <i class="fa-solid fa-building-columns"></i>
             </div>
             <div>
-              <h3 class="text-sm font-bold text-slate-800">Foto Gedung Sekolah (Berbayang)</h3>
+              <h3 class="text-sm font-bold text-slate-800">Foto Gedung Sekolah</h3>
               <p class="text-xs text-slate-400">Latar gedung SDIT dengan efek bayangan dan gradien ungu transparan.</p>
             </div>
           </div>
@@ -885,9 +859,61 @@
   </footer>
 </div>
 
-<!-- ================= MODALS ================= -->
 
-<!-- MODAL EDIT PENGGUNA (ACCESSIBLE VIA PENCIL BUTTON) -->
+<!-- 1. MODAL TAMBAH SISWA MANUAL -->
+<div id="modalAddSiswa" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in duration-150 border border-purple-100">
+    <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
+      <h3 class="font-bold text-sm">Tambah Siswa Baru</h3>
+      <button onclick="closeAddStudentModal()" class="text-white hover:text-purple-200">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+    <form onsubmit="handleSaveManualStudent(event)" class="p-6 space-y-4 text-xs">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">NIS*</label>
+          <input type="text" id="manualSiswaNIS" required placeholder="Contoh: 12006" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">NISN*</label>
+          <input type="text" id="manualSiswaNISN" required placeholder="Contoh: 001239999" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-mono text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa*</label>
+        <input type="text" id="manualSiswaNama" required placeholder="Nama lengkap santri" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Kelas*</label>
+          <select id="manualSiswaKelas" required class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-semibold text-slate-700 focus:ring-2 focus:ring-brand-500 focus:outline-none"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Jenis Kelamin*</label>
+          <select id="manualSiswaJK" required class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-semibold text-slate-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <option value="L">Laki-laki (L)</option>
+            <option value="P">Perempuan (P)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Alamat Domisili</label>
+        <input type="text" id="manualSiswaAlamat" placeholder="Alamat tempat tinggal lengkap" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+      </div>
+
+      <div class="pt-2 flex space-x-2">
+        <button type="button" onclick="closeAddStudentModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Batal</button>
+        <button type="submit" class="w-1/2 py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-xl shadow transition">Simpan Siswa</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 2. MODAL EDIT PENGGUNA -->
 <div id="modalEditUser" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in duration-150 border border-purple-100">
     <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
@@ -940,7 +966,7 @@
   </div>
 </div>
 
-<!-- MODAL TAMBAH PENGGUNA -->
+<!-- 3. MODAL TAMBAH PENGGUNA -->
 <div id="modalAddUser" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
@@ -974,144 +1000,76 @@
   </div>
 </div>
 
-<!-- MODAL TAMBAH SISWA -->
-<div id="modalAddSiswa" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
-    <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Tambah Siswa Baru</h3>
-      <button onclick="closeAddStudentModal()" class="text-white hover:text-purple-200"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    <form onsubmit="handleSaveNewStudent(event)" class="p-6 space-y-3 text-xs max-h-[80vh] overflow-y-auto">
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">NIS*</label>
-          <input type="text" id="newNIS" required placeholder="12006" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">NISN*</label>
-          <input type="text" id="newNISN" required placeholder="001239999" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-        </div>
-      </div>
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Nama Lengkap Siswa*</label>
-        <input type="text" id="newNama" required placeholder="Nama lengkap santri" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Kelas*</label>
-          <select id="newKelas" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl font-medium"></select>
-        </div>
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Jenis Kelamin*</label>
-          <select id="newJK" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-            <option value="L">Laki-laki (L)</option>
-            <option value="P">Perempuan (P)</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Alamat Domisili</label>
-        <input type="text" id="newAlamat" placeholder="Alamat lengkap" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-      </div>
-      <div class="pt-3 flex space-x-2">
-        <button type="button" onclick="closeAddStudentModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl">Batal</button>
-        <button type="submit" class="w-1/2 py-2.5 bg-brand-800 text-white font-bold rounded-xl shadow">Simpan Siswa</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- MODAL DETAIL SISWA -->
-<div id="modalDetailSiswa" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden p-6 text-xs space-y-4 border border-purple-100">
-    <div class="flex justify-between items-center border-b border-purple-50 pb-3">
-      <h3 class="text-sm font-bold text-slate-800">Detail Biodata Siswa</h3>
-      <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    <div class="flex items-center space-x-4">
-      <div class="w-16 h-16 rounded-2xl bg-purple-100 text-brand-800 font-black text-xl flex items-center justify-center border border-purple-200" id="detailAvatar">A</div>
-      <div>
-        <h4 id="detailNama" class="text-base font-extrabold text-slate-800">Andi Saputra</h4>
-        <p class="text-slate-500">NIS: <span id="detailNIS">12001</span> • NISN: <span id="detailNISN">001234567</span></p>
-        <p class="text-brand-800 font-bold">Kelas: <span id="detailKelas">1A</span></p>
-      </div>
-    </div>
-    <div class="space-y-1.5 border-t border-purple-50 pt-3">
-      <p><span class="text-slate-400">Tempat, Tgl Lahir:</span> <strong id="detailTTL">-</strong></p>
-      <p><span class="text-slate-400">Alamat:</span> <strong id="detailAlamat">-</strong></p>
-      <p><span class="text-slate-400">Kontak Orang Tua:</span> <strong id="detailHP">-</strong></p>
-    </div>
-    <button onclick="closeDetailModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Tutup</button>
-  </div>
-</div>
-
-<!-- MODAL CATAT PELANGGARAN -->
+<!-- 4. MODAL TAMBAH PELANGGARAN -->
 <div id="modalAddViolation" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-rose-700 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Catat Pelanggaran Siswa</h3>
+      <h3 class="font-bold text-sm">Catat Pelanggaran Santri</h3>
       <button onclick="closeAddViolationModal()" class="text-white hover:text-rose-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
-    <form onsubmit="handleSaveNewViolation(event)" class="p-6 space-y-3 text-xs">
+    <form onsubmit="handleSaveViolation(event)" class="p-6 space-y-3 text-xs">
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Pilih Siswa*</label>
-        <select id="violSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
-      </div>
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Tanggal</label>
-        <input type="date" id="violTanggal" value="2026-09-23" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+        <select id="violationSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
       </div>
       <div>
         <label class="block font-bold text-slate-600 mb-1">Bentuk Pelanggaran*</label>
-        <select id="violJenis" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-          <option value="Terlambat Masuk Sekolah (Poin 5)">Terlambat Masuk Sekolah (5 Poin)</option>
-          <option value="Tidak Memakai Atribut Lengkap (Poin 5)">Tidak Memakai Atribut Lengkap (5 Poin)</option>
-          <option value="Tidak Mengerjakan Tugas (Poin 5)">Tidak Mengerjakan Tugas (5 Poin)</option>
-          <option value="Berbicara saat KBM (Poin 5)">Berbicara saat KBM (5 Poin)</option>
-          <option value="Meninggalkan Kelas Tanpa Izin (Poin 10)">Meninggalkan Kelas Tanpa Izin (10 Poin)</option>
-        </select>
+        <input type="text" id="violationBentuk" required placeholder="Contoh: Terlambat halaqah, atribut belum lengkap" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Poin Pelanggaran</label>
+          <input type="number" id="violationPoin" value="5" min="1" max="100" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Tanggal</label>
+          <input type="date" id="violationTanggal" value="2026-09-23" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+        </div>
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Tindak Lanjut & Sanksi Edukatif</label>
-        <input type="text" id="violTindakLanjut" placeholder="Contoh: Dzikir pagi & murojaah juz amma" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+        <label class="block font-bold text-slate-600 mb-1">Tindak Lanjut / Pembinaan</label>
+        <input type="text" id="violationTindak" value="Nasehat dan pembinaan adab" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
       </div>
       <div class="pt-2 flex space-x-2">
         <button type="button" onclick="closeAddViolationModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl">Batal</button>
-        <button type="submit" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow">Catat Poin</button>
+        <button type="submit" class="w-1/2 py-2.5 bg-rose-600 text-white font-bold rounded-xl shadow">Simpan Catatan</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- MODAL TAMBAH PRESTASI -->
+<!-- 5. MODAL TAMBAH PRESTASI -->
 <div id="modalAddPrestasi" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Tambah Rekam Prestasi</h3>
+      <h3 class="font-bold text-sm">Catat Prestasi Santri</h3>
       <button onclick="closeAddPrestasiModal()" class="text-white hover:text-purple-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
-    <form onsubmit="handleSaveNewPrestasi(event)" class="p-6 space-y-3 text-xs">
+    <form onsubmit="handleSavePrestasi(event)" class="p-6 space-y-3 text-xs">
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Nama Prestasi / Juara*</label>
-        <input type="text" id="prestasiJudul" placeholder="Contoh: Juara 1 Tahfidz 3 Juz" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+        <select id="prestasiSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Nama Siswa / Peraih*</label>
-        <select id="prestasiSiswaSelect" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
+        <label class="block font-bold text-slate-600 mb-1">Nama Prestasi / Kejuaraan*</label>
+        <input type="text" id="prestasiJudul" required placeholder="Contoh: Juara 1 Tahfidz Juz 30 Tingkat Kota" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block font-bold text-slate-600 mb-1">Kategori</label>
           <select id="prestasiKategori" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-            <option value="Keagamaan">Keagamaan / Tahfidz</option>
+            <option value="Tahfidz">Tahfidz Quran</option>
             <option value="Akademik">Akademik / Sains</option>
-            <option value="Nonakademik">Olahraga / Seni</option>
+            <option value="Olahraga">Olahraga</option>
+            <option value="Seni & Bahasa">Seni & Bahasa</option>
           </select>
         </div>
         <div>
           <label class="block font-bold text-slate-600 mb-1">Tingkat</label>
           <select id="prestasiTingkat" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-            <option value="Tingkat Kota">Tingkat Kota</option>
+            <option value="Sekolah">Internal Sekolah</option>
+            <option value="Kecamatan">Kecamatan</option>
+            <option value="Kota/Kab">Kota / Kabupaten</option>
             <option value="Provinsi">Provinsi</option>
             <option value="Nasional">Nasional</option>
           </select>
@@ -1119,1404 +1077,1225 @@
       </div>
       <div class="pt-2 flex space-x-2">
         <button type="button" onclick="closeAddPrestasiModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl">Batal</button>
-        <button type="submit" class="w-1/2 py-2.5 bg-brand-800 text-white font-bold rounded-xl shadow">Simpan</button>
+        <button type="submit" class="w-1/2 py-2.5 bg-brand-800 text-white font-bold rounded-xl shadow">Simpan Prestasi</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- MODAL SURAT PERIZINAN -->
+<!-- 6. MODAL TAMBAH IZIN -->
 <div id="modalAddIzin" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Buat Surat Izin Santri</h3>
+      <h3 class="font-bold text-sm">Penerbitan Surat Izin Santri</h3>
       <button onclick="closeAddIzinModal()" class="text-white hover:text-purple-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
-    <form onsubmit="handleSaveNewIzin(event)" class="p-6 space-y-3 text-xs">
+    <form onsubmit="handleSaveIzin(event)" class="p-6 space-y-3 text-xs">
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Pilih Siswa*</label>
-        <select id="izinSiswaSelect" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
+        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+        <select id="izinSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Jenis Izin</label>
+        <label class="block font-bold text-slate-600 mb-1">Jenis Izin*</label>
         <select id="izinJenis" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-          <option value="Sakit">Sakit</option>
+          <option value="Sakit">Sakit dengan Keterangan</option>
           <option value="Kepentingan Keluarga">Kepentingan Keluarga</option>
-          <option value="Dispensasi Lomba">Dispensasi Lomba</option>
+          <option value="Dispensasi Lomba">Dispensasi Lomba / Acara</option>
         </select>
       </div>
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Durasi</label>
-        <input type="text" id="izinDurasi" placeholder="Contoh: 2 Hari (23 - 24 September 2026)" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+        <label class="block font-bold text-slate-600 mb-1">Keterangan / Alasan Lengkap</label>
+        <input type="text" id="izinKeterangan" required placeholder="Contoh: Sakit demam perlu istirahat 2 hari" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
       </div>
       <div class="pt-2 flex space-x-2">
         <button type="button" onclick="closeAddIzinModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl">Batal</button>
-        <button type="submit" class="w-1/2 py-2.5 bg-brand-800 text-white font-bold rounded-xl shadow">Terbitkan</button>
+        <button type="submit" class="w-1/2 py-2.5 bg-brand-800 text-white font-bold rounded-xl shadow">Terbitkan Izin</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- MODAL SURAT PANGGILAN ORANG TUA (BK) -->
-<div id="modalPanggilanOrtu" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
-    <div class="bg-amber-700 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Surat Pemanggilan Orang Tua / Wali</h3>
-      <button onclick="closePanggilanOrtuModal()" class="text-white hover:text-amber-200"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    <div class="p-6 space-y-3 text-xs">
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Siswa Bersangkutan</label>
-        <select id="panggilanSiswaSelect" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
-      </div>
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Hari & Tanggal Menghadap</label>
-        <input type="date" id="panggilanTanggal" value="2026-09-24" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
-      </div>
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Keperluan / Agenda</label>
-        <textarea id="panggilanKeperluan" rows="2" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">Mendidik dengan keakraban dan kasih sayang serta pembinaan akhlak santri.</textarea>
-      </div>
-      <div class="pt-2 flex space-x-2">
-        <button onclick="closePanggilanOrtuModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl">Tutup</button>
-        <button onclick="printPanggilanLetter()" class="w-1/2 py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl shadow">Cetak Surat Resmi</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST MESSAGE NOTIFICATION -->
-<div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
-  <i id="toastIcon" class="fa-solid fa-circle-check text-purple-400 text-base"></i>
-  <span id="toastMessage">Pemberitahuan berhasil</span>
-</div>
-
-<!-- PRINT CONTAINER (ONLY VISIBLE ON PRINT) -->
-<div id="printAreaContainer" class="print-only p-8">
-  <div class="border-b-2 border-slate-800 pb-4 mb-6 flex items-center space-x-4">
-    <div class="w-16 h-16" id="printHeaderLogo"></div>
-    <div>
-      <h2 class="text-xl font-bold uppercase tracking-tight" id="printHeaderSchoolName">SDIT ALIA NURUL JIHADI</h2>
-      <p class="font-slogan text-sm text-purple-900 font-bold" id="printHeaderSchoolMotto">Mendidik Dengan Keakraban dan Kasih Sayang</p>
-      <p class="text-xs text-slate-500">Tahun Ajaran 2026/2027 • Laporan Kesiswaan & Kedisiplinan</p>
-    </div>
-  </div>
-  <div id="printDynamicContent"></div>
+<!-- TOAST NOTIFICATION -->
+<div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2.5 transform transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+  <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+  <span id="toastMessage">Pemberitahuan berhasil!</span>
 </div>
 
 <script>
-  /* ================= PURGE LEGACY OVERRIDES ================= */
-  // Strictly prevent any old cached base64 logo from overriding the user's authentic logo
+/* SISTEM INFORMASI KESISWAAN SDIT ALIA NURUL JIHADI - CORE JAVASCRIPT */
+
+const ROMBEL_CLASSES = [
+  '1A', '1B', '1C', '1D', '1E',
+  '2A', '2B', '2C', '2D',
+  '3A', '3B', '3C', '3D',
+  '4A', '4B', '4C', '4D',
+  '5A', '5B', '5C', '5D',
+  '6A', '6B', '6C', '6D'
+];
+
+// Clean legacy logo keys if any
+try {
+  localStorage.removeItem('school_logo');
+} catch (e) {}
+
+let appState = {
+  currentView: 'dashboard',
+  schoolName: 'SDIT ALIA NURUL JIHADI',
+  academicYear: 'TP 2026/2027 Ganjil',
+  slogan: 'Mendidik Dengan Keakraban dan Kasih Sayang',
+  currentUser: {
+    id: 1,
+    nama: 'Riandy Julfriamdony, S. Kom',
+    username: 'riandy.admin',
+    jabatan: 'Administrator Kesiswaan',
+    status: 'Aktif'
+  },
+  users: [
+    { id: 1, nama: 'Riandy Julfriamdony, S. Kom', username: 'riandy.admin', jabatan: 'Administrator', status: 'Aktif' },
+    { id: 2, nama: 'Ust. Mahmud, S. Pd.I', username: 'mahmud.kesiswaan', jabatan: 'Kesiswaan', status: 'Aktif' },
+    { id: 3, nama: 'Usth. Sarah, S. Pd', username: 'sarah.wali', jabatan: 'Wali Kelas', status: 'Aktif' },
+    { id: 4, nama: 'H. Ahmad Fauzi, M. Pd', username: 'fauzi.kepsek', jabatan: 'Kepala Sekolah', status: 'Aktif' }
+  ],
+  students: [
+    { id: 1, nis: '12001', nisn: '001230001', nama: 'Muhammad Fatih Robbani', kelas: '1A', jk: 'L', alamat: 'Perumahan Alia Residence Blok A1', status: 'Aktif' },
+    { id: 2, nis: '12002', nisn: '001230002', nama: 'Aisyah Putri Azzahra', kelas: '1A', jk: 'P', alamat: 'Jl. Merak No. 14, Tangerang', status: 'Aktif' },
+    { id: 3, nis: '12003', nisn: '001230003', nama: 'Fakhri Ali Syihab', kelas: '1B', jk: 'L', alamat: 'Komplek Permata Indah C3', status: 'Aktif' },
+    { id: 4, nis: '12004', nisn: '001230004', nama: 'Khadijah Nurul Hasanah', kelas: '1B', jk: 'P', alamat: 'Jl. Teratai Raya No. 4', status: 'Aktif' },
+    { id: 5, nis: '12005', nisn: '001230005', nama: 'Zaid bin Tsabit', kelas: '2A', jk: 'L', alamat: 'Jl. Melati Putih No. 10', status: 'Aktif' }
+  ],
+  violations: [
+    { id: 1, date: '2026-09-21', studentName: 'Fakhri Ali Syihab', kelas: '1B', bentuk: 'Lupa memakai peci putih seragam', poin: 5, tindak: 'Nasehat pembinaan', status: 'Selesai' }
+  ],
+  prestasi: [
+    { id: 1, studentName: 'Muhammad Fatih Robbani', kelas: '1A', judul: 'Juara 1 Tahfidz Quran Juz 30', kategori: 'Tahfidz', tingkat: 'Kota/Kab' },
+    { id: 2, studentName: 'Aisyah Putri Azzahra', kelas: '1A', judul: 'Juara 2 Pidato Bahasa Arab Cilik', kategori: 'Seni & Bahasa', tingkat: 'Kecamatan' }
+  ],
+  perizinan: [
+    { id: 1, noSurat: 'IZN/2026/09/001', studentName: 'Khadijah Nurul Hasanah', kelas: '1B', jenis: 'Sakit', tanggal: '23 September 2026', status: 'Disetujui' }
+  ],
+  bkList: [
+    { id: 1, date: '2026-09-22', studentName: 'Zaid bin Tsabit', konselor: 'Ust. Mahmud, S. Pd.I', catatan: 'Bimbingan penguatan konsentrasi hafalan tilawah' }
+  ],
+  attendanceRecords: {}
+};
+
+// Safe fallback emblem generator
+function getOfficialLogoMarkup() {
+  return '<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="50" cy="50" r="48" fill="#587e2b" stroke="#ffffff" stroke-width="2"/>' +
+    '<circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="2 1.5"/>' +
+    '<path id="curveTopSafe" d="M 12 50 A 38 38 0 0 1 88 50" fill="none"/>' +
+    '<text font-size="6" font-weight="900" fill="#ffffff" letter-spacing="0.5"><textPath href="#curveTopSafe" startOffset="50%" text-anchor="middle">SEKOLAH DASAR ISLAM TERPADU</textPath></text>' +
+    '<g fill="#ffffff">' +
+      '<line x1="50" y1="20" x2="50" y2="10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>' +
+      '<line x1="38" y1="22" x2="33" y2="13" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>' +
+      '<line x1="62" y1="22" x2="67" y2="13" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>' +
+      '<path d="M 50 18 C 45 23, 44 32, 50 36 C 56 32, 55 23, 50 18 Z"/>' +
+      '<rect x="47" y="36" width="6" height="12"/>' +
+      '<path d="M 33 28 C 30 32, 29 38, 33 42 C 37 38, 36 32, 33 28 Z"/>' +
+      '<rect x="31" y="42" width="4" height="10"/>' +
+      '<path d="M 67 28 C 64 32, 63 38, 67 42 C 71 38, 70 32, 67 28 Z"/>' +
+      '<rect x="65" y="42" width="4" height="10"/>' +
+      '<path d="M 50 54 Q 30 50 24 55 Q 24 66 50 64 Q 76 66 76 55 Q 70 50 50 54 Z" fill="#ffffff"/>' +
+      '<polygon points="58,40 60,37 68,48 64,50" fill="#587e2b"/>' +
+    '</g>' +
+    '<path d="M 16 80 L 26 73 L 74 73 L 84 80 L 76 89 L 24 89 Z" fill="#ffffff" stroke="#587e2b" stroke-width="1.5"/>' +
+    '<text x="50" y="69" font-size="8" font-weight="900" fill="#587e2b" text-anchor="middle">ALIA</text>' +
+    '<text x="50" y="84" font-size="7" font-weight="900" fill="#587e2b" text-anchor="middle" letter-spacing="0.5">NURUL JIHADI</text>' +
+  '</svg>';
+}
+
+function loadPersistedData() {
   try {
-    localStorage.removeItem('school_logo');
-    localStorage.removeItem('custom_logo');
-    localStorage.removeItem('sdit_custom_logo_data_v6');
-  } catch(e) {}
-
-  /* ================= ASSET PATHS & VECTOR FALLBACK ================= */
-  const REPO_BUILDING_FILE = 'Gedung Sekolah SDIT.jpg';
-
-  // Exact green & white 2D flat emblem replica for SDIT Alia Nurul Jihadi
-  const OFFICIAL_SDIT_LOGO_SVG = `
-    <svg class="w-full h-full" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="150" cy="150" r="142" fill="#719441" stroke="#5d7b34" stroke-width="4"/>
-      <path id="curveTop" d="M 40 160 A 118 118 0 1 1 260 160" fill="none"/>
-      <text font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="2">
-        <textPath href="#curveTop" startOffset="50%" text-anchor="middle">
-          SEKOLAH DASAR ISLAM TERPADU
-        </textPath>
-      </text>
-      <!-- Sun Rays -->
-      <g stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.95">
-        <line x1="150" y1="75" x2="150" y2="52"/>
-        <line x1="112" y1="88" x2="98" y2="70"/>
-        <line x1="188" y1="88" x2="202" y2="70"/>
-        <line x1="82" y1="120" x2="65" y2="108"/>
-        <line x1="218" y1="120" x2="235" y2="108"/>
-      </g>
-      <!-- Mosque Dome & Minarets -->
-      <g fill="#ffffff">
-        <path d="M125 150 C125 105 150 90 150 90 C150 90 175 105 175 150 Z"/>
-        <path d="M85 160 C85 130 105 120 105 120 C105 120 120 130 120 160 Z"/>
-        <path d="M180 160 C180 130 195 120 195 120 C195 120 215 130 215 160 Z"/>
-        <path d="M165 145 L195 105 C198 100 205 102 202 108 L175 152 Z" opacity="0.95"/>
-      </g>
-      <!-- Open Book -->
-      <path d="M150 175 C120 155 75 160 70 182 C95 190 135 190 150 202 C165 190 205 190 230 182 C225 160 180 155 150 175 Z" fill="#ffffff"/>
-      <!-- Bottom Ribbon -->
-      <g>
-        <path d="M30 210 L65 185 L85 220 L150 225 L215 220 L235 185 L270 210 L250 255 L150 270 L50 255 Z" fill="#ffffff" stroke="#719441" stroke-width="4"/>
-        <path d="M60 200 Q150 212 240 200 L228 245 Q150 258 72 245 Z" fill="#719441"/>
-        <text x="150" y="218" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3">ALIA</text>
-        <text x="150" y="240" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">NURUL JIHADI</text>
-      </g>
-    </svg>
-  `;
-
-  const DEFAULT_SCHOOL_CONFIG = {
-    name: "SDIT Alia Nurul Jihadi",
-    motto: "Mendidik Dengan Keakraban dan Kasih Sayang",
-    academicYear: "Tahun Ajaran 2026/2027",
-    tagline: "Mendidik Dengan Keakraban dan Kasih Sayang"
-  };
-
-  const STORAGE_KEY_BG = 'sdit_custom_bg_building_v7';
-  const STORAGE_KEY_CONFIG = 'sdit_school_config_v7';
-  const STORAGE_KEY_USERS = 'sdit_users_v7';
-  const STORAGE_KEY_CURRENT_USER = 'sdit_current_user_v7';
-
-  const ALL_25_CLASSES = [
-    { id: '1A', tingkat: 1, nama: 'Kelas 1 - Abu Bakar', wali: 'Usth. Sarah, S. Pd', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 1' },
-    { id: '1B', tingkat: 1, nama: 'Kelas 1 - Umar bin Khattab', wali: 'Usth. Maryam, S. Pd', total: 28, l: 15, p: 13, ruang: 'Gedung A Lt. 1' },
-    { id: '1C', tingkat: 1, nama: 'Kelas 1 - Utsman bin Affan', wali: 'Usth. Salma, S. Pd', total: 27, l: 13, p: 14, ruang: 'Gedung A Lt. 1' },
-    { id: '1D', tingkat: 1, nama: 'Kelas 1 - Ali bin Abi Thalib', wali: 'Usth. Khadijah, S. Pd.I', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 1' },
-    { id: '1E', tingkat: 1, nama: 'Kelas 1 - Bilal bin Rabah', wali: 'Usth. Hafshah, S. Pd', total: 27, l: 14, p: 13, ruang: 'Gedung A Lt. 1' },
-    { id: '2A', tingkat: 2, nama: 'Kelas 2 - Thariq bin Ziyad', wali: 'Ust. Hasan Basri, S. Pd', total: 29, l: 15, p: 14, ruang: 'Gedung A Lt. 2' },
-    { id: '2B', tingkat: 2, nama: 'Kelas 2 - Khalid bin Walid', wali: 'Usth. Zainab, S. Pd', total: 28, l: 14, p: 14, ruang: 'Gedung A Lt. 2' },
-    { id: '2C', tingkat: 2, nama: 'Kelas 2 - Sa\'ad bin Abi Waqqas', wali: 'Ust. Salman, S. Pd', total: 28, l: 13, p: 15, ruang: 'Gedung A Lt. 2' },
-    { id: '2D', tingkat: 2, nama: 'Kelas 2 - Hamzah bin Abdul Muthalib', wali: 'Usth. Fatimah, S. Pd.I', total: 29, l: 16, p: 13, ruang: 'Gedung A Lt. 2' },
-    { id: '3A', tingkat: 3, nama: 'Kelas 3 - Zaid bin Tsabit', wali: 'Ust. Firman, S. Pd', total: 29, l: 14, p: 15, ruang: 'Gedung B Lt. 1' },
-    { id: '3B', tingkat: 3, nama: 'Kelas 3 - Mu\'adz bin Jabal', wali: 'Usth. Rania, S. Pd', total: 30, l: 16, p: 14, ruang: 'Gedung B Lt. 1' },
-    { id: '3C', tingkat: 3, nama: 'Kelas 3 - Abdullah bin Mas\'ud', wali: 'Ust. Hilman, S. Pd.I', total: 28, l: 14, p: 14, ruang: 'Gedung B Lt. 1' },
-    { id: '3D', tingkat: 3, nama: 'Kelas 3 - Abu Ubaidah', wali: 'Usth. Aisyah Rahmi, S. Pd', total: 29, l: 15, p: 14, ruang: 'Gedung B Lt. 1' },
-    { id: '4A', tingkat: 4, nama: 'Kelas 4 - Imam Syafi\'i', wali: 'Ust. Anshori, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung B Lt. 2' },
-    { id: '4B', tingkat: 4, nama: 'Kelas 4 - Imam Maliki', wali: 'Usth. Halimah, S. Pd', total: 29, l: 14, p: 15, ruang: 'Gedung B Lt. 2' },
-    { id: '4C', tingkat: 4, nama: 'Kelas 4 - Imam Hanafi', wali: 'Ust. Lukman Hakim, S. Pd', total: 30, l: 16, p: 14, ruang: 'Gedung B Lt. 2' },
-    { id: '4D', tingkat: 4, nama: 'Kelas 4 - Imam Hanbali', wali: 'Usth. Wardah, S. Pd.I', total: 29, l: 14, p: 15, ruang: 'Gedung B Lt. 2' },
-    { id: '5A', tingkat: 5, nama: 'Kelas 5 - Ibnu Sina', wali: 'Siti Rahma, S. Pd', total: 31, l: 16, p: 15, ruang: 'Gedung C Lt. 1' },
-    { id: '5B', tingkat: 5, nama: 'Kelas 5 - Al-Khawarizmi', wali: 'Ahmad Fadli, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung C Lt. 1' },
-    { id: '5C', tingkat: 5, nama: 'Kelas 5 - Al-Biruni', wali: 'Lina Marlina, S. Pd', total: 31, l: 17, p: 14, ruang: 'Gedung C Lt. 1' },
-    { id: '5D', tingkat: 5, nama: 'Kelas 5 - Jabir bin Hayyan', wali: 'Ust. Zulkifli, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung C Lt. 1' },
-    { id: '6A', tingkat: 6, nama: 'Kelas 6 - Shalahuddin Al-Ayyubi', wali: 'Ust. Mahmud, S. Pd.I', total: 30, l: 14, p: 16, ruang: 'Gedung C Lt. 2' },
-    { id: '6B', tingkat: 6, nama: 'Kelas 6 - Muhammad Al-Fatih', wali: 'Usth. Fauziah, S. Pd', total: 30, l: 15, p: 15, ruang: 'Gedung C Lt. 2' },
-    { id: '6C', tingkat: 6, nama: 'Kelas 6 - Tariq bin Ziyad', wali: 'Ust. Ridwan, M. Pd', total: 29, l: 14, p: 15, ruang: 'Gedung C Lt. 2' },
-    { id: '6D', tingkat: 6, nama: 'Kelas 6 - Fatih Al-Quds', wali: 'Usth. Mutmainnah, S. Pd', total: 29, l: 15, p: 14, ruang: 'Gedung C Lt. 2' }
-  ];
-
-  const initialStudents = [
-    { id: 1, nis: "12001", nisn: "001234567", nama: "Andi Saputra", kelas: "1A", jk: "L", status: "Aktif", foto: "", ttl: "Surabaya, 12 April 2018", alamat: "Jl. Melati No. 10", hp: "081234567890" },
-    { id: 2, nis: "12002", nisn: "001234578", nama: "Siti Aisyah", kelas: "1B", jk: "P", status: "Aktif", foto: "", ttl: "Sidoarjo, 18 Mei 2018", alamat: "Perum Graha Indah B-3", hp: "081298765432" },
-    { id: 3, nis: "12003", nisn: "001234589", nama: "Fadli Aditya", kelas: "2A", jk: "L", status: "Aktif", foto: "", ttl: "Gresik, 05 Januari 2017", alamat: "Jl. Pahlawan No. 45", hp: "085612344321" },
-    { id: 4, nis: "12004", nisn: "001234590", nama: "Putri Anggraini", kelas: "3A", jk: "P", status: "Aktif", foto: "", ttl: "Surabaya, 22 Agustus 2016", alamat: "Jl. Mawar Putih No. 12", hp: "087812998800" },
-    { id: 5, nis: "12005", nisn: "0005678901", nama: "Bima Kusuma", kelas: "5A", jk: "L", status: "Aktif", foto: "", ttl: "Surabaya, 30 September 2014", alamat: "Rungkut Asri Timur", hp: "081399882211" }
-  ];
-
-  const defaultUsers = [
-    { id: 1, no: 1, nama: "Riandy Julfriamdony, S. Kom", username: "riandy", jabatan: "Administrator", status: "Aktif" },
-    { id: 2, no: 2, nama: "Siti Rahma, S. Pd", username: "srahma", jabatan: "Kesiswaan", status: "Aktif" },
-    { id: 3, no: 3, nama: "Ahmad Fadli, S. Pd", username: "afadli", jabatan: "Wali Kelas", status: "Aktif" },
-    { id: 4, no: 4, nama: "Lina Marlina, S. Pd", username: "lina", jabatan: "Guru", status: "Aktif" },
-    { id: 5, no: 5, nama: "Drs. H. Maimun, M. Pd.I", username: "kepsek", jabatan: "Kepala Sekolah", status: "Aktif" }
-  ];
-
-  const initialViolations = [
-    { id: 101, tanggal: "2026-09-22", nama: "Fadli Aditya", kelas: "2A", jenis: "Terlambat Masuk Sekolah", poin: 5, tindakLanjut: "Teguran lisan & Dzikir Pagi", status: "Selesai" },
-    { id: 102, tanggal: "2026-09-20", nama: "Bima Kusuma", kelas: "5A", jenis: "Tidak Memakai Atribut Lengkap", poin: 5, tindakLanjut: "Peringatan Buku Saku", status: "Selesai" }
-  ];
-
-  const initialPrestasi = [
-    { id: 201, judul: "Juara 1 Musabaqah Hifdzil Qur'an 5 Juz", peraih: "Andi Saputra (1A)", kategori: "Keagamaan", tingkat: "Tingkat Kota", tahun: "2026", icon: "fa-book-quran" },
-    { id: 202, judul: "Medali Emas Olimpiade Sains Dasar (OSN)", peraih: "Siti Aisyah (1B)", kategori: "Akademik", tingkat: "Provinsi", tahun: "2026", icon: "fa-flask" }
-  ];
-
-  const initialIzin = [
-    { id: 301, no: "IZN-2026/09/012", nama: "Siti Aisyah", kelas: "1B", jenis: "Sakit", durasi: "2 Hari (22-23 Sep)", status: "Disetujui" }
-  ];
-
-  const initialBK = [
-    { id: 401, nama: "Bima Kusuma", kelas: "5A", tanggal: "2026-09-22", konselor: "Ust. Mahmud, S. Pd.I", catatan: "Pendampingan kasih sayang dan penguatan murojaah tahfidz.", status: "Dalam Pembinaan" }
-  ];
-
-  /* State Store */
-  let students = JSON.parse(localStorage.getItem('sdit_students_v7')) || initialStudents;
-  let classes = ALL_25_CLASSES;
-  let currentClassFilterLevel = 'ALL';
-  let attendanceStore = JSON.parse(localStorage.getItem('sdit_attendance_v7')) || {};
-  let violations = JSON.parse(localStorage.getItem('sdit_viol_v7')) || initialViolations;
-  let prestasis = JSON.parse(localStorage.getItem('sdit_prestasi_v7')) || initialPrestasi;
-  let izinList = JSON.parse(localStorage.getItem('sdit_izin_v7')) || initialIzin;
-  let bkNotes = JSON.parse(localStorage.getItem('sdit_bk_v7')) || initialBK;
-  let appUsers = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || defaultUsers;
-  let currentActiveUser = JSON.parse(localStorage.getItem(STORAGE_KEY_CURRENT_USER)) || appUsers[0];
-</script>
-
-<script>
-  /* ================= EXPLICIT GLOBAL WINDOW SCOPING ================= */
-  window.navigateTo = function(viewId) {
-    document.querySelectorAll('.view-panel').forEach(panel => {
-      panel.classList.add('hidden');
-      panel.classList.remove('block');
-    });
-
-    const target = document.getElementById('view-' + viewId);
-    if (target) {
-      target.classList.remove('hidden');
-      target.classList.add('block');
+    const saved = localStorage.getItem('sdit_alia_app_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      appState = Object.assign({}, appState, parsed);
     }
+  } catch (e) {}
+}
 
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.remove('bg-brand-800', 'text-white', 'shadow-sm');
-      item.classList.add('text-slate-600', 'hover:bg-brand-50');
-    });
+function savePersistedData() {
+  try {
+    localStorage.setItem('sdit_alia_app_state', JSON.stringify(appState));
+  } catch (e) {}
+}
 
-    const activeNav = document.getElementById('nav-' + viewId);
-    if (activeNav) {
-      activeNav.classList.remove('text-slate-600', 'hover:bg-brand-50');
-      activeNav.classList.add('bg-brand-800', 'text-white', 'shadow-sm');
-    }
 
-    if (window.innerWidth < 768) {
-      const sidebar = document.getElementById('sidebar');
-      if (sidebar) sidebar.classList.add('-translate-x-full');
-    }
+window.navigateTo = function(viewId) {
+  appState.currentView = viewId;
+  document.querySelectorAll('.view-panel').forEach(function(el) { el.classList.add('hidden'); });
+  const target = document.getElementById('view-' + viewId);
+  if (target) {
+    target.classList.remove('hidden');
+    target.classList.add('block');
+  }
 
-    if (viewId === 'dashboard') {
-      window.initDashboardCharts();
-    } else if (viewId === 'siswa') {
-      window.renderStudentTable();
-    } else if (viewId === 'absensi') {
-      window.renderAttendanceSheet();
-    } else if (viewId === 'pelanggaran') {
-      window.renderViolationsTable();
-    } else if (viewId === 'prestasi') {
-      window.renderPrestasiCards();
-    } else if (viewId === 'perizinan') {
-      window.renderIzinTable();
-    } else if (viewId === 'bk') {
-      window.renderBKList();
-    } else if (viewId === 'kelas') {
-      window.renderClassCards();
-    } else if (viewId === 'pengguna') {
-      window.renderUsersTable();
-    } else if (viewId === 'laporan') {
-      window.initReportChart();
-    }
+  document.querySelectorAll('.nav-item').forEach(function(el) {
+    el.classList.remove('bg-brand-800', 'text-white', 'shadow-sm');
+    el.classList.add('text-slate-600', 'font-semibold');
+  });
+
+  const activeBtn = document.getElementById('nav-' + viewId);
+  if (activeBtn) {
+    activeBtn.classList.remove('text-slate-600', 'font-semibold');
+    activeBtn.classList.add('bg-brand-800', 'text-white', 'shadow-sm');
+  }
+
+  if (window.innerWidth < 768) {
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.classList.add('-translate-x-full');
+  }
+
+  if (viewId === 'dashboard') {
+    updateDashboardStats();
+    initCharts();
+  } else if (viewId === 'siswa') {
+    renderStudentTable();
+  } else if (viewId === 'absensi') {
+    renderAttendanceSheet();
+  } else if (viewId === 'kelas') {
+    renderKelasGrid('ALL');
+  } else if (viewId === 'pengguna') {
+    renderUserTable();
+  } else if (viewId === 'pelanggaran') {
+    renderViolations();
+  } else if (viewId === 'prestasi') {
+    renderPrestasi();
+  } else if (viewId === 'perizinan') {
+    renderPerizinan();
+  } else if (viewId === 'bk') {
+    renderBK();
+  } else if (viewId === 'laporan') {
+    initMonthlyChart();
+  }
+};
+
+window.toggleSidebar = function() {
+  const sb = document.getElementById('sidebar');
+  if (sb) sb.classList.toggle('-translate-x-full');
+};
+
+window.showToast = function(msg) {
+  const toast = document.getElementById('toastNotification');
+  const txt = document.getElementById('toastMessage');
+  if (!toast || !txt) return;
+  txt.innerText = msg;
+  toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+  setTimeout(function() {
+    toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+  }, 3500);
+};
+
+
+window.openAddStudentModal = function() {
+  const modal = document.getElementById('modalAddSiswa');
+  if (modal) {
+    const select = document.getElementById('manualSiswaKelas');
+    select.innerHTML = ROMBEL_CLASSES.map(function(c) {
+      return '<option value="' + c + '">Kelas ' + c + '</option>';
+    }).join('');
+
+    const maxNis = appState.students.reduce(function(max, s) {
+      const n = parseInt(s.nis, 10) || 0;
+      return n > max ? n : max;
+    }, 12000);
+
+    document.getElementById('manualSiswaNIS').value = maxNis + 1;
+    document.getElementById('manualSiswaNISN').value = '00' + (maxNis + 1) + '88';
+    document.getElementById('manualSiswaNama').value = '';
+    document.getElementById('manualSiswaAlamat').value = '';
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+};
+
+window.closeAddStudentModal = function() {
+  const modal = document.getElementById('modalAddSiswa');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.handleSaveManualStudent = function(e) {
+  e.preventDefault();
+  const nis = document.getElementById('manualSiswaNIS').value.trim();
+  const nisn = document.getElementById('manualSiswaNISN').value.trim();
+  const nama = document.getElementById('manualSiswaNama').value.trim();
+  const kelas = document.getElementById('manualSiswaKelas').value;
+  const jk = document.getElementById('manualSiswaJK').value;
+  const alamat = document.getElementById('manualSiswaAlamat').value.trim() || 'Tangerang / Domisili Sekitar';
+
+  if (!nis || !nisn || !nama || !kelas) {
+    window.showToast('Harap lengkapi seluruh kolom wajib!');
+    return;
+  }
+
+  const newStudent = {
+    id: Date.now(),
+    nis: nis,
+    nisn: nisn,
+    nama: nama,
+    kelas: kelas,
+    jk: jk,
+    alamat: alamat,
+    status: 'Aktif'
   };
 
-  window.toggleSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.toggle('-translate-x-full');
-  };
+  appState.students.unshift(newStudent);
+  savePersistedData();
+  renderStudentTable();
+  updateDashboardStats();
+  populateStudentSelectOptions();
+  window.closeAddStudentModal();
+  window.showToast('Siswa "' + nama + '" berhasil ditambahkan ke Kelas ' + kelas + '!');
+};
 
-  window.toggleNotifications = function() {
-    const dropdown = document.getElementById('notifDropdown');
-    if (dropdown) dropdown.classList.toggle('hidden');
-  };
+window.triggerExcelImport = function() {
+  const input = document.getElementById('excelFileInput');
+  if (input) {
+    input.value = '';
+    input.click();
+  }
+};
 
-  window.showToast = function(msg, isSuccess = true) {
-    const toast = document.getElementById('toast');
-    const toastMsg = document.getElementById('toastMessage');
-    const toastIcon = document.getElementById('toastIcon');
-    if (!toast || !toastMsg) return;
+window.handleExcelStudentImport = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    toastMsg.textContent = msg;
-    if (toastIcon) {
-      toastIcon.className = isSuccess 
-        ? 'fa-solid fa-circle-check text-purple-400 text-base' 
-        : 'fa-solid fa-circle-exclamation text-amber-400 text-base';
-    }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.SheetNames[0];
+      const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: '' });
 
-    toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-    toast.classList.add('translate-y-0', 'opacity-100');
-
-    setTimeout(() => {
-      toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
-      toast.classList.remove('translate-y-0', 'opacity-100');
-    }, 2500);
-  };
-
-  /* USER PROFILE & SYNCHRONIZATION */
-  window.syncActiveUserUI = function() {
-    if (!currentActiveUser) {
-      currentActiveUser = appUsers[0] || { nama: "Riandy Julfriamdony, S. Kom", jabatan: "Administrator" };
-    }
-    const headerName = document.getElementById('headerUserName');
-    const headerRole = document.getElementById('headerUserRole');
-    const bannerGreeting = document.getElementById('dashboardBannerGreetingName');
-    const avatar = document.getElementById('headerAvatarText');
-
-    if (headerName) headerName.textContent = currentActiveUser.nama;
-    if (headerRole) headerRole.textContent = currentActiveUser.jabatan + " Kesiswaan";
-    if (bannerGreeting) bannerGreeting.textContent = currentActiveUser.nama;
-    if (avatar) {
-      const initials = currentActiveUser.nama.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
-      avatar.textContent = initials || 'RJ';
-    }
-  };
-
-  /* BRANDING, MOTTO & IMAGE LOADER */
-  window.loadBranding = function() {
-    const savedBg = localStorage.getItem(STORAGE_KEY_BG);
-    const schoolConfig = JSON.parse(localStorage.getItem(STORAGE_KEY_CONFIG)) || DEFAULT_SCHOOL_CONFIG;
-
-    // Strict cascaded image loader for the authentic flat green-and-white school logo:
-    // Tries 'Logo.jpg' -> 'Logo SDIT Vektor.png' -> 'Logo%20SDIT%20Vektor.png' -> 'logo.png' -> Clean SVG vector
-    const logoHtml = `
-      <img 
-        src="Logo.jpg" 
-        alt="Logo SDIT Alia Nurul Jihadi" 
-        class="w-full h-full object-contain"
-        onerror="this.onerror=null; this.src='Logo%20SDIT%20Vektor.png'; this.onerror=function(){ this.src='logo.png'; this.onerror=function(){ this.outerHTML=\`${OFFICIAL_SDIT_LOGO_SVG.replace(/"/g, "'")}\`; }; };"
-      />
-    `;
-
-    const logoContainers = [
-      document.getElementById('schoolLogoContainer'),
-      document.getElementById('settingsLogoPreview'),
-      document.getElementById('printHeaderLogo')
-    ];
-    logoContainers.forEach(container => {
-      if (container) container.innerHTML = logoHtml;
-    });
-
-    // School building background banner with purple overlay and soft shadows
-    const heroBanner = document.getElementById('heroBannerElement');
-    const settingsBgPreview = document.getElementById('settingsBgPreview');
-    const bgUrl = savedBg || REPO_BUILDING_FILE;
-
-    if (heroBanner) {
-      heroBanner.style.backgroundImage = `url('${bgUrl}'), url('Gedung%20Sekolah%20SDIT.jpg'), url('https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1600&auto=format&fit=crop&q=80')`;
-    }
-    if (settingsBgPreview) {
-      settingsBgPreview.src = bgUrl;
-      settingsBgPreview.onerror = function() {
-        this.src = 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1600&auto=format&fit=crop&q=80';
-      };
-    }
-
-    const officialSlogan = schoolConfig.motto || "Mendidik Dengan Keakraban dan Kasih Sayang";
-
-    const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
-    setTxt('sidebarSchoolName', schoolConfig.name);
-    setTxt('bannerSchoolName', schoolConfig.name);
-    setTxt('footerSchoolName', schoolConfig.name);
-    setTxt('printHeaderSchoolName', schoolConfig.name.toUpperCase());
-    
-    // Setting strictly cursive handwriting slogan
-    const bannerSloganEl = document.getElementById('bannerSchoolMotto');
-    if (bannerSloganEl) bannerSloganEl.textContent = `“${officialSlogan}”`;
-    
-    const sidebarSloganEl = document.getElementById('sidebarSchoolMotto');
-    if (sidebarSloganEl) sidebarSloganEl.textContent = officialSlogan;
-    
-    setTxt('printHeaderSchoolMotto', officialSlogan);
-    setTxt('bannerAcademicYear', schoolConfig.academicYear);
-
-    const inputName = document.getElementById('settingInputSchoolName');
-    const inputMotto = document.getElementById('settingInputSchoolMotto');
-    const inputYear = document.getElementById('settingInputAcademicYear');
-    if (inputName) inputName.value = schoolConfig.name;
-    if (inputMotto) inputMotto.value = officialSlogan;
-    if (inputYear) inputYear.value = schoolConfig.academicYear;
-
-    setTxt('dashCardTotalSiswa', students.length);
-    setTxt('dashTotalStudentsGender', students.length);
-
-    window.syncActiveUserUI();
-  };
-
-  window.triggerLogoUpload = function() {
-    const input = document.getElementById('logoFileInput');
-    if (input) input.click();
-  };
-
-  window.handleLogoUpload = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (file.size > 3 * 1024 * 1024) {
-      window.showToast('Ukuran berkas logo maksimal 3 MB!', false);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const containers = [
-        document.getElementById('schoolLogoContainer'),
-        document.getElementById('settingsLogoPreview')
-      ];
-      containers.forEach(c => {
-        if (c) c.innerHTML = `<img src="${e.target.result}" alt="Logo SDIT" class="w-full h-full object-contain">`;
-      });
-      window.showToast('Pratinjau logo lokal berhasil ditampilkan!');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  window.resetToDefaultLogo = function() {
-    window.loadBranding();
-    window.showToast('Menggunakan berkas logo resmi bawaan sekolah!');
-  };
-
-  window.triggerBgUpload = function() {
-    const input = document.getElementById('bgFileInput');
-    if (input) input.click();
-  };
-
-  window.handleBgUpload = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        localStorage.setItem(STORAGE_KEY_BG, e.target.result);
-        window.loadBranding();
-        window.showToast('Foto gedung sekolah berbayang berhasil diperbarui!');
-      } catch (err) {
-        window.showToast('Memori browser penuh untuk foto ini.', false);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  window.resetToDefaultBg = function() {
-    localStorage.removeItem(STORAGE_KEY_BG);
-    window.loadBranding();
-    window.showToast('Background dikembalikan ke foto gedung sekolah!');
-  };
-
-  window.handleSaveSchoolIdentity = function(e) {
-    e.preventDefault();
-    const config = {
-      name: document.getElementById('settingInputSchoolName').value.trim() || DEFAULT_SCHOOL_CONFIG.name,
-      motto: document.getElementById('settingInputSchoolMotto').value.trim() || DEFAULT_SCHOOL_CONFIG.motto,
-      academicYear: document.getElementById('settingInputAcademicYear').value.trim() || DEFAULT_SCHOOL_CONFIG.academicYear,
-      tagline: document.getElementById('settingInputSchoolMotto').value.trim() || DEFAULT_SCHOOL_CONFIG.tagline
-    };
-    localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
-    window.loadBranding();
-    window.showToast('Identitas & slogan sekolah berhasil disimpan!');
-  };
-
-  /* ================= PENGGUNA (USER MANAGEMENT & EDIT MODAL) ================= */
-  window.renderUsersTable = function() {
-    const tbody = document.getElementById('userTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    appUsers.forEach((u, i) => {
-      const isCurrent = currentActiveUser && (currentActiveUser.id === u.id || currentActiveUser.username === u.username);
-      const tr = document.createElement('tr');
-      tr.className = `hover:bg-purple-50/50 transition ${isCurrent ? 'bg-purple-100/40' : ''}`;
-      tr.innerHTML = `
-        <td class="py-3 px-4 text-center font-bold text-slate-400">${i + 1}</td>
-        <td class="py-3 px-4 font-bold text-slate-800">
-          ${u.nama}
-          ${isCurrent ? '<span class="ml-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-brand-800 text-white">Login Aktif</span>' : ''}
-        </td>
-        <td class="py-3 px-4 text-slate-500 font-mono">${u.username}</td>
-        <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-purple-50 text-brand-900 border border-purple-200">${u.jabatan}</span></td>
-        <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">${u.status}</span></td>
-        <td class="py-3 px-4 text-center">
-          <button onclick="editUser(${u.id})" class="w-8 h-8 rounded-xl bg-purple-100 hover:bg-purple-200 text-brand-900 flex items-center justify-center mx-auto transition shadow-xs" title="Edit Akun Pengguna">
-            <i class="fa-solid fa-pencil text-xs"></i>
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  };
-
-  window.editUser = function(userId) {
-    const user = appUsers.find(u => u.id === Number(userId) || u.no === Number(userId));
-    if (!user) {
-      window.showToast('Data akun tidak ditemukan', false);
-      return;
-    }
-
-    document.getElementById('editUserId').value = user.id;
-    document.getElementById('editUserNama').value = user.nama;
-    document.getElementById('editUserUsername').value = user.username;
-    document.getElementById('editUserJabatan').value = user.jabatan;
-    document.getElementById('editUserStatus').value = user.status || 'Aktif';
-
-    const isCurrent = currentActiveUser && (currentActiveUser.id === user.id || currentActiveUser.username === user.username);
-    document.getElementById('editUserSetActive').checked = !!isCurrent;
-
-    const modal = document.getElementById('modalEditUser');
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-  };
-
-  window.closeEditUserModal = function() {
-    const modal = document.getElementById('modalEditUser');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-  };
-
-  window.handleSaveEditUser = function(e) {
-    e.preventDefault();
-    const id = Number(document.getElementById('editUserId').value);
-    const nama = document.getElementById('editUserNama').value.trim();
-    const username = document.getElementById('editUserUsername').value.trim().toLowerCase();
-    const jabatan = document.getElementById('editUserJabatan').value;
-    const status = document.getElementById('editUserStatus').value;
-    const setActive = document.getElementById('editUserSetActive').checked;
-
-    const idx = appUsers.findIndex(u => u.id === id || u.no === id);
-    if (idx !== -1) {
-      appUsers[idx].nama = nama;
-      appUsers[idx].username = username;
-      appUsers[idx].jabatan = jabatan;
-      appUsers[idx].status = status;
-
-      if (setActive || (currentActiveUser && (currentActiveUser.id === id || currentActiveUser.username === username))) {
-        currentActiveUser = { ...appUsers[idx] };
-        localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(currentActiveUser));
+      if (!rows || rows.length === 0) {
+        window.showToast('File Excel kosong atau format tidak sesuai.');
+        return;
       }
 
-      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(appUsers));
-      window.renderUsersTable();
-      window.syncActiveUserUI();
-      window.closeEditUserModal();
-      window.showToast(`Akun ${nama} berhasil disimpan & diperbarui!`);
-    }
-  };
-
-  window.openAddUserModal = function() {
-    const modal = document.getElementById('modalAddUser');
-    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-  };
-
-  window.closeAddUserModal = function() {
-    const modal = document.getElementById('modalAddUser');
-    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-  };
-
-  window.handleSaveNewUser = function(e) {
-    e.preventDefault();
-    const newU = {
-      id: Date.now(),
-      no: appUsers.length + 1,
-      nama: document.getElementById('newUserNama').value.trim(),
-      username: document.getElementById('newUserUsername').value.toLowerCase().trim(),
-      jabatan: document.getElementById('newUserJabatan').value,
-      status: "Aktif"
-    };
-    appUsers.push(newU);
-    localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(appUsers));
-    window.renderUsersTable();
-    window.closeAddUserModal();
-    window.showToast(`Pengguna ${newU.nama} berhasil didaftarkan!`);
-  };
-
-  /* ================= DATA SISWA ================= */
-  window.renderStudentTable = function() {
-    const tbody = document.getElementById('studentTableBody');
-    if (!tbody) return;
-    const searchVal = (document.getElementById('siswaSearchInput')?.value || '').toLowerCase();
-    const filterK = document.getElementById('filterKelas')?.value || 'ALL';
-    const filterS = document.getElementById('filterStatus')?.value || 'ALL';
-
-    const filtered = students.filter(s => {
-      const matchSearch = s.nama.toLowerCase().includes(searchVal) || s.nis.includes(searchVal) || (s.nisn && s.nisn.includes(searchVal));
-      const matchKelas = filterK === 'ALL' || s.kelas === filterK;
-      const matchStatus = filterS === 'ALL' || s.status === filterS;
-      return matchSearch && matchKelas && matchStatus;
-    });
-
-    tbody.innerHTML = '';
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-400">Tidak ada data santri ditemukan.</td></tr>`;
-      return;
-    }
-
-    filtered.forEach((s, idx) => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-purple-50/40 transition duration-150';
-      tr.innerHTML = `
-        <td class="py-3.5 px-4 text-center font-bold text-slate-400">${idx + 1}</td>
-        <td class="py-3.5 px-4">
-          <div class="w-8 h-8 rounded-full bg-purple-100 text-brand-900 font-bold flex items-center justify-center border border-purple-200">
-            ${s.nama.charAt(0)}
-          </div>
-        </td>
-        <td class="py-3.5 px-4 font-semibold text-slate-700">${s.nis}</td>
-        <td class="py-3.5 px-4 text-slate-500">${s.nisn || '-'}</td>
-        <td class="py-3.5 px-4 font-bold text-slate-800">${s.nama}</td>
-        <td class="py-3.5 px-4 font-semibold text-brand-900">${s.kelas}</td>
-        <td class="py-3.5 px-4 text-center font-semibold ${s.jk === 'L' ? 'text-brand-700' : 'text-pink-600'}">${s.jk}</td>
-        <td class="py-3.5 px-4 text-center">
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${s.status === 'Aktif' ? 'bg-purple-100 text-brand-900' : 'bg-slate-100 text-slate-600'}">
-            ${s.status}
-          </span>
-        </td>
-        <td class="py-3.5 px-4 text-center">
-          <div class="flex items-center justify-center space-x-1.5">
-            <button onclick="openDetailModal(${s.id})" title="Lihat Profil" class="w-7 h-7 rounded-lg bg-purple-100 text-brand-800 hover:bg-purple-200 flex items-center justify-center">
-              <i class="fa-regular fa-eye text-xs"></i>
-            </button>
-            <button onclick="deleteStudent(${s.id})" title="Hapus" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center">
-              <i class="fa-regular fa-trash-can text-xs"></i>
-            </button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    const info = document.getElementById('studentCountInfo');
-    if (info) info.innerText = `Menampilkan ${filtered.length} dari ${students.length} santri`;
-    window.populateStudentSelects();
-  };
-
-  window.openDetailModal = function(id) {
-    const s = students.find(item => item.id === id);
-    if (!s) return;
-    const set = (elId, val) => { const el = document.getElementById(elId); if (el) el.innerText = val; };
-    set('detailNama', s.nama);
-    set('detailNIS', s.nis);
-    set('detailNISN', s.nisn || '-');
-    set('detailKelas', s.kelas);
-    set('detailTTL', s.ttl || 'Surabaya, 12 April 2018');
-    set('detailAlamat', s.alamat || 'Surabaya');
-    set('detailHP', s.hp || '0812xxxxxxxx');
-    const av = document.getElementById('detailAvatar');
-    if (av) av.innerText = s.nama.charAt(0);
-
-    const m = document.getElementById('modalDetailSiswa');
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
-  };
-
-  window.closeDetailModal = function() {
-    const m = document.getElementById('modalDetailSiswa');
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
-  };
-
-  window.openAddStudentModal = function() {
-    const m = document.getElementById('modalAddSiswa');
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
-  };
-
-  window.closeAddStudentModal = function() {
-    const m = document.getElementById('modalAddSiswa');
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
-  };
-
-  window.handleSaveNewStudent = function(e) {
-    e.preventDefault();
-    const newStudent = {
-      id: Date.now(),
-      nis: document.getElementById('newNIS').value.trim(),
-      nisn: document.getElementById('newNISN').value.trim(),
-      nama: document.getElementById('newNama').value.trim(),
-      kelas: document.getElementById('newKelas').value,
-      jk: document.getElementById('newJK').value,
-      status: "Aktif",
-      ttl: "Surabaya, 10 Mei 2018",
-      alamat: document.getElementById('newAlamat').value.trim() || "Surabaya",
-      hp: "0812xxxxxxxx"
-    };
-
-    students.unshift(newStudent);
-    localStorage.setItem('sdit_students_v7', JSON.stringify(students));
-    window.renderStudentTable();
-    window.closeAddStudentModal();
-    window.loadBranding();
-    window.showToast(`Siswa "${newStudent.nama}" berhasil ditambahkan!`);
-  };
-
-  window.deleteStudent = function(id) {
-    students = students.filter(s => s.id !== id);
-    localStorage.setItem('sdit_students_v7', JSON.stringify(students));
-    window.renderStudentTable();
-    window.loadBranding();
-    window.showToast('Data santri berhasil dihapus.');
-  };
-
-  window.resetSiswaFilter = function() {
-    const search = document.getElementById('siswaSearchInput');
-    const fK = document.getElementById('filterKelas');
-    const fS = document.getElementById('filterStatus');
-    if (search) search.value = '';
-    if (fK) fK.value = 'ALL';
-    if (fS) fS.value = 'ALL';
-    window.renderStudentTable();
-  };
-
-  /* ================= ABSENSI ================= */
-  window.renderAttendanceSheet = function() {
-    const tbody = document.getElementById('attendanceSheetBody');
-    const classSelect = document.getElementById('attendanceClassSelect');
-    if (!tbody || !classSelect) return;
-    const selectedClass = classSelect.value || '1A';
-    const date = document.getElementById('attendanceDateInput')?.value || '2026-09-23';
-
-    const classStudents = students.filter(s => s.kelas === selectedClass);
-    tbody.innerHTML = '';
-
-    let h = 0, s = 0, iz = 0, a = 0;
-    if (classStudents.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada santri di kelas ${selectedClass}.</td></tr>`;
-      return;
-    }
-
-    classStudents.forEach((st, idx) => {
-      const key = `${date}_${st.id}`;
-      const savedStatus = attendanceStore[key] || 'H';
-      if (savedStatus === 'H') h++;
-      else if (savedStatus === 'S') s++;
-      else if (savedStatus === 'I') iz++;
-      else if (savedStatus === 'A') a++;
-
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-purple-50/40 transition';
-      tr.innerHTML = `
-        <td class="py-3 px-4 text-center font-bold text-slate-400">${idx + 1}</td>
-        <td class="py-3 px-4 font-bold text-slate-800">${st.nama}</td>
-        <td class="py-3 px-4 text-slate-500">${st.nis}</td>
-        <td class="py-3 px-4 text-center">
-          <div class="inline-flex rounded-xl bg-purple-50 border border-purple-200 p-1 space-x-1">
-            <button onclick="setStudentAtt('${key}', 'H')" class="px-3 py-1 rounded-lg text-xs font-bold transition ${savedStatus === 'H' ? 'bg-brand-800 text-white shadow-xs' : 'text-slate-600'}">H</button>
-            <button onclick="setStudentAtt('${key}', 'S')" class="px-3 py-1 rounded-lg text-xs font-bold transition ${savedStatus === 'S' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600'}">S</button>
-            <button onclick="setStudentAtt('${key}', 'I')" class="px-3 py-1 rounded-lg text-xs font-bold transition ${savedStatus === 'I' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600'}">I</button>
-            <button onclick="setStudentAtt('${key}', 'A')" class="px-3 py-1 rounded-lg text-xs font-bold transition ${savedStatus === 'A' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600'}">A</button>
-          </div>
-        </td>
-        <td class="py-3 px-4">
-          <input type="text" placeholder="Catatan hadir..." class="w-full bg-purple-50/50 border border-purple-100 rounded-lg px-2.5 py-1 text-xs">
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    const badge = document.getElementById('absensiSummaryBadge');
-    if (badge) badge.innerText = `${h} Hadir • ${s} Sakit • ${iz} Izin • ${a} Alfa`;
-  };
-
-  window.setStudentAtt = function(key, status) {
-    attendanceStore[key] = status;
-    localStorage.setItem('sdit_attendance_v7', JSON.stringify(attendanceStore));
-    window.renderAttendanceSheet();
-  };
-
-  window.markAllAttendance = function(status) {
-    const selectedClass = document.getElementById('attendanceClassSelect')?.value || '1A';
-    const date = document.getElementById('attendanceDateInput')?.value || '2026-09-23';
-    students.filter(s => s.kelas === selectedClass).forEach(st => {
-      attendanceStore[`${date}_${st.id}`] = status;
-    });
-    localStorage.setItem('sdit_attendance_v7', JSON.stringify(attendanceStore));
-    window.renderAttendanceSheet();
-    window.showToast(`Seluruh kelas ${selectedClass} ditandai Hadir.`);
-  };
-
-  window.saveAttendanceRecord = function() {
-    window.showToast('Presensi kelas tersimpan ke memori pangkalan data!');
-  };
-
-  /* ================= DATA KELAS (25 ROMBEL) ================= */
-  window.filterLevelKelas = function(level) {
-    currentClassFilterLevel = level;
-    document.querySelectorAll('.lvl-filter-btn').forEach(btn => {
-      btn.classList.remove('bg-brand-800', 'text-white', 'shadow-xs');
-      btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-purple-200');
-    });
-    const activeBtn = document.getElementById('btn-lvl-' + level);
-    if (activeBtn) {
-      activeBtn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-purple-200');
-      activeBtn.classList.add('bg-brand-800', 'text-white', 'shadow-xs');
-    }
-    window.renderClassCards();
-  };
-
-  window.renderClassCards = function() {
-    const container = document.getElementById('kelasListContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const filtered = currentClassFilterLevel === 'ALL'
-      ? classes
-      : classes.filter(c => c.tingkat === Number(currentClassFilterLevel));
-
-    filtered.forEach(c => {
-      const studentCount = students.filter(s => s.kelas === c.id).length || c.total;
-      const card = document.createElement('div');
-      card.className = 'bg-white p-4 sm:p-5 rounded-2xl border border-purple-100 shadow-xs hover:shadow-md transition flex flex-col justify-between group';
-      card.innerHTML = `
-        <div>
-          <div class="flex justify-between items-center mb-3">
-            <span class="w-11 h-11 rounded-xl bg-purple-100 border border-purple-200 text-brand-900 font-black flex items-center justify-center text-sm shadow-xs group-hover:scale-105 transition">
-              ${c.id}
-            </span>
-            <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-50 text-brand-900 font-bold border border-purple-200">
-              Tingkat ${c.tingkat}
-            </span>
-          </div>
-          <h3 class="font-extrabold text-slate-800 text-xs sm:text-sm leading-snug">${c.nama}</h3>
-          <p class="text-[11px] text-slate-500 mt-1 flex items-center">
-            <i class="fa-solid fa-chalkboard-user text-brand-700 mr-1.5 text-[10px]"></i>
-            <span class="truncate">${c.wali}</span>
-          </p>
-          <p class="text-[10px] text-slate-400 mt-0.5">
-            <i class="fa-regular fa-building mr-1"></i> ${c.ruang}
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-purple-50 flex items-center justify-between text-xs font-semibold">
-          <span class="text-slate-700 font-bold">${studentCount} Santri</span>
-          <span class="text-brand-900 bg-purple-100 px-2 py-0.5 rounded-md text-[11px] font-bold">${c.l} L / ${c.p} P</span>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  };
-
-  /* ================= PELANGGARAN ================= */
-  window.renderViolationsTable = function() {
-    const tbody = document.getElementById('violationLogBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    violations.forEach(v => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-purple-50/40 transition';
-      tr.innerHTML = `
-        <td class="py-3 px-4 text-slate-500 font-medium">${v.tanggal}</td>
-        <td class="py-3 px-4 font-bold text-slate-800">${v.nama}</td>
-        <td class="py-3 px-4 font-semibold text-slate-600">${v.kelas}</td>
-        <td class="py-3 px-4 text-rose-700 font-medium">${v.jenis}</td>
-        <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">${v.poin} Poin</span></td>
-        <td class="py-3 px-4 text-slate-600 text-xs">${v.tindakLanjut}</td>
-        <td class="py-3 px-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-brand-900">${v.status}</span></td>
-        <td class="py-3 px-4 text-center">
-          <button onclick="deleteViolation(${v.id})" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center mx-auto"><i class="fa-regular fa-trash-can text-xs"></i></button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  };
-
-  window.openAddViolationModal = function() {
-    window.populateStudentSelects();
-    const m = document.getElementById('modalAddViolation');
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
-  };
-
-  window.closeAddViolationModal = function() {
-    const m = document.getElementById('modalAddViolation');
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
-  };
-
-  window.handleSaveNewViolation = function(e) {
-    e.preventDefault();
-    const raw = document.getElementById('violSiswaSelect').value;
-    const parts = raw.split(' (');
-    const nama = parts[0];
-    const kelas = parts[1] ? parts[1].replace(')', '') : '1A';
-    const jenis = document.getElementById('violJenis').value;
-    let poin = jenis.includes('10') ? 10 : 5;
-
-    violations.unshift({
-      id: Date.now(),
-      tanggal: document.getElementById('violTanggal').value,
-      nama,
-      kelas,
-      jenis,
-      poin,
-      tindakLanjut: document.getElementById('violTindakLanjut').value,
-      status: "Selesai"
-    });
-    localStorage.setItem('sdit_viol_v7', JSON.stringify(violations));
-    window.renderViolationsTable();
-    window.closeAddViolationModal();
-    window.showToast(`Pelanggaran santri ${nama} dicatat.`);
-  };
-
-  window.deleteViolation = function(id) {
-    violations = violations.filter(v => v.id !== id);
-    localStorage.setItem('sdit_viol_v7', JSON.stringify(violations));
-    window.renderViolationsTable();
-    window.showToast('Catatan pelanggaran dihapus.');
-  };
-
-  /* ================= PRESTASI ================= */
-  window.renderPrestasiCards = function() {
-    const container = document.getElementById('prestasiCardsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    prestasis.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'bg-white p-5 rounded-2xl border border-purple-100 shadow-sm flex items-start space-x-4 hover:shadow-md transition';
-      card.innerHTML = `
-        <div class="w-12 h-12 rounded-xl bg-purple-100 text-brand-800 flex items-center justify-center flex-shrink-0 text-xl">
-          <i class="fa-solid ${p.icon || 'fa-trophy'}"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-brand-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">${p.kategori} • ${p.tingkat}</span>
-          <h4 class="font-bold text-slate-800 text-xs sm:text-sm mt-1 leading-snug">${p.judul}</h4>
-          <p class="text-xs text-slate-500 font-semibold mt-0.5">Peraih: <span class="text-slate-800">${p.peraih}</span></p>
-          <div class="mt-3 flex justify-between items-center text-[11px] text-slate-400">
-            <span>Tahun ${p.tahun}</span>
-            <button onclick="deletePrestasi(${p.id})" class="text-rose-500 hover:text-rose-700 font-bold"><i class="fa-solid fa-trash-can mr-1"></i>Hapus</button>
-          </div>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  };
-
-  window.openAddPrestasiModal = function() {
-    window.populateStudentSelects();
-    const m = document.getElementById('modalAddPrestasi');
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
-  };
-
-  window.closeAddPrestasiModal = function() {
-    const m = document.getElementById('modalAddPrestasi');
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
-  };
-
-  window.handleSaveNewPrestasi = function(e) {
-    e.preventDefault();
-    prestasis.unshift({
-      id: Date.now(),
-      judul: document.getElementById('prestasiJudul').value,
-      peraih: document.getElementById('prestasiSiswaSelect').value,
-      kategori: document.getElementById('prestasiKategori').value,
-      tingkat: document.getElementById('prestasiTingkat').value,
-      tahun: "2026",
-      icon: "fa-trophy"
-    });
-    localStorage.setItem('sdit_prestasi_v7', JSON.stringify(prestasis));
-    window.renderPrestasiCards();
-    window.closeAddPrestasiModal();
-    window.showToast('Prestasi santri dicatat!');
-  };
-
-  window.deletePrestasi = function(id) {
-    prestasis = prestasis.filter(p => p.id !== id);
-    localStorage.setItem('sdit_prestasi_v7', JSON.stringify(prestasis));
-    window.renderPrestasiCards();
-    window.showToast('Data prestasi dihapus.');
-  };
-
-  /* ================= PERIZINAN ================= */
-  window.renderIzinTable = function() {
-    const tbody = document.getElementById('izinTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    izinList.forEach(iz => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-purple-50/40 transition';
-      tr.innerHTML = `
-        <td class="py-3 px-4 font-mono text-slate-500 font-bold">${iz.no}</td>
-        <td class="py-3 px-4 font-bold text-slate-800">${iz.nama}</td>
-        <td class="py-3 px-4 text-slate-600 font-semibold">${iz.kelas}</td>
-        <td class="py-3 px-4 text-amber-700 font-medium">${iz.jenis}</td>
-        <td class="py-3 px-4 text-slate-600">${iz.durasi}</td>
-        <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-brand-900">${iz.status}</span></td>
-        <td class="py-3 px-4 text-center">
-          <button onclick="printSuratIzin('${iz.no}', '${iz.nama}', '${iz.kelas}', '${iz.jenis}', '${iz.durasi}')" class="w-7 h-7 rounded-lg bg-purple-50 hover:bg-purple-100 text-brand-800"><i class="fa-solid fa-print text-xs"></i></button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  };
-
-  window.openAddIzinModal = function() {
-    window.populateStudentSelects();
-    const m = document.getElementById('modalAddIzin');
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
-  };
-
-  window.closeAddIzinModal = function() {
-    const m = document.getElementById('modalAddIzin');
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
-  };
-
-  window.handleSaveNewIzin = function(e) {
-    e.preventDefault();
-    const raw = document.getElementById('izinSiswaSelect').value;
-    const parts = raw.split(' (');
-    const nama = parts[0];
-    const kelas = parts[1] ? parts[1].replace(')', '') : '1A';
-
-    izinList.unshift({
-      id: Date.now(),
-      no: `IZN-2026/09/0${izinList.length + 15}`,
-      nama,
-      kelas,
-      jenis: document.getElementById('izinJenis').value,
-      durasi: document.getElementById('izinDurasi').value,
-      status: "Disetujui"
-    });
-    localStorage.setItem('sdit_izin_v7', JSON.stringify(izinList));
-    window.renderIzinTable();
-    window.closeAddIzinModal();
-    window.showToast(`Surat izin untuk ${nama} diterbitkan.`);
-  };
-
-  window.printSuratIzin = function(no, nama, kelas, jenis, durasi) {
-    const printArea = document.getElementById('printDynamicContent');
-    if (!printArea) return;
-    printArea.innerHTML = `
-      <div class="text-center mb-6">
-        <h3 class="text-lg font-bold underline uppercase">SURAT KETERANGAN DISPENSASI / PERIZINAN SANTRI</h3>
-        <p class="text-xs">Nomor: ${no}</p>
-      </div>
-      <p class="text-sm mb-4">Yang bertanda tangan di bawah ini Kepala Sekolah & Bagian Kesiswaan menerangkan:</p>
-      <table class="text-sm mb-6 w-full">
-        <tr><td class="w-32 py-1 font-bold">Nama Santri</td><td>: ${nama}</td></tr>
-        <tr><td class="py-1 font-bold">Kelas</td><td>: ${kelas}</td></tr>
-        <tr><td class="py-1 font-bold">Jenis Izin</td><td>: ${jenis}</td></tr>
-        <tr><td class="py-1 font-bold">Waktu Dispensasi</td><td>: ${durasi}</td></tr>
-      </table>
-      <p class="text-sm mb-8 leading-relaxed">Diberikan izin tidak mengikuti kegiatan belajar mengajar sesuai jadwal di atas.</p>
-      <div class="flex justify-between text-sm mt-12 text-center">
-        <div><p>Wali Kelas,</p><br><br><p class="font-bold underline">Usth. Sarah, S. Pd</p></div>
-        <div><p>Surabaya, 23 September 2026<br>Kepala Sekolah,</p><br><p class="font-bold underline">Drs. H. Maimun, M. Pd.I</p></div>
-      </div>
-    `;
-    window.print();
-  };
-
-  /* ================= BK / KONSELING ================= */
-  window.renderBKList = function() {
-    const container = document.getElementById('bkListContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    bkNotes.forEach(b => {
-      const item = document.createElement('div');
-      item.className = 'p-3.5 bg-purple-50/50 rounded-xl border border-purple-100 space-y-1';
-      item.innerHTML = `
-        <div class="flex justify-between items-start">
-          <h4 class="font-bold text-slate-800">${b.nama} (${b.kelas})</h4>
-          <span class="text-[10px] ${b.status === 'Selesai' ? 'bg-purple-100 text-brand-900' : 'bg-amber-100 text-amber-800'} px-2 py-0.5 rounded font-bold">${b.status}</span>
-        </div>
-        <p class="text-slate-600 text-xs">${b.catatan}</p>
-        <div class="text-[10px] text-slate-400 flex justify-between pt-1">
-          <span>Konselor: ${b.konselor}</span>
-          <span>${b.tanggal}</span>
-        </div>
-      `;
-      container.appendChild(item);
-    });
-    window.populateStudentSelects();
-  };
-
-  window.handleNewBKNote = function(e) {
-    e.preventDefault();
-    const raw = document.getElementById('bkSiswaSelect').value;
-    const parts = raw.split(' (');
-    const nama = parts[0];
-    const kelas = parts[1] ? parts[1].replace(')', '') : '1A';
-
-    bkNotes.unshift({
-      id: Date.now(),
-      nama,
-      kelas,
-      tanggal: "2026-09-23",
-      konselor: document.getElementById('bkKonselor').value,
-      catatan: document.getElementById('bkCatatanText').value,
-      status: "Dalam Pembinaan"
-    });
-    localStorage.setItem('sdit_bk_v7', JSON.stringify(bkNotes));
-    window.renderBKList();
-    document.getElementById('bkCatatanText').value = '';
-    window.showToast(`Catatan konseling santri ${nama} disimpan.`);
-  };
-
-  window.openPanggilanOrtuModal = function() {
-    window.populateStudentSelects();
-    const m = document.getElementById('modalPanggilanOrtu');
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
-  };
-
-  window.closePanggilanOrtuModal = function() {
-    const m = document.getElementById('modalPanggilanOrtu');
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
-  };
-
-  window.printPanggilanLetter = function() {
-    const raw = document.getElementById('panggilanSiswaSelect').value;
-    const tgl = document.getElementById('panggilanTanggal').value;
-    const keperluan = document.getElementById('panggilanKeperluan').value;
-
-    const printArea = document.getElementById('printDynamicContent');
-    if (!printArea) return;
-    printArea.innerHTML = `
-      <div class="text-center mb-6">
-        <h3 class="text-lg font-bold underline uppercase">SURAT PANGGILAN ORANG TUA / WALI SANTRI</h3>
-        <p class="text-xs">Nomor: SP-BK/2026/09/009</p>
-      </div>
-      <p class="text-sm mb-2">Kepada Yth. Bapak/Ibu Wali Santri dari: <strong>${raw}</strong></p>
-      <p class="text-sm mb-4">Assalamu'alaikum Warahmatullahi Wabarakatuh,<br>Mengharap kehadiran Bapak/Ibu pada:</p>
-      <table class="text-sm mb-6 ml-4">
-        <tr><td class="w-32 py-1 font-bold">Hari, Tanggal</td><td>: ${tgl}</td></tr>
-        <tr><td class="py-1 font-bold">Tempat</td><td>: Ruang BK SDIT Alia Nurul Jihadi</td></tr>
-        <tr><td class="py-1 font-bold">Keperluan</td><td>: ${keperluan}</td></tr>
-      </table>
-      <div class="flex justify-between text-sm mt-12 text-center">
-        <div><p>Guru BK / Konselor,</p><br><br><p class="font-bold underline">Ust. Mahmud, S. Pd.I</p></div>
-        <div><p>Surabaya, 23 September 2026<br>Kepala Sekolah,</p><br><p class="font-bold underline">Drs. H. Maimun, M. Pd.I</p></div>
-      </div>
-    `;
-    window.closePanggilanOrtuModal();
-    window.print();
-  };
-
-  /* ================= UTILITIES & BACKUP ================= */
-  window.populateClassDropdowns = function() {
-    const attSelect = document.getElementById('attendanceClassSelect');
-    const newKelasSelect = document.getElementById('newKelas');
-    const filterKelas = document.getElementById('filterKelas');
-
-    if (attSelect) {
-      attSelect.innerHTML = '';
-      for (let lvl = 1; lvl <= 6; lvl++) {
-        const group = document.createElement('optgroup');
-        group.label = `Tingkat ${lvl}`;
-        classes.filter(c => c.tingkat === lvl).forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = `Kelas ${c.id} - ${c.nama}`;
-          group.appendChild(opt);
-        });
-        attSelect.appendChild(group);
-      }
-    }
-
-    if (newKelasSelect) {
-      newKelasSelect.innerHTML = '';
-      classes.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = `Kelas ${c.id} - ${c.nama}`;
-        newKelasSelect.appendChild(opt);
-      });
-    }
-
-    if (filterKelas) {
-      filterKelas.innerHTML = '<option value="ALL">Semua Kelas (25 Rombel)</option>';
-      classes.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = `Kelas ${c.id}`;
-        filterKelas.appendChild(opt);
-      });
-    }
-  };
-
-  window.populateStudentSelects = function() {
-    const selects = [
-      document.getElementById('violSiswaSelect'),
-      document.getElementById('prestasiSiswaSelect'),
-      document.getElementById('izinSiswaSelect'),
-      document.getElementById('bkSiswaSelect'),
-      document.getElementById('panggilanSiswaSelect')
-    ];
-    selects.forEach(select => {
-      if (!select) return;
-      select.innerHTML = '';
-      students.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = `${s.nama} (${s.kelas})`;
-        opt.textContent = `${s.nama} - Kelas ${s.kelas} (${s.nis})`;
-        select.appendChild(opt);
-      });
-    });
-  };
-
-  window.backupSystemData = function() {
-    const backupObj = {
-      students,
-      classes,
-      violations,
-      prestasis,
-      izinList,
-      bkNotes,
-      attendanceStore,
-      users: appUsers,
-      currentUser: currentActiveUser,
-      config: JSON.parse(localStorage.getItem(STORAGE_KEY_CONFIG)) || DEFAULT_SCHOOL_CONFIG
-    };
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
-    const dlAnchor = document.createElement('a');
-    dlAnchor.setAttribute("href", dataStr);
-    dlAnchor.setAttribute("download", `Backup_Kesiswaan_SDIT_${new Date().toISOString().slice(0, 10)}.json`);
-    dlAnchor.click();
-    window.showToast('Cadangan data JSON berhasil diunduh!');
-  };
-
-  window.triggerRestoreBackup = function() {
-    const input = document.getElementById('backupFileInput');
-    if (input) input.click();
-  };
-
-  window.handleRestoreBackup = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (data.students) localStorage.setItem('sdit_students_v7', JSON.stringify(data.students));
-        if (data.violations) localStorage.setItem('sdit_viol_v7', JSON.stringify(data.violations));
-        if (data.prestasis) localStorage.setItem('sdit_prestasi_v7', JSON.stringify(data.prestasis));
-        if (data.izinList) localStorage.setItem('sdit_izin_v7', JSON.stringify(data.izinList));
-        if (data.bkNotes) localStorage.setItem('sdit_bk_v7', JSON.stringify(data.bkNotes));
-        if (data.users) localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(data.users));
-        if (data.currentUser) localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(data.currentUser));
-        if (data.config) localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(data.config));
-
-        window.showToast('Data berhasil dipulihkan!');
-        setTimeout(() => location.reload(), 1000);
-      } catch (err) {
-        window.showToast('Format berkas cadangan JSON tidak valid.', false);
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  window.exportToExcel = function() {
-    let csv = "No,NIS,NISN,Nama Siswa,Kelas,Jenis Kelamin,Status\n";
-    students.forEach((s, idx) => {
-      csv += `${idx + 1},${s.nis},${s.nisn || '-'},"${s.nama}",${s.kelas},${s.jk},${s.status}\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Data_Kesiswaan_SDIT_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
-    window.showToast("Berhasil ekspor CSV!");
-  };
-
-  window.printReport = function() {
-    window.print();
-  };
-
-  window.handleGlobalSearch = function(e) {
-    const val = (e.target.value || '').toLowerCase().trim();
-    if (e.key === 'Enter' && val) {
-      window.navigateTo('siswa');
-      const input = document.getElementById('siswaSearchInput');
-      if (input) {
-        input.value = val;
-        window.renderStudentTable();
-      }
-    }
-  };
-
-  /* ================= REAL-TIME CLOCK (WIB) ================= */
-  window.updateLiveClock = function() {
-    const now = new Date();
-    const optionsDate = {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'Asia/Jakarta'
-    };
-    const formattedDate = new Intl.DateTimeFormat('id-ID', optionsDate).format(now);
-    const dateElem = document.getElementById('currentDateDisplay');
-    if (dateElem) dateElem.textContent = formattedDate;
-
-    const timeFormatter = new Intl.DateTimeFormat('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Jakarta'
-    });
-    const timeParts = timeFormatter.formatToParts(now);
-    let h = '00', m = '00', s = '00';
-    timeParts.forEach(p => {
-      if (p.type === 'hour') h = p.value;
-      if (p.type === 'minute') m = p.value;
-      if (p.type === 'second') s = p.value;
-    });
-
-    const clockElem = document.getElementById('liveClock');
-    if (clockElem) clockElem.textContent = `${h}:${m}:${s} WIB`;
-  };
-
-  /* ================= CHARTS WITH PURPLE PALETTE ================= */
-  let weeklyChartInst, genderChartInst, statusChartInst, monthlyChartInst;
-
-  window.initDashboardCharts = function() {
-    const ctxWeekly = document.getElementById('weeklyAttendanceChart');
-    if (ctxWeekly && typeof Chart !== 'undefined') {
-      if (weeklyChartInst) weeklyChartInst.destroy();
-      weeklyChartInst = new Chart(ctxWeekly, {
-        type: 'bar',
-        data: {
-          labels: ['17 Sep', '18 Sep', '19 Sep', '20 Sep', '21 Sep', '22 Sep', '23 Sep'],
-          datasets: [
-            { label: 'Hadir', data: [305, 308, 299, 312, 302, 298, 304], backgroundColor: '#7e22ce', borderRadius: 6 },
-            { label: 'Sakit', data: [12, 10, 15, 7, 14, 12, 10], backgroundColor: '#f59e0b', borderRadius: 6 },
-            { label: 'Alfa', data: [6, 4, 8, 4, 5, 7, 5], backgroundColor: '#ef4444', borderRadius: 6 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { x: { grid: { display: false } }, y: { grid: { color: '#f3e8ff' }, max: 350 } }
+      let added = 0;
+      rows.forEach(function(r) {
+        const nis = String(r['NIS'] || r['nis'] || '').trim();
+        const nisn = String(r['NISN'] || r['nisn'] || '-').trim();
+        const nama = String(r['NAMA LENGKAP'] || r['Nama Lengkap'] || r['Nama'] || '').trim();
+        let kelas = String(r['KELAS'] || r['Kelas'] || '1A').trim().toUpperCase();
+        let jk = String(r['JENIS KELAMIN'] || r['JK'] || 'L').trim().toUpperCase();
+        const alamat = String(r['ALAMAT'] || r['Alamat'] || '-').trim();
+
+        if (nama) {
+          jk = (jk.startsWith('P') || jk === 'PEREMPUAN') ? 'P' : 'L';
+          if (!ROMBEL_CLASSES.includes(kelas)) {
+            kelas = kelas.replace(/[^0-9A-E]/gi, '');
+            if (!ROMBEL_CLASSES.includes(kelas)) kelas = '1A';
+          }
+          appState.students.push({
+            id: Date.now() + Math.floor(Math.random() * 10000),
+            nis: nis || String(12000 + appState.students.length + 1),
+            nisn: nisn,
+            nama: nama,
+            kelas: kelas,
+            jk: jk,
+            alamat: alamat,
+            status: 'Aktif'
+          });
+          added++;
         }
       });
-    }
 
-    const ctxGender = document.getElementById('genderChart');
-    if (ctxGender && typeof Chart !== 'undefined') {
-      if (genderChartInst) genderChartInst.destroy();
-      genderChartInst = new Chart(ctxGender, {
-        type: 'doughnut',
-        data: {
-          labels: ['Laki-laki', 'Perempuan'],
-          datasets: [{ data: [170, 155], backgroundColor: ['#6b21a8', '#f472b6'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
-      });
-    }
-
-    const ctxStatus = document.getElementById('statusChart');
-    if (ctxStatus && typeof Chart !== 'undefined') {
-      if (statusChartInst) statusChartInst.destroy();
-      statusChartInst = new Chart(ctxStatus, {
-        type: 'doughnut',
-        data: {
-          labels: ['Aktif', 'Pindah', 'Lulus', 'Lainnya'],
-          datasets: [{ data: [310, 8, 5, 2], backgroundColor: ['#7e22ce', '#06b6d4', '#f59e0b', '#cbd5e1'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
-      });
+      if (added > 0) {
+        savePersistedData();
+        renderStudentTable();
+        updateDashboardStats();
+        populateStudentSelectOptions();
+        window.showToast('Berhasil mengimpor ' + added + ' data siswa dari Excel!');
+      } else {
+        window.showToast('Tidak ada baris siswa yang valid pada file.');
+      }
+    } catch (err) {
+      window.showToast('Gagal memproses file Excel: ' + err.message);
     }
   };
+  reader.readAsArrayBuffer(file);
+};
 
-  window.initReportChart = function() {
-    const ctxMonthly = document.getElementById('monthlyAttendanceChart');
-    if (ctxMonthly && typeof Chart !== 'undefined') {
-      if (monthlyChartInst) monthlyChartInst.destroy();
-      monthlyChartInst = new Chart(ctxMonthly, {
-        type: 'bar',
-        data: {
-          labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
-          datasets: [
-            { label: 'Hadir', data: [315, 308, 312, 310], backgroundColor: '#7e22ce', borderRadius: 6 },
-            { label: 'Sakit', data: [10, 14, 9, 12], backgroundColor: '#f59e0b', borderRadius: 6 }
-          ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
-    }
-  };
+window.downloadExcelTemplate = function() {
+  const template = [
+    { 'NIS': '12010', 'NISN': '001239991', 'NAMA LENGKAP': 'Ahmad Zaki Al-Faruq', 'KELAS': '1A', 'JENIS KELAMIN': 'L', 'ALAMAT': 'Jl. Garuda No. 12' },
+    { 'NIS': '12011', 'NISN': '001239992', 'NAMA LENGKAP': 'Fatimah Az-Zahra', 'KELAS': '1A', 'JENIS KELAMIN': 'P', 'ALAMAT': 'Komplek Griya Asri Blok D' },
+    { 'NIS': '12012', 'NISN': '001239993', 'NAMA LENGKAP': 'Bilal Syamlan', 'KELAS': '2B', 'JENIS KELAMIN': 'L', 'ALAMAT': 'Perumahan Alia Residence' }
+  ];
+  const ws = XLSX.utils.json_to_sheet(template);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Template Siswa');
+  XLSX.writeFile(wb, 'Format_Import_Data_Siswa_SDIT_Alia.xlsx');
+  window.showToast('Template Excel berhasil diunduh!');
+};
 
-  /* ================= INITIALIZATION ================= */
-  window.addEventListener('DOMContentLoaded', () => {
-    window.populateClassDropdowns();
-    window.loadBranding();
-    window.updateLiveClock();
-    setInterval(window.updateLiveClock, 1000);
-    window.renderStudentTable();
-    window.renderClassCards();
-    window.renderUsersTable();
-    window.renderViolationsTable();
-    window.renderPrestasiCards();
-    window.renderIzinTable();
-    window.renderBKList();
-    window.initDashboardCharts();
+window.deleteStudent = function(studentId) {
+  const s = appState.students.find(function(x) { return x.id === studentId; });
+  const name = s ? s.nama : 'santri';
+  appState.students = appState.students.filter(function(x) { return x.id !== studentId; });
+  savePersistedData();
+  renderStudentTable();
+  updateDashboardStats();
+  populateStudentSelectOptions();
+  window.showToast('Data siswa ' + name + ' telah dihapus.');
+};
+
+function renderStudentTable() {
+  const tbody = document.getElementById('studentTableBody');
+  const searchInput = document.getElementById('siswaSearchInput');
+  const search = searchInput ? searchInput.value.toLowerCase() : '';
+  const filterK = document.getElementById('filterKelas') ? document.getElementById('filterKelas').value : 'ALL';
+  const filterS = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : 'ALL';
+
+  if (!tbody) return;
+
+  const filtered = appState.students.filter(function(s) {
+    const matchSearch = s.nama.toLowerCase().indexOf(search) !== -1 ||
+                        s.nis.toLowerCase().indexOf(search) !== -1 ||
+                        s.nisn.toLowerCase().indexOf(search) !== -1;
+    const matchKelas = filterK === 'ALL' || s.kelas === filterK;
+    const matchStatus = filterS === 'ALL' || s.status === filterS;
+    return matchSearch && matchKelas && matchStatus;
   });
-</script>
 
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada data siswa yang cocok. Klik tombol <strong>+ Tambah Siswa</strong> atau <strong>Upload Excel</strong>.</td></tr>';
+    document.getElementById('studentCountInfo').innerText = 'Menampilkan 0 dari ' + appState.students.length + ' santri';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(function(s, idx) {
+    return '<tr class="hover:bg-purple-50/50 transition">' +
+      '<td class="py-3 px-4 text-center font-bold text-slate-400">' + (idx + 1) + '</td>' +
+      '<td class="py-3 px-4 font-mono font-bold text-slate-700">' + s.nis + '</td>' +
+      '<td class="py-3 px-4 font-mono text-slate-500">' + s.nisn + '</td>' +
+      '<td class="py-3 px-4 font-bold text-slate-800">' + s.nama + '</td>' +
+      '<td class="py-3 px-4"><span class="px-2.5 py-1 bg-purple-100 text-brand-900 rounded-lg font-bold text-[11px]">Kelas ' + s.kelas + '</span></td>' +
+      '<td class="py-3 px-4 text-center"><span class="inline-block w-6 h-6 rounded-full text-[10px] font-bold leading-6 ' + (s.jk === 'L' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700') + '">' + s.jk + '</span></td>' +
+      '<td class="py-3 px-4 text-slate-500 truncate max-w-xs">' + s.alamat + '</td>' +
+      '<td class="py-3 px-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ' + (s.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600') + '">' + s.status + '</span></td>' +
+      '<td class="py-3 px-4 text-center"><button onclick="deleteStudent(' + s.id + ')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Hapus Siswa"><i class="fa-regular fa-trash-can"></i></button></td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('studentCountInfo').innerText = 'Menampilkan ' + filtered.length + ' dari ' + appState.students.length + ' santri';
+}
+
+window.resetSiswaFilter = function() {
+  if (document.getElementById('siswaSearchInput')) document.getElementById('siswaSearchInput').value = '';
+  if (document.getElementById('filterKelas')) document.getElementById('filterKelas').value = 'ALL';
+  if (document.getElementById('filterStatus')) document.getElementById('filterStatus').value = 'ALL';
+  renderStudentTable();
+};
+
+
+window.renderUserTable = function() {
+  const tbody = document.getElementById('userTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = appState.users.map(function(u, i) {
+    const isCur = u.username === appState.currentUser.username;
+    return '<tr class="hover:bg-purple-50/50 transition">' +
+      '<td class="py-3 px-4 text-center font-bold text-slate-400">' + (i + 1) + '</td>' +
+      '<td class="py-3 px-4 font-bold text-slate-800 flex items-center space-x-2">' +
+        '<span>' + u.nama + '</span>' +
+        (isCur ? '<span class="text-[9px] bg-brand-700 text-white px-2 py-0.5 rounded-full font-bold">Sedang Aktif</span>' : '') +
+      '</td>' +
+      '<td class="py-3 px-4 font-mono text-slate-600">' + u.username + '</td>' +
+      '<td class="py-3 px-4"><span class="px-2.5 py-1 bg-purple-100 text-brand-900 rounded-lg font-bold text-[11px]">' + u.jabatan + '</span></td>' +
+      '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ' + (u.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600') + '">' + u.status + '</span></td>' +
+      '<td class="py-3 px-4 text-center">' +
+        '<button onclick="editUser(' + u.id + ')" class="p-1.5 text-brand-700 hover:text-brand-900 hover:bg-brand-100 rounded-lg transition" title="Edit Akun Pengguna"><i class="fa-solid fa-pen-to-square"></i></button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+};
+
+window.editUser = function(userId) {
+  const u = appState.users.find(function(x) { return x.id === userId; });
+  if (!u) return;
+
+  document.getElementById('editUserId').value = u.id;
+  document.getElementById('editUserNama').value = u.nama;
+  document.getElementById('editUserUsername').value = u.username;
+  document.getElementById('editUserJabatan').value = u.jabatan;
+  document.getElementById('editUserStatus').value = u.status;
+  document.getElementById('editUserSetActive').checked = (u.username === appState.currentUser.username);
+
+  const modal = document.getElementById('modalEditUser');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+};
+
+window.closeEditUserModal = function() {
+  const modal = document.getElementById('modalEditUser');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.handleSaveEditUser = function(e) {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('editUserId').value, 10);
+  const nama = document.getElementById('editUserNama').value.trim();
+  const username = document.getElementById('editUserUsername').value.trim();
+  const jabatan = document.getElementById('editUserJabatan').value;
+  const status = document.getElementById('editUserStatus').value;
+  const setActive = document.getElementById('editUserSetActive').checked;
+
+  const idx = appState.users.findIndex(function(x) { return x.id === id; });
+  if (idx !== -1) {
+    appState.users[idx] = Object.assign({}, appState.users[idx], { nama: nama, username: username, jabatan: jabatan, status: status });
+    if (setActive || appState.currentUser.id === id) {
+      appState.currentUser = { id: id, nama: nama, username: username, jabatan: jabatan, status: status };
+      syncCurrentUserDisplay();
+    }
+    savePersistedData();
+    window.renderUserTable();
+    window.closeEditUserModal();
+    window.showToast('Akun pengguna berhasil diperbarui!');
+  }
+};
+
+window.openAddUserModal = function() {
+  const modal = document.getElementById('modalAddUser');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+};
+
+window.closeAddUserModal = function() {
+  const modal = document.getElementById('modalAddUser');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
+
+window.handleSaveNewUser = function(e) {
+  e.preventDefault();
+  const nama = document.getElementById('newUserNama').value.trim();
+  const username = document.getElementById('newUserUsername').value.trim();
+  const jabatan = document.getElementById('newUserJabatan').value;
+
+  appState.users.push({
+    id: Date.now(),
+    nama: nama,
+    username: username,
+    jabatan: jabatan,
+    status: 'Aktif'
+  });
+
+  savePersistedData();
+  window.renderUserTable();
+  window.closeAddUserModal();
+  window.showToast('Akun ' + nama + ' berhasil didaftarkan!');
+};
+
+function syncCurrentUserDisplay() {
+  const initials = appState.currentUser.nama.split(' ').map(function(n) { return n[0]; }).slice(0, 2).join('');
+  document.getElementById('headerAvatarText').innerText = initials || 'RJ';
+  document.getElementById('headerUserName').innerText = appState.currentUser.nama;
+  document.getElementById('headerUserRole').innerText = appState.currentUser.jabatan;
+  document.getElementById('dashboardBannerGreetingName').innerText = appState.currentUser.nama;
+}
+
+
+window.renderAttendanceSheet = function() {
+  const tbody = document.getElementById('attendanceSheetBody');
+  const kelas = document.getElementById('attendanceClassSelect') ? document.getElementById('attendanceClassSelect').value : '1A';
+  const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : '2026-09-23';
+  if (!tbody) return;
+
+  const studentsInClass = appState.students.filter(function(s) { return s.kelas === kelas; });
+  const key = tgl + '_' + kelas;
+  if (!appState.attendanceRecords[key]) {
+    appState.attendanceRecords[key] = {};
+    studentsInClass.forEach(function(s) {
+      appState.attendanceRecords[key][s.id] = { status: 'H', note: '' };
+    });
+  }
+
+  const rec = appState.attendanceRecords[key];
+  let hadir = 0, sakit = 0, izin = 0, alfa = 0;
+
+  if (studentsInClass.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada santri di Kelas ' + kelas + '. Tambahkan siswa terlebih dahulu.</td></tr>';
+    document.getElementById('absensiSummaryBadge').innerText = '0 Hadir • 0 Sakit • 0 Izin';
+    return;
+  }
+
+  tbody.innerHTML = studentsInClass.map(function(s, idx) {
+    const cur = rec[s.id] || { status: 'H', note: '' };
+    if (cur.status === 'H') hadir++;
+    else if (cur.status === 'S') sakit++;
+    else if (cur.status === 'I') izin++;
+    else alfa++;
+
+    return '<tr class="hover:bg-purple-50/50 transition">' +
+      '<td class="py-3 px-4 text-center font-bold text-slate-400">' + (idx + 1) + '</td>' +
+      '<td class="py-3 px-4 font-bold text-slate-800">' + s.nama + '</td>' +
+      '<td class="py-3 px-4 font-mono text-slate-500">' + s.nis + '</td>' +
+      '<td class="py-3 px-4 text-center">' +
+        '<div class="inline-flex rounded-xl bg-purple-50 p-1 border border-purple-200 space-x-1">' +
+          '<button onclick="setStudentAtt(\'' + key + '\', ' + s.id + ', \'H\')" class="px-2.5 py-1 rounded-lg font-bold text-[11px] ' + (cur.status === 'H' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:bg-white') + '">H</button>' +
+          '<button onclick="setStudentAtt(\'' + key + '\', ' + s.id + ', \'S\')" class="px-2.5 py-1 rounded-lg font-bold text-[11px] ' + (cur.status === 'S' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600 hover:bg-white') + '">S</button>' +
+          '<button onclick="setStudentAtt(\'' + key + '\', ' + s.id + ', \'I\')" class="px-2.5 py-1 rounded-lg font-bold text-[11px] ' + (cur.status === 'I' ? 'bg-brand-600 text-white shadow-xs' : 'text-slate-600 hover:bg-white') + '">I</button>' +
+          '<button onclick="setStudentAtt(\'' + key + '\', ' + s.id + ', \'A\')" class="px-2.5 py-1 rounded-lg font-bold text-[11px] ' + (cur.status === 'A' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:bg-white') + '">A</button>' +
+        '</div>' +
+      '</td>' +
+      '<td class="py-3 px-4">' +
+        '<input type="text" value="' + (cur.note || '') + '" onchange="setStudentAttNote(\'' + key + '\', ' + s.id + ', this.value)" placeholder="Keterangan..." class="w-full bg-purple-50/50 border border-purple-100 px-3 py-1.5 rounded-lg text-xs">' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • ' + sakit + ' Sakit • ' + izin + ' Izin • ' + alfa + ' Alfa';
+};
+
+window.setStudentAtt = function(key, sId, st) {
+  if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
+  if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
+  appState.attendanceRecords[key][sId].status = st;
+  savePersistedData();
+  window.renderAttendanceSheet();
+};
+
+window.setStudentAttNote = function(key, sId, note) {
+  if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
+  if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
+  appState.attendanceRecords[key][sId].note = note;
+  savePersistedData();
+};
+
+window.markAllAttendance = function(st) {
+  const kelas = document.getElementById('attendanceClassSelect') ? document.getElementById('attendanceClassSelect').value : '1A';
+  const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : '2026-09-23';
+  const key = tgl + '_' + kelas;
+  if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
+
+  const studentsInClass = appState.students.filter(function(s) { return s.kelas === kelas; });
+  studentsInClass.forEach(function(s) {
+    appState.attendanceRecords[key][s.id] = { status: st, note: '' };
+  });
+
+  savePersistedData();
+  window.renderAttendanceSheet();
+  window.showToast('Seluruh siswa Kelas ' + kelas + ' ditandai Hadir.');
+};
+
+window.saveAttendanceRecord = function() {
+  savePersistedData();
+  window.showToast('Presensi kelas berhasil disimpan!');
+};
+
+window.filterLevelKelas = function(lvl) {
+  document.querySelectorAll('.lvl-filter-btn').forEach(function(b) {
+    b.classList.remove('bg-brand-800', 'text-white', 'shadow-xs');
+    b.classList.add('bg-white', 'border', 'border-purple-200', 'text-slate-700');
+  });
+
+  const active = document.getElementById('btn-lvl-' + lvl);
+  if (active) {
+    active.classList.add('bg-brand-800', 'text-white', 'shadow-xs');
+    active.classList.remove('bg-white', 'border', 'border-purple-200', 'text-slate-700');
+  }
+
+  renderKelasGrid(lvl);
+};
+
+function renderKelasGrid(lvl) {
+  const container = document.getElementById('kelasListContainer');
+  if (!container) return;
+
+  const filtered = ROMBEL_CLASSES.filter(function(c) {
+    if (lvl === 'ALL') return true;
+    return c.indexOf(String(lvl)) === 0;
+  });
+
+  container.innerHTML = filtered.map(function(c) {
+    const count = appState.students.filter(function(s) { return s.kelas === c; }).length;
+    return '<div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm hover:shadow-md transition">' +
+      '<div class="flex items-center justify-between mb-3">' +
+        '<span class="w-10 h-10 rounded-xl bg-purple-100 text-brand-800 font-black flex items-center justify-center text-sm">' + c + '</span>' +
+        '<span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">' + count + ' Santri</span>' +
+      '</div>' +
+      '<h4 class="font-bold text-slate-800 text-sm">Kelas ' + c + '</h4>' +
+      '<p class="text-[11px] text-slate-400 mt-0.5">Wali: Ust./Usth. Pengampu</p>' +
+      '<div class="mt-4 pt-3 border-t border-purple-50 flex justify-between items-center text-xs">' +
+        '<button onclick="filterStudentByClass(\'' + c + '\')" class="text-brand-700 font-bold hover:underline">Lihat Siswa</button>' +
+        '<button onclick="quickAttendanceClass(\'' + c + '\')" class="text-slate-500 hover:text-brand-900 font-semibold">Presensi</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+window.filterStudentByClass = function(c) {
+  window.navigateTo('siswa');
+  const sel = document.getElementById('filterKelas');
+  if (sel) {
+    sel.value = c;
+    renderStudentTable();
+  }
+};
+
+window.quickAttendanceClass = function(c) {
+  window.navigateTo('absensi');
+  const sel = document.getElementById('attendanceClassSelect');
+  if (sel) {
+    sel.value = c;
+    window.renderAttendanceSheet();
+  }
+};
+
+
+function renderViolations() {
+  const tb = document.getElementById('violationLogBody');
+  if (!tb) return;
+  tb.innerHTML = appState.violations.map(function(v) {
+    return '<tr class="hover:bg-purple-50/50 transition">' +
+      '<td class="py-3 px-4 font-mono text-slate-500">' + v.date + '</td>' +
+      '<td class="py-3 px-4 font-bold text-slate-800">' + v.studentName + '</td>' +
+      '<td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-100 text-brand-900 rounded font-bold text-[10px]">' + v.kelas + '</span></td>' +
+      '<td class="py-3 px-4 text-slate-600">' + v.bentuk + '</td>' +
+      '<td class="py-3 px-4 text-center font-bold text-rose-600">' + v.poin + '</td>' +
+      '<td class="py-3 px-4 text-slate-500">' + v.tindak + '</td>' +
+      '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">' + v.status + '</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+window.openAddViolationModal = function() {
+  const m = document.getElementById('modalAddViolation');
+  if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+};
+window.closeAddViolationModal = function() {
+  const m = document.getElementById('modalAddViolation');
+  if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+};
+window.handleSaveViolation = function(e) {
+  e.preventDefault();
+  const sId = parseInt(document.getElementById('violationSiswaSelect').value, 10);
+  const st = appState.students.find(function(x) { return x.id === sId; });
+  appState.violations.unshift({
+    id: Date.now(),
+    date: document.getElementById('violationTanggal').value,
+    studentName: st ? st.nama : 'Santri',
+    kelas: st ? st.kelas : '1A',
+    bentuk: document.getElementById('violationBentuk').value,
+    poin: parseInt(document.getElementById('violationPoin').value, 10) || 5,
+    tindak: document.getElementById('violationTindak').value,
+    status: 'Dalam Pembinaan'
+  });
+  savePersistedData();
+  renderViolations();
+  window.closeAddViolationModal();
+  window.showToast('Pelanggaran santri berhasil dicatat!');
+};
+
+function renderPrestasi() {
+  const c = document.getElementById('prestasiCardsContainer');
+  if (!c) return;
+  c.innerHTML = appState.prestasi.map(function(p) {
+    return '<div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden">' +
+      '<div class="flex items-center space-x-3 mb-3">' +
+        '<div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg"><i class="fa-solid fa-medal"></i></div>' +
+        '<div>' +
+          '<span class="text-[10px] font-bold uppercase tracking-wider text-brand-700">' + p.kategori + ' • ' + p.tingkat + '</span>' +
+          '<h4 class="font-bold text-slate-800 text-sm">' + p.judul + '</h4>' +
+        '</div>' +
+      '</div>' +
+      '<p class="text-xs text-slate-600">Santri: <strong>' + p.studentName + '</strong> (' + p.kelas + ')</p>' +
+    '</div>';
+  }).join('');
+}
+
+window.openAddPrestasiModal = function() {
+  const m = document.getElementById('modalAddPrestasi');
+  if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+};
+window.closeAddPrestasiModal = function() {
+  const m = document.getElementById('modalAddPrestasi');
+  if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+};
+window.handleSavePrestasi = function(e) {
+  e.preventDefault();
+  const sId = parseInt(document.getElementById('prestasiSiswaSelect').value, 10);
+  const st = appState.students.find(function(x) { return x.id === sId; });
+  appState.prestasi.unshift({
+    id: Date.now(),
+    studentName: st ? st.nama : 'Santri',
+    kelas: st ? st.kelas : '1A',
+    judul: document.getElementById('prestasiJudul').value,
+    kategori: document.getElementById('prestasiKategori').value,
+    tingkat: document.getElementById('prestasiTingkat').value
+  });
+  savePersistedData();
+  renderPrestasi();
+  window.closeAddPrestasiModal();
+  window.showToast('Prestasi santri berhasil dicatat!');
+};
+
+function renderPerizinan() {
+  const tb = document.getElementById('izinTableBody');
+  if (!tb) return;
+  tb.innerHTML = appState.perizinan.map(function(iz) {
+    return '<tr class="hover:bg-purple-50/50 transition">' +
+      '<td class="py-3 px-4 font-mono font-bold text-brand-900">' + iz.noSurat + '</td>' +
+      '<td class="py-3 px-4 font-bold text-slate-800">' + iz.studentName + '</td>' +
+      '<td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-100 text-brand-900 rounded font-bold text-[10px]">' + iz.kelas + '</span></td>' +
+      '<td class="py-3 px-4 text-slate-600">' + iz.jenis + '</td>' +
+      '<td class="py-3 px-4 text-slate-500">' + iz.tanggal + '</td>' +
+      '<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">' + iz.status + '</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+window.openAddIzinModal = function() {
+  const m = document.getElementById('modalAddIzin');
+  if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+};
+window.closeAddIzinModal = function() {
+  const m = document.getElementById('modalAddIzin');
+  if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+};
+window.handleSaveIzin = function(e) {
+  e.preventDefault();
+  const sId = parseInt(document.getElementById('izinSiswaSelect').value, 10);
+  const st = appState.students.find(function(x) { return x.id === sId; });
+  const year = new Date().getFullYear();
+  const month = String(new Date().getMonth() + 1).padStart(2, '0');
+  const num = String(appState.perizinan.length + 1).padStart(3, '0');
+  appState.perizinan.unshift({
+    id: Date.now(),
+    noSurat: 'IZN/' + year + '/' + month + '/' + num,
+    studentName: st ? st.nama : 'Santri',
+    kelas: st ? st.kelas : '1A',
+    jenis: document.getElementById('izinJenis').value,
+    tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+    status: 'Disetujui'
+  });
+  savePersistedData();
+  renderPerizinan();
+  window.closeAddIzinModal();
+  window.showToast('Surat izin santri berhasil dibuat!');
+};
+
+function renderBK() {
+  const c = document.getElementById('bkListContainer');
+  if (!c) return;
+  c.innerHTML = appState.bkList.map(function(b) {
+    return '<div class="p-3.5 bg-purple-50/50 rounded-xl border border-purple-100 space-y-1">' +
+      '<div class="flex justify-between items-center">' +
+        '<strong class="text-slate-800">' + b.studentName + '</strong>' +
+        '<span class="font-mono text-[10px] text-slate-400">' + b.date + '</span>' +
+      '</div>' +
+      '<p class="text-slate-600">' + b.catatan + '</p>' +
+      '<div class="text-[10px] text-brand-700 font-semibold pt-1">Konselor: ' + b.konselor + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+window.handleNewBKNote = function(e) {
+  e.preventDefault();
+  const sId = parseInt(document.getElementById('bkSiswaSelect').value, 10);
+  const st = appState.students.find(function(x) { return x.id === sId; });
+  appState.bkList.unshift({
+    id: Date.now(),
+    date: new Date().toLocaleDateString('id-ID'),
+    studentName: st ? st.nama : 'Santri',
+    konselor: document.getElementById('bkKonselor').value,
+    catatan: document.getElementById('bkCatatanText').value
+  });
+  savePersistedData();
+  renderBK();
+  document.getElementById('bkCatatanText').value = '';
+  window.showToast('Rekam konseling santri tersimpan.');
+};
+
+
+function setupOfficialBranding() {
+  const containers = [
+    document.getElementById('schoolLogoContainer'),
+    document.getElementById('settingsLogoPreview'),
+    document.getElementById('mobileLogoHolder')
+  ];
+
+  containers.forEach(function(container) {
+    if (!container) return;
+    container.innerHTML = '';
+    const img = document.createElement('img');
+    img.className = 'w-full h-full object-contain';
+    img.alt = 'Logo SDIT Alia Nurul Jihadi';
+
+    // Safe fallbacks without inline quote clashes
+    img.onerror = function() {
+      if (this.getAttribute('data-step') === '1') {
+        this.setAttribute('data-step', '2');
+        this.src = 'Logo%20SDIT%20Vektor.png';
+      } else if (this.getAttribute('data-step') === '2') {
+        this.setAttribute('data-step', '3');
+        this.src = 'logo.png';
+      } else {
+        container.innerHTML = getOfficialLogoMarkup();
+      }
+    };
+
+    img.setAttribute('data-step', '1');
+    img.src = 'Logo.jpg';
+    container.appendChild(img);
+  });
+
+  const banner = document.getElementById('heroBannerElement');
+  const bgPreview = document.getElementById('settingsBgPreview');
+  const defaultBg = 'Gedung Sekolah SDIT.jpg';
+
+  if (banner) banner.style.backgroundImage = 'url(\'' + encodeURI(defaultBg) + '\')';
+  if (bgPreview) bgPreview.src = defaultBg;
+}
+
+window.triggerLogoUpload = function() {
+  const input = document.getElementById('logoFileInput');
+  if (input) input.click();
+};
+
+window.handleLogoUpload = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    const containers = [
+      document.getElementById('schoolLogoContainer'),
+      document.getElementById('settingsLogoPreview'),
+      document.getElementById('mobileLogoHolder')
+    ];
+    containers.forEach(function(c) {
+      if (c) c.innerHTML = '<img src="' + dataUrl + '" class="w-full h-full object-contain" alt="Logo Kustom">';
+    });
+    window.showToast('Logo kustom berhasil dimuat.');
+  };
+  reader.readAsDataURL(file);
+};
+
+window.resetToDefaultLogo = function() {
+  setupOfficialBranding();
+  window.showToast('Logo resmi bawaan SDIT Alia Nurul Jihadi aktif.');
+};
+
+window.triggerBgUpload = function() {
+  const input = document.getElementById('bgFileInput');
+  if (input) input.click();
+};
+
+window.handleBgUpload = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    const banner = document.getElementById('heroBannerElement');
+    const bgPreview = document.getElementById('settingsBgPreview');
+    if (banner) banner.style.backgroundImage = 'url(\'' + dataUrl + '\')';
+    if (bgPreview) bgPreview.src = dataUrl;
+    window.showToast('Foto gedung sekolah baru berhasil dipasang.');
+  };
+  reader.readAsDataURL(file);
+};
+
+window.resetToDefaultBg = function() {
+  const banner = document.getElementById('heroBannerElement');
+  const bgPreview = document.getElementById('settingsBgPreview');
+  const defaultBg = 'Gedung Sekolah SDIT.jpg';
+  if (banner) banner.style.backgroundImage = 'url(\'' + encodeURI(defaultBg) + '\')';
+  if (bgPreview) bgPreview.src = defaultBg;
+  window.showToast('Latar gedung SDIT dikembalikan ke berkas resmi.');
+};
+
+window.handleSaveSchoolIdentity = function(e) {
+  e.preventDefault();
+  const name = document.getElementById('settingInputSchoolName').value.trim();
+  const year = document.getElementById('settingInputAcademicYear').value.trim();
+  const motto = document.getElementById('settingInputSchoolMotto').value.trim();
+
+  if (name) appState.schoolName = name;
+  if (year) appState.academicYear = year;
+  if (motto) appState.slogan = motto;
+
+  savePersistedData();
+  applyIdentityToDom();
+  window.showToast('Identitas sekolah dan slogan berhasil disimpan!');
+};
+
+function applyIdentityToDom() {
+  document.getElementById('sidebarSchoolName').innerText = appState.schoolName;
+  document.getElementById('bannerSchoolName').innerText = appState.schoolName;
+  document.getElementById('footerSchoolName').innerText = appState.schoolName;
+  
+  document.getElementById('sidebarSchoolMotto').innerText = appState.slogan;
+  document.getElementById('bannerSchoolMotto').innerText = '“' + appState.slogan + '”';
+  
+  document.getElementById('sidebarAcademicYear').innerText = appState.academicYear;
+  document.getElementById('bannerAcademicYear').innerText = appState.academicYear.split(' ')[0] || 'TP 2026/2027';
+
+  if (document.getElementById('settingInputSchoolName')) {
+    document.getElementById('settingInputSchoolName').value = appState.schoolName;
+    document.getElementById('settingInputAcademicYear').value = appState.academicYear;
+    document.getElementById('settingInputSchoolMotto').value = appState.slogan;
+  }
+}
+
+
+window.backupSystemData = function() {
+  const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(appState, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute('href', dataStr);
+  dlAnchor.setAttribute('download', 'Backup_Kesiswaan_SDIT_Alia_' + new Date().toISOString().slice(0, 10) + '.json');
+  dlAnchor.click();
+  window.showToast('Cadangan data JSON berhasil diunduh.');
+};
+
+window.triggerRestoreBackup = function() {
+  const input = document.getElementById('backupFileInput');
+  if (input) input.click();
+};
+
+window.handleRestoreBackup = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      appState = Object.assign({}, appState, parsed);
+      savePersistedData();
+      applyIdentityToDom();
+      syncCurrentUserDisplay();
+      renderStudentTable();
+      window.renderUserTable();
+      updateDashboardStats();
+      window.showToast('Data sistem berhasil dipulihkan!');
+    } catch (err) {
+      window.showToast('Gagal memulihkan file cadangan: Format JSON tidak valid.');
+    }
+  };
+  reader.readAsText(file);
+};
+
+window.exportToExcel = function() {
+  if (appState.students.length === 0) {
+    window.showToast('Tidak ada data siswa untuk diekspor.');
+    return;
+  }
+  const ws = XLSX.utils.json_to_sheet(appState.students);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Data Santri');
+  XLSX.writeFile(wb, 'Data_Siswa_SDIT_Alia_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  window.showToast('File Excel data siswa berhasil diekspor.');
+};
+
+function updateClock() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('id-ID', { hour12: false }) + ' WIB';
+
+  const cd = document.getElementById('currentDateDisplay');
+  const lc = document.getElementById('liveClock');
+  if (cd) cd.innerText = dateStr;
+  if (lc) lc.innerText = timeStr;
+}
+
+function populateStudentSelectOptions() {
+  const selects = ['violationSiswaSelect', 'prestasiSiswaSelect', 'izinSiswaSelect', 'bkSiswaSelect'];
+  selects.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = appState.students.map(function(s) {
+      return '<option value="' + s.id + '">' + s.nama + ' (' + s.kelas + ') - NIS: ' + s.nis + '</option>';
+    }).join('');
+  });
+
+  const classSel = document.getElementById('attendanceClassSelect');
+  if (classSel) {
+    classSel.innerHTML = ROMBEL_CLASSES.map(function(c) {
+      return '<option value="' + c + '">Kelas ' + c + '</option>';
+    }).join('');
+  }
+
+  const filterSel = document.getElementById('filterKelas');
+  if (filterSel) {
+    filterSel.innerHTML = '<option value="ALL">Semua Kelas (25 Rombel)</option>' +
+      ROMBEL_CLASSES.map(function(c) {
+        return '<option value="' + c + '">Kelas ' + c + '</option>';
+      }).join('');
+  }
+}
+
+function updateDashboardStats() {
+  const total = appState.students.length;
+  const countL = appState.students.filter(function(s) { return s.jk === 'L'; }).length;
+  const countP = appState.students.filter(function(s) { return s.jk === 'P'; }).length;
+  const aktif = appState.students.filter(function(s) { return s.status === 'Aktif'; }).length;
+  const pindah = appState.students.filter(function(s) { return s.status === 'Pindah'; }).length;
+  const lulus = appState.students.filter(function(s) { return s.status === 'Lulus'; }).length;
+
+  document.getElementById('dashCardTotalSiswa').innerText = total;
+  document.getElementById('dashCardHadir').innerText = total > 0 ? Math.max(0, total - 2) : 0;
+  document.getElementById('dashCardSakit').innerText = total > 0 ? 1 : 0;
+  document.getElementById('dashCardIzin').innerText = total > 0 ? 1 : 0;
+  document.getElementById('dashCardAlfa').innerText = 0;
+
+  document.getElementById('dashTotalStudentsGender').innerText = total;
+  document.getElementById('dashCountL').innerText = countL + ' (' + (total ? Math.round(countL / total * 100) : 0) + '%)';
+  document.getElementById('dashCountP').innerText = countP + ' (' + (total ? Math.round(countP / total * 100) : 0) + '%)';
+
+  document.getElementById('dashTotalStudentsStatus').innerText = total;
+  document.getElementById('dashCountAktif').innerText = aktif + ' santri';
+  document.getElementById('dashCountPindah').innerText = pindah + ' santri';
+  document.getElementById('dashCountLulus').innerText = lulus + ' santri';
+}
+
+
+let chartWeekly = null;
+let chartGender = null;
+let chartStatus = null;
+let chartMonthly = null;
+
+function initCharts() {
+  const ctxWeekly = document.getElementById('weeklyAttendanceChart');
+  if (ctxWeekly) {
+    if (chartWeekly) chartWeekly.destroy();
+    chartWeekly = new Chart(ctxWeekly, {
+      type: 'bar',
+      data: {
+        labels: ['Kam', 'Jum', 'Sab', 'Sen', 'Sel', 'Rab', 'Hari Ini'],
+        datasets: [
+          { label: 'Hadir', data: [315, 318, 312, 320, 319, 322, 323], backgroundColor: '#7e22ce', borderRadius: 6 },
+          { label: 'Sakit', data: [6, 4, 8, 3, 4, 2, 1], backgroundColor: '#f59e0b', borderRadius: 6 },
+          { label: 'Alfa', data: [4, 3, 5, 2, 2, 1, 1], backgroundColor: '#ef4444', borderRadius: 6 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: '#f3e8ff' } }
+        }
+      }
+    });
+  }
+
+  const ctxGender = document.getElementById('genderChart');
+  if (ctxGender) {
+    if (chartGender) chartGender.destroy();
+    const countL = appState.students.filter(function(s) { return s.jk === 'L'; }).length;
+    const countP = appState.students.filter(function(s) { return s.jk === 'P'; }).length;
+    chartGender = new Chart(ctxGender, {
+      type: 'doughnut',
+      data: {
+        labels: ['Laki-laki', 'Perempuan'],
+        datasets: [{ data: [countL || 1, countP || 1], backgroundColor: ['#6b21a8', '#f472b6'], borderWidth: 0 }]
+      },
+      options: {
+        cutout: '76%',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  const ctxStatus = document.getElementById('statusChart');
+  if (ctxStatus) {
+    if (chartStatus) chartStatus.destroy();
+    const aktif = appState.students.filter(function(s) { return s.status === 'Aktif'; }).length;
+    const pindah = appState.students.filter(function(s) { return s.status === 'Pindah'; }).length;
+    const lulus = appState.students.filter(function(s) { return s.status === 'Lulus'; }).length;
+    chartStatus = new Chart(ctxStatus, {
+      type: 'doughnut',
+      data: {
+        labels: ['Aktif', 'Pindah', 'Lulus'],
+        datasets: [{ data: [aktif || 1, pindah, lulus], backgroundColor: ['#9333ea', '#06b6d4', '#f59e0b'], borderWidth: 0 }]
+      },
+      options: {
+        cutout: '76%',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+}
+
+function initMonthlyChart() {
+  const ctx = document.getElementById('monthlyAttendanceChart');
+  if (!ctx) return;
+  if (chartMonthly) chartMonthly.destroy();
+  chartMonthly = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Mgg 1', 'Mgg 2', 'Mgg 3', 'Mgg 4'],
+      datasets: [
+        {
+          label: 'Rata-rata Hadir (%)',
+          data: [96.5, 95.8, 97.2, 98.1],
+          borderColor: '#7e22ce',
+          backgroundColor: 'rgba(126, 34, 206, 0.1)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { min: 80, max: 100, grid: { color: '#f3e8ff' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+window.handleGlobalSearch = function(e) {
+  const query = e.target.value.toLowerCase().trim();
+  if (!query) return;
+  if (e.key === 'Enter') {
+    window.navigateTo('siswa');
+    const input = document.getElementById('siswaSearchInput');
+    if (input) {
+      input.value = query;
+      renderStudentTable();
+    }
+  }
+};
+
+window.addEventListener('DOMContentLoaded', function() {
+  loadPersistedData();
+  setupOfficialBranding();
+  applyIdentityToDom();
+  syncCurrentUserDisplay();
+  populateStudentSelectOptions();
+  renderStudentTable();
+  updateDashboardStats();
+  initCharts();
+  
+  updateClock();
+  setInterval(updateClock, 1000);
+});
+</script>
 </body>
 </html>
