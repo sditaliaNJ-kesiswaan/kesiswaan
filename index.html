@@ -2297,5 +2297,25 @@ window.addEventListener('DOMContentLoaded', function() {
   setInterval(updateClock, 1000);
 });
 </script>
+  <!-- Firebase SDK & Config -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmcxMKaw25l2v6MYZlhtEXuEldp-HNBZI",
+      authDomain: "sdit-alianuruljihadi-kesiswaan.firebaseapp.com",
+      projectId: "sdit-alianuruljihadi-kesiswaan",
+      storageBucket: "sdit-alianuruljihadi-kesiswaan.firebasestorage.app",
+      messagingSenderId: "419355588590",
+      appId: "1:419355588590:web:9c674f4fae1d80ec8240ff"
+    };
+
+    // Inisialisasi Firebase & Firestore
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    console.log("Firebase Firestore Kesiswaan terhubung!");
+  </script>
 </body>
 </html>
