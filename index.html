@@ -2588,9 +2588,11 @@ window.addEventListener('DOMContentLoaded', function() {
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
-    const db = firebase.firestore();
-    console.log("Firebase Firestore Kesiswaan terhubung!");
-   // --- SISTEM LOGIN & HAK AKSES FIREBASE CEPAT ---
+    // Inisialisasi Layanan Firebase
+const db = firebase.firestore();
+const auth = firebase.auth();
+console.log("Firebase Firestore & Auth terhubung!");
+
 var currentUserRole = 'guru';
 
 function togglePasswordVisibility() {
@@ -2620,15 +2622,7 @@ function handleUserLogin(e) {
   btn.disabled = true;
   btn.innerHTML = '<span>Memeriksa...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
 
-  if (typeof firebase === 'undefined' || !firebase.auth) {
-    btn.disabled = false;
-    btn.innerHTML = '<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>';
-    errBox.classList.remove('hidden');
-    errBox.innerText = 'Pustaka Firebase Auth belum siap. Muat ulang halaman (Ctrl+F5).';
-    return;
-  }
-
-  firebase.auth().signInWithEmailAndPassword(email, pass)
+  auth.signInWithEmailAndPassword(email, pass)
     .then(function(userCredential) {
       btn.innerHTML = '<span>Berhasil Masuk!</span> <i class="fa-solid fa-check"></i>';
       setTimeout(function() {
@@ -2650,25 +2644,21 @@ function handleUserLogin(e) {
 
 function handleUserLogout() {
   if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
-    firebase.auth().signOut().then(function() {
+    auth.signOut().then(function() {
       location.reload();
     });
   }
 }
 
-// Pantau sesi pengguna
-document.addEventListener('DOMContentLoaded', function() {
-  if (typeof firebase !== 'undefined' && firebase.auth) {
-    firebase.auth().onAuthStateChanged(function(user) {
-      var loginScreen = document.getElementById('authLoginScreen');
-      if (user) {
-        if (loginScreen) loginScreen.style.display = 'none';
-        currentUserRole = (user.email === 'riandyju@gmail.com') ? 'admin' : 'guru';
-        console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
-      } else {
-        if (loginScreen) loginScreen.style.display = 'flex';
-      }
-    });
+// Pantau sesi login pengguna secara langsung
+auth.onAuthStateChanged(function(user) {
+  var loginScreen = document.getElementById('authLoginScreen');
+  if (user) {
+    if (loginScreen) loginScreen.style.display = 'none';
+    currentUserRole = (user.email === 'riandyju@gmail.com') ? 'admin' : 'guru';
+    console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
+  } else {
+    if (loginScreen) loginScreen.style.display = 'flex';
   }
 });
   </script>
