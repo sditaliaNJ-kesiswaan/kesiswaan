@@ -1213,11 +1213,47 @@ function loadPersistedData() {
       appState = Object.assign({}, appState, parsed);
     }
   } catch (e) {}
+
+  // Hubungkan sinkronisasi real-time Firestore
+  if (typeof db !== 'undefined') {
+    const docRef = db.collection('kesiswaan').doc('appState');
+
+    // 1. Dengarkan pembaruan real-time dari cloud
+    docRef.onSnapshot((doc) => {
+      if (doc.exists) {
+        const cloudData = doc.data();
+        appState = Object.assign({}, appState, cloudData);
+
+        // Perbarui tampilan antarmuka seketika
+        if (typeof renderStudentTable === 'function') renderStudentTable();
+        if (typeof updateDashboardStats === 'function') updateDashboardStats();
+        if (typeof populateStudentSelectOptions === 'function') populateStudentSelectOptions();
+        if (typeof initCharts === 'function') initCharts();
+      } else {
+        // Jika cloud masih kosong, simpan data awal ke cloud
+        docRef.set(JSON.parse(JSON.stringify(appState)));
+      }
+    }, (error) => {
+      console.error("Gagal memuat data real-time Firestore:", error);
+    });
+  }
 }
 
 function savePersistedData() {
   try {
+    // Tetap simpan cadangan lokal di peramban
     localStorage.setItem('sdit_alia_app_state', JSON.stringify(appState));
+
+    // Simpan otomatis ke Firebase Firestore secara real-time
+    if (typeof db !== 'undefined') {
+      db.collection('kesiswaan').doc('appState').set(JSON.parse(JSON.stringify(appState)))
+        .then(() => {
+          console.log("Data berhasil disinkronkan ke Firestore!");
+        })
+        .catch((err) => {
+          console.error("Gagal simpan ke Firestore:", err);
+        });
+    }
   } catch (e) {}
 }
 
