@@ -100,7 +100,7 @@
 
 <body class="bg-[#F8F5FF] text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 <!-- TAMPILAN AWAL LAYAR LOGIN PENUH (LATAR GEDUNG SDIT) -->
-<div id="authLoginScreen" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-cover bg-center relative" style="background-image: url('Gedung Sekolah SDIT.jpg');">
+<div id="authLoginScreen" style="position: fixed !important; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999 !important; background-image: url('Gedung Sekolah SDIT.jpg'); background-size: cover; background-position: center;" class="flex items-center justify-center p-4">
   <!-- Lapisan Overlay Ungu Transparan & Blur Lembut -->
   <div class="absolute inset-0 bg-gradient-to-tr from-purple-950/90 via-indigo-950/80 to-purple-900/75 backdrop-blur-[2px]"></div>
 
@@ -2590,7 +2590,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     const db = firebase.firestore();
     console.log("Firebase Firestore Kesiswaan terhubung!");
-    // --- SISTEM LOGIN & HAK AKSES FIREBASE ---
+   // --- SISTEM LOGIN & HAK AKSES FIREBASE CEPAT ---
 var currentUserRole = 'guru';
 
 function togglePasswordVisibility() {
@@ -2608,25 +2608,33 @@ function togglePasswordVisibility() {
 }
 
 function handleUserLogin(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
   var userInput = document.getElementById('loginEmailInput').value.trim();
   var pass = document.getElementById('loginPasswordInput').value;
   var errBox = document.getElementById('loginErrorMsg');
   var btn = document.getElementById('btnLoginSubmit');
 
-  // Jika input tidak ada @, tambahkan domain otomatis
   var email = userInput.includes('@') ? userInput : userInput + '@sditalia.sch.id';
 
   errBox.classList.add('hidden');
   btn.disabled = true;
   btn.innerHTML = '<span>Memeriksa...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
 
+  if (typeof firebase === 'undefined' || !firebase.auth) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>';
+    errBox.classList.remove('hidden');
+    errBox.innerText = 'Pustaka Firebase Auth belum siap. Muat ulang halaman (Ctrl+F5).';
+    return;
+  }
+
   firebase.auth().signInWithEmailAndPassword(email, pass)
     .then(function(userCredential) {
       btn.innerHTML = '<span>Berhasil Masuk!</span> <i class="fa-solid fa-check"></i>';
       setTimeout(function() {
-        document.getElementById('authLoginScreen').classList.add('hidden');
-      }, 400);
+        var screen = document.getElementById('authLoginScreen');
+        if (screen) screen.style.display = 'none';
+      }, 300);
     })
     .catch(function(error) {
       btn.disabled = false;
@@ -2635,7 +2643,7 @@ function handleUserLogin(e) {
       if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
         errBox.innerText = 'Username/Email atau Password salah.';
       } else {
-        errBox.innerText = 'Gagal masuk: ' + error.message;
+        errBox.innerText = 'Gagal masuk: ' + (error.message || 'Periksa koneksi internet.');
       }
     });
 }
@@ -2648,21 +2656,19 @@ function handleUserLogout() {
   }
 }
 
-// Pantau status login secara otomatis
-firebase.auth().onAuthStateChanged(function(user) {
-  var loginScreen = document.getElementById('authLoginScreen');
-  if (user) {
-    if (loginScreen) loginScreen.classList.add('hidden');
-    
-    // Akun Anda otomatis sebagai Admin Utama
-    if (user.email === 'riandyju@gmail.com') {
-      currentUserRole = 'admin';
-    } else {
-      currentUserRole = 'guru';
-    }
-    console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
-  } else {
-    if (loginScreen) loginScreen.classList.remove('hidden');
+// Pantau sesi pengguna
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      var loginScreen = document.getElementById('authLoginScreen');
+      if (user) {
+        if (loginScreen) loginScreen.style.display = 'none';
+        currentUserRole = (user.email === 'riandyju@gmail.com') ? 'admin' : 'guru';
+        console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
+      } else {
+        if (loginScreen) loginScreen.style.display = 'flex';
+      }
+    });
   }
 });
   </script>
