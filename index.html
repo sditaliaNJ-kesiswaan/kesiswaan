@@ -566,10 +566,20 @@
           <h2 class="text-2xl font-black text-slate-800">Pelanggaran & Kedisiplinan</h2>
           <p class="text-xs text-slate-500">Pencatatan kedisiplinan dan pembinaan santri.</p>
         </div>
-        <button onclick="openAddViolationModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition space-x-2">
+        <div class="flex flex-wrap items-center gap-2">
+        <button onclick="exportPelanggaranToExcel()" class="px-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+          <i class="fa-solid fa-file-excel"></i>
+          <span>Ekspor Excel</span>
+        </button>
+        <button onclick="printRekapPelanggaran()" class="px-3 py-2.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+          <i class="fa-solid fa-print"></i>
+          <span>Cetak Rekap</span>
+        </button>
+        <button onclick="openAddViolationModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
           <i class="fa-solid fa-circle-plus"></i>
           <span>Catat Pelanggaran</span>
         </button>
+      </div>
       </div>
 
       <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
@@ -583,6 +593,7 @@
               <th class="py-3 px-4 text-center">Poin</th>
               <th class="py-3 px-4">Tindak Lanjut</th>
               <th class="py-3 px-4 text-center">Status</th>
+              <th class="py-3 px-4 text-center">Aksi / Surat</th>
             </tr>
           </thead>
           <tbody id="violationLogBody" class="divide-y divide-purple-50"></tbody>
@@ -1798,17 +1809,223 @@ window.quickAttendanceClass = function(c) {
 function renderViolations() {
   const tb = document.getElementById('violationLogBody');
   if (!tb) return;
-  tb.innerHTML = appState.violations.map(function(v) {
-    return '<tr class="hover:bg-purple-50/50 transition">' +
-      '<td class="py-3 px-4 font-mono text-slate-500">' + v.date + '</td>' +
-      '<td class="py-3 px-4 font-bold text-slate-800">' + v.studentName + '</td>' +
-      '<td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-100 text-brand-900 rounded font-bold text-[10px]">' + v.kelas + '</span></td>' +
-      '<td class="py-3 px-4 text-slate-600">' + v.bentuk + '</td>' +
-      '<td class="py-3 px-4 text-center font-bold text-rose-600">' + v.poin + '</td>' +
-      '<td class="py-3 px-4 text-slate-500">' + v.tindak + '</td>' +
-      '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">' + v.status + '</span></td>' +
+  
+  if (!appState.violations || appState.violations.length === 0) {
+    tb.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Belum ada data pelanggaran</td></tr>';
+    return;
+  }
+
+  tb.innerHTML = appState.violations.map(function(v, idx) {
+    return '<tr class="hover:bg-purple-50/50 transition border-b border-purple-50">' +
+      '<td class="py-3 px-4 font-mono text-slate-500">' + (v.date || '-') + '</td>' +
+      '<td class="py-3 px-4 font-bold text-slate-800">' + (v.studentName || '-') + '</td>' +
+      '<td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-100 text-brand-900 rounded font-bold text-[10px]">' + (v.kelas || v.className || '-') + '</span></td>' +
+      '<td class="py-3 px-4 text-slate-600">' + (v.bentuk || v.violationType || '-') + '</td>' +
+      '<td class="py-3 px-4 text-center font-bold text-rose-600">' + (v.poin || v.points || 0) + '</td>' +
+      '<td class="py-3 px-4 text-slate-500">' + (v.tindak || v.tindakLanjut || v.action || '-') + '</td>' +
+      '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">' + (v.status || 'Dalam Pembinaan') + '</span></td>' +
+      '<td class="py-3 px-4 text-center">' +
+        '<button type="button" onclick="printSuratPanggilan(' + idx + ')" class="px-2.5 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg text-xs font-bold transition inline-flex items-center justify-center gap-1 mx-auto">' +
+          '<i class="fa-solid fa-envelope-open-text"></i>' +
+          '<span>Surat</span>' +
+        '</button>' +
+      '</td>' +
     '</tr>';
   }).join('');
+}
+
+// 1. Fungsi Ekspor Rekap ke Excel
+function exportPelanggaranToExcel() {
+  if (!appState.violations || appState.violations.length === 0) {
+    alert('Belum ada data pelanggaran untuk diekspor.');
+    return;
+  }
+  const data = appState.violations.map(function(v, i) {
+    return {
+      "No": i + 1,
+      "Tanggal": v.date || '',
+      "Nama Siswa": v.studentName || '',
+      "Kelas": v.kelas || v.className || '',
+      "Bentuk Pelanggaran": v.bentuk || v.violationType || '',
+      "Poin": v.poin || v.points || 0,
+      "Tindak Lanjut": v.tindak || v.tindakLanjut || v.action || '',
+      "Status": v.status || 'Dalam Pembinaan'
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap Pelanggaran");
+  XLSX.writeFile(wb, "Rekap_Pelanggaran_SDIT_Alia.xlsx");
+}
+
+// 2. Fungsi Cetak Surat Panggilan Ber-Kop Resmi
+function printSuratPanggilan(index) {
+  const v = appState.violations[index];
+  if (!v) return;
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Surat Panggilan Orang Tua - ${v.studentName}</title>
+      <style>
+        body { font-family: "Times New Roman", Times, serif; padding: 30px 45px; color: #000; }
+        .kop-wrapper { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 12px; margin-bottom: 25px; }
+        .kop-logo { position: absolute; left: 10px; top: 0px; width: 95px; }
+        .kop-text-1 { font-size: 19px; font-weight: normal; margin: 0; }
+        .kop-brand { font-size: 32px; font-weight: 900; color: #FF0000; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; margin: 2px 0 0 0; letter-spacing: 2px; }
+        .kop-brand-sub { font-size: 15px; font-weight: bold; color: #000; margin-bottom: 4px; }
+        .kop-izin { font-size: 14px; font-weight: bold; margin: 2px 0; }
+        .kop-alamat { font-size: 12px; margin: 2px 0; }
+        .kop-akreditasi { position: absolute; left: 15px; bottom: 8px; font-size: 12px; font-weight: bold; }
+        .content { font-size: 14px; line-height: 1.6; }
+        .table-data { margin: 15px 0 15px 25px; font-size: 14px; }
+        .table-data td { padding: 4px 8px; }
+        .ttd-container { margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 14px; }
+        .ttd-box { width: 220px; }
+        @media print {
+          body { padding: 0; }
+          @page { size: portrait; margin: 15mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="kop-wrapper">
+        <img class="kop-logo" src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia Nurul Jihadi" onerror="this.src='Logo.png'">
+        <div class="kop-text-1">Sekolah Dasar Islam Terpadu</div>
+        <div class="kop-brand">ALIA</div>
+        <div class="kop-brand-sub">NURUL JIHADI</div>
+        <div class="kop-izin">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>
+        <div class="kop-alamat">Perum Dasana Indah Blok SO – RT. 05/016 Kel. Bojong Nangka – Kec. Kelapa Dua</div>
+        <div class="kop-alamat">Tangerang – Banten Telp./Fax. (021) 5420.4541</div>
+        <div class="kop-akreditasi">Terakreditasi A</div>
+      </div>
+
+      <div class="content">
+        <table style="width: 100%; margin-bottom: 15px;">
+          <tr>
+            <td style="width: 12%;">Nomor</td><td style="width: 3%;">:</td><td style="width: 50%;">.../SDIT-ANJ/BK/.../2026</td>
+            <td style="text-align: right;">Tangerang, ${v.date || '........................ 2026'}</td>
+          </tr>
+          <tr><td>Lampiran</td><td>:</td><td>-</td><td></td></tr>
+          <tr><td>Perihal</td><td>:</td><td><b>Panggilan Orang Tua / Wali Murid</b></td><td></td></tr>
+        </table>
+
+        <p>Kepada Yth.<br><b>Bapak / Ibu Orang Tua / Wali dari ${v.studentName}</b><br>di Tempat</p>
+
+        <p><i>Assalamu’alaikum Warahmatullahi Wabarakatuh,</i></p>
+        <p>Semoga Bapak/Ibu senantiasa dalam lindungan dan limpahan rahmat Allah SWT. Sehubungan dengan proses pembinaan kedisiplinan santri di SDIT Alia Nurul Jihadi, dengan ini kami mengundang Bapak/Ibu untuk hadir bermusyawarah membicarakan perkembangan ananda:</p>
+
+        <table class="table-data">
+          <tr><td><b>Nama Santri</b></td><td>:</td><td><b>${v.studentName}</b></td></tr>
+          <tr><td><b>Kelas</b></td><td>:</td><td>${v.kelas || v.className || '-'}</td></tr>
+          <tr><td><b>Catatan Pelanggaran</b></td><td>:</td><td><span style="color:red;">${v.bentuk || v.violationType || '-'}</span></td></tr>
+          <tr><td><b>Akumulasi Poin</b></td><td>:</td><td><b>${v.poin || v.points || 0} Poin</b></td></tr>
+          <tr><td><b>Tindakan Pembinaan</b></td><td>:</td><td>${v.tindak || v.tindakLanjut || v.action || '-'}</td></tr>
+        </table>
+
+        <p>Musyawarah dan silaturahmi pembinaan insya Allah akan dilaksanakan pada:</p>
+        <table class="table-data">
+          <tr><td>Hari / Tanggal</td><td>:</td><td>...........................................................</td></tr>
+          <tr><td>Waktu</td><td>:</td><td>.................. WIB s/d Selesai</td></tr>
+          <tr><td>Tempat</td><td>:</td><td>Ruang Konseling / Kesiswaan SDIT Alia Nurul Jihadi</td></tr>
+        </table>
+
+        <p>Mengingat pentingnya koordinasi demi kebaikan perkembangan ananda, kami sangat mengharapkan kehadiran Bapak/Ibu tepat pada waktunya.</p>
+        <p>Demikian surat undangan ini kami sampaikan. Atas perhatian dan kerja sama yang baik, kami ucapkan terima kasih.</p>
+        <p><i>Wassalamu’alaikum Warahmatullahi Wabarakatuh.</i></p>
+
+        <div class="ttd-container">
+          <div class="ttd-box">
+            Mengetahui,<br>Kepala Sekolah SDIT
+            <br><br><br><br><br>
+            <b>( ........................................ )</b>
+          </div>
+          <div class="ttd-box">
+            Guru BK / Kesiswaan
+            <br><br><br><br><br>
+            <b>( ........................................ )</b>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.onload = function() { window.print(); }
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// 3. Fungsi Cetak Rekapitulasi Pelanggaran Lengkap
+function printRekapPelanggaran() {
+  if (!appState.violations || appState.violations.length === 0) {
+    alert('Belum ada data pelanggaran untuk dicetak.');
+    return;
+  }
+
+  const rows = appState.violations.map(function(v, i) {
+    return '<tr>' +
+      '<td style="border:1px solid #000; padding:6px; text-align:center;">' + (i + 1) + '</td>' +
+      '<td style="border:1px solid #000; padding:6px; text-align:center;">' + (v.date || '-') + '</td>' +
+      '<td style="border:1px solid #000; padding:6px; font-weight:bold;">' + (v.studentName || '-') + '</td>' +
+      '<td style="border:1px solid #000; padding:6px; text-align:center;">' + (v.kelas || v.className || '-') + '</td>' +
+      '<td style="border:1px solid #000; padding:6px;">' + (v.bentuk || v.violationType || '-') + '</td>' +
+      '<td style="border:1px solid #000; padding:6px; text-align:center; font-weight:bold; color:red;">' + (v.poin || v.points || 0) + '</td>' +
+      '<td style="border:1px solid #000; padding:6px;">' + (v.tindak || v.tindakLanjut || v.action || '-') + '</td>' +
+      '<td style="border:1px solid #000; padding:6px; text-align:center;">' + (v.status || 'Dalam Pembinaan') + '</td>' +
+    '</tr>';
+  }).join('');
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Rekapitulasi Pelanggaran Siswa - SDIT Alia Nurul Jihadi</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 25px; color: #000; }
+        .kop-wrapper { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 12px; margin-bottom: 20px; }
+        .kop-logo { position: absolute; left: 10px; top: 0px; width: 90px; }
+        .kop-text-1 { font-size: 18px; margin: 0; }
+        .kop-brand { font-size: 30px; font-weight: 900; color: #FF0000; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing: 2px; }
+        .kop-brand-sub { font-size: 14px; font-weight: bold; }
+        .kop-izin { font-size: 13px; font-weight: bold; margin: 2px 0; }
+        .kop-alamat { font-size: 11px; margin: 2px 0; }
+        .kop-akreditasi { position: absolute; left: 10px; bottom: 6px; font-size: 11px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
+        th { border: 1px solid #000; background-color: #f1f5f9; padding: 8px; text-transform: uppercase; }
+        @media print { @page { size: landscape; margin: 10mm; } }
+      </style>
+    </head>
+    <body>
+      <div class="kop-wrapper">
+        <img class="kop-logo" src="Logo SDIT Transparan HD.png" alt="Logo" onerror="this.src='Logo.png'">
+        <div class="kop-text-1">Sekolah Dasar Islam Terpadu</div>
+        <div class="kop-brand">ALIA</div>
+        <div class="kop-brand-sub">NURUL JIHADI</div>
+        <div class="kop-izin">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>
+        <div class="kop-alamat">Perum Dasana Indah Blok SO – RT. 05/016 Kel. Bojong Nangka – Kec. Kelapa Dua</div>
+        <div class="kop-alamat">Tangerang – Banten Telp./Fax. (021) 5420.4541</div>
+        <div class="kop-akreditasi">Terakreditasi A</div>
+      </div>
+      <h3 style="text-align:center; margin-bottom:15px; text-transform:uppercase;">REKAPITULASI PELANGGARAN & KEDISIPLINAN SANTRI</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>No</th><th>Tanggal</th><th>Nama Siswa</th><th>Kelas</th><th>Bentuk Pelanggaran</th><th>Poin</th><th>Tindak Lanjut</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <script>
+        window.onload = function() { window.print(); }
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
 }
 
 window.openAddViolationModal = function() {
