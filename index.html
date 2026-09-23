@@ -95,6 +95,46 @@
 </head>
 
 <body class="bg-[#F8F5FF] text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+  <!-- TAMPILAN AWAL LAYAR LOGIN ELEGAN SDIT ALIA NURUL JIHADI -->
+<div id="authLoginScreen" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+  <div class="relative w-full max-w-[430px] rounded-[36px] shadow-2xl overflow-hidden bg-cover bg-center border border-white/60" style="background-image: url('Tampilan awal Login.png'); min-height: 820px;">
+    
+    <!-- Area Interaktif Form Login (Tepat di atas kartu putih melayang) -->
+    <div class="absolute inset-x-0 bottom-12 px-7 flex flex-col justify-end">
+      
+      <!-- Pesan Galat jika Sandi Salah -->
+      <div id="loginErrorMsg" class="hidden mb-3 text-xs text-rose-700 font-semibold bg-rose-100/95 p-3 rounded-2xl border border-rose-300 text-center shadow-sm"></div>
+
+      <form id="formLoginApp" onsubmit="handleUserLogin(event)" class="space-y-4">
+        <!-- Input Username / Email -->
+        <div class="relative flex items-center">
+          <span class="absolute left-5 text-slate-400 text-lg">
+            <i class="fa-regular fa-user"></i>
+          </span>
+          <input type="text" id="loginEmailInput" required placeholder="Username / Email" class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-purple-200/90 bg-white/95 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm transition placeholder:text-slate-400 font-medium">
+        </div>
+
+        <!-- Input Password dengan Toggle Mata -->
+        <div class="relative flex items-center">
+          <span class="absolute left-5 text-slate-400 text-lg">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input type="password" id="loginPasswordInput" required placeholder="Password" class="w-full pl-12 pr-12 py-3.5 rounded-2xl border border-purple-200/90 bg-white/95 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm transition placeholder:text-slate-400 font-medium">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-5 text-slate-400 hover:text-purple-600 transition">
+            <i id="eyeIcon" class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+
+        <!-- Tombol Sign In -->
+        <button type="submit" id="btnLoginSubmit" class="w-full mt-2 py-3.5 bg-[#967ab3] hover:bg-[#8668a4] active:scale-[0.98] text-white font-bold rounded-2xl shadow-lg shadow-purple-900/20 transition-all text-base flex items-center justify-center gap-2">
+          <span>Sign In</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
 
 <!-- Hidden File Inputs -->
 <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
@@ -2522,6 +2562,81 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     const db = firebase.firestore();
     console.log("Firebase Firestore Kesiswaan terhubung!");
+    // --- SISTEM LOGIN & HAK AKSES FIREBASE ---
+var currentUserRole = 'guru';
+
+function togglePasswordVisibility() {
+  var passField = document.getElementById('loginPasswordInput');
+  var eyeIcon = document.getElementById('eyeIcon');
+  if (passField.type === 'password') {
+    passField.type = 'text';
+    eyeIcon.classList.remove('fa-eye');
+    eyeIcon.classList.add('fa-eye-slash');
+  } else {
+    passField.type = 'password';
+    eyeIcon.classList.remove('fa-eye-slash');
+    eyeIcon.classList.add('fa-eye');
+  }
+}
+
+function handleUserLogin(e) {
+  e.preventDefault();
+  var userInput = document.getElementById('loginEmailInput').value.trim();
+  var pass = document.getElementById('loginPasswordInput').value;
+  var errBox = document.getElementById('loginErrorMsg');
+  var btn = document.getElementById('btnLoginSubmit');
+
+  // Jika input tidak ada @, tambahkan domain otomatis
+  var email = userInput.includes('@') ? userInput : userInput + '@sditalia.sch.id';
+
+  errBox.classList.add('hidden');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Memeriksa...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
+
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .then(function(userCredential) {
+      btn.innerHTML = '<span>Berhasil Masuk!</span> <i class="fa-solid fa-check"></i>';
+      setTimeout(function() {
+        document.getElementById('authLoginScreen').classList.add('hidden');
+      }, 400);
+    })
+    .catch(function(error) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>';
+      errBox.classList.remove('hidden');
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        errBox.innerText = 'Username/Email atau Password salah.';
+      } else {
+        errBox.innerText = 'Gagal masuk: ' + error.message;
+      }
+    });
+}
+
+function handleUserLogout() {
+  if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+    firebase.auth().signOut().then(function() {
+      location.reload();
+    });
+  }
+}
+
+// Pantau status login secara otomatis
+firebase.auth().onAuthStateChanged(function(user) {
+  var loginScreen = document.getElementById('authLoginScreen');
+  if (user) {
+    if (loginScreen) loginScreen.classList.add('hidden');
+    
+    // Akun Anda otomatis sebagai Admin Utama
+    if (user.email === 'riandyju@gmail.com') {
+      currentUserRole = 'admin';
+    } else {
+      currentUserRole = 'guru';
+    }
+    console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
+  } else {
+    if (loginScreen) loginScreen.classList.remove('hidden');
+  }
+});
   </script>
 </body>
 </html>
