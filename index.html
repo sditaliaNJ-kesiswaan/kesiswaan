@@ -1860,102 +1860,69 @@ function exportPelanggaranToExcel() {
 
 // 2. Fungsi Cetak Surat Panggilan Ber-Kop Resmi
 function printSuratPanggilan(index) {
-  const v = appState.violations[index];
+  var v = appState.violations[index];
   if (!v) return;
 
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Surat Panggilan Orang Tua - ${v.studentName}</title>
-      <style>
-        body { font-family: "Times New Roman", Times, serif; padding: 30px 45px; color: #000; }
-        .kop-wrapper { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 12px; margin-bottom: 25px; }
-        .kop-logo { position: absolute; left: 10px; top: 0px; width: 95px; }
-        .kop-text-1 { font-size: 19px; font-weight: normal; margin: 0; }
-        .kop-brand { font-size: 32px; font-weight: 900; color: #FF0000; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; margin: 2px 0 0 0; letter-spacing: 2px; }
-        .kop-brand-sub { font-size: 15px; font-weight: bold; color: #000; margin-bottom: 4px; }
-        .kop-izin { font-size: 14px; font-weight: bold; margin: 2px 0; }
-        .kop-alamat { font-size: 12px; margin: 2px 0; }
-        .kop-akreditasi { position: absolute; left: 15px; bottom: 8px; font-size: 12px; font-weight: bold; }
-        .content { font-size: 14px; line-height: 1.6; }
-        .table-data { margin: 15px 0 15px 25px; font-size: 14px; }
-        .table-data td { padding: 4px 8px; }
-        .ttd-container { margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 14px; }
-        .ttd-box { width: 220px; }
-        @media print {
-          body { padding: 0; }
-          @page { size: portrait; margin: 15mm; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="kop-wrapper">
-        <img class="kop-logo" src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia Nurul Jihadi" onerror="this.src='Logo.png'">
-        <div class="kop-text-1">Sekolah Dasar Islam Terpadu</div>
-        <div class="kop-brand">ALIA</div>
-        <div class="kop-brand-sub">NURUL JIHADI</div>
-        <div class="kop-izin">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>
-        <div class="kop-alamat">Perum Dasana Indah Blok SO – RT. 05/016 Kel. Bojong Nangka – Kec. Kelapa Dua</div>
-        <div class="kop-alamat">Tangerang – Banten Telp./Fax. (021) 5420.4541</div>
-        <div class="kop-akreditasi">Terakreditasi A</div>
-      </div>
+  var w = window.open('', '_blank');
+  var html = '<!DOCTYPE html><html><head><title>Surat Panggilan - ' + (v.studentName || '') + '</title>' +
+    '<style>' +
+    'body { font-family: "Times New Roman", serif; padding: 25px 40px; color: #000; }' +
+    '.kop { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 10px; margin-bottom: 20px; }' +
+    '.kop img { position: absolute; left: 10px; top: 0; width: 90px; }' +
+    '.kop .t1 { font-size: 18px; margin: 0; }' +
+    '.kop .brand { font-size: 30px; font-weight: 900; color: #ff0000; margin: 2px 0 0; letter-spacing: 2px; }' +
+    '.kop .sub { font-size: 14px; font-weight: bold; margin-bottom: 3px; }' +
+    '.kop .iz { font-size: 13px; font-weight: bold; margin: 2px 0; }' +
+    '.kop .al { font-size: 11px; margin: 2px 0; }' +
+    '.kop .ak { position: absolute; left: 10px; bottom: 5px; font-size: 11px; font-weight: bold; }' +
+    '.table-data { margin: 15px 0 15px 20px; font-size: 14px; }' +
+    '.table-data td { padding: 4px 6px; }' +
+    '.ttd { margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 14px; }' +
+    '.ttd-box { width: 200px; }' +
+    '@media print { @page { size: portrait; margin: 15mm; } }' +
+    '</style></head><body>' +
+    '<div class="kop">' +
+      '<img src="Logo SDIT Transparan HD.png" onerror="this.src=\'Logo.png\'">' +
+      '<div class="t1">Sekolah Dasar Islam Terpadu</div>' +
+      '<div class="brand">ALIA</div>' +
+      '<div class="sub">NURUL JIHADI</div>' +
+      '<div class="iz">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>' +
+      '<div class="al">Perum Dasana Indah Blok SO - RT. 05/016 Kel. Bojong Nangka - Kec. Kelapa Dua</div>' +
+      '<div class="al">Tangerang - Banten Telp./Fax. (021) 5420.4541</div>' +
+      '<div class="ak">Terakreditasi A</div>' +
+    '</div>' +
+    '<table style="width:100%; margin-bottom:15px; font-size:14px;">' +
+      '<tr><td style="width:12%;">Nomor</td><td style="width:3%;">:</td><td style="width:50%;">.../SDIT-ANJ/BK/.../2026</td><td style="text-align:right;">Tangerang, ' + (v.date || '.................. 2026') + '</td></tr>' +
+      '<tr><td>Lampiran</td><td>:</td><td>-</td><td></td></tr>' +
+      '<tr><td>Perihal</td><td>:</td><td><b>Panggilan Orang Tua / Wali Murid</b></td><td></td></tr>' +
+    '</table>' +
+    '<p style="font-size:14px;">Kepada Yth.<br><b>Bapak / Ibu Orang Tua / Wali dari ' + (v.studentName || '-') + '</b><br>di Tempat</p>' +
+    '<p style="font-size:14px;"><i>Assalamu’alaikum Warahmatullahi Wabarakatuh,</i></p>' +
+    '<p style="font-size:14px; line-height:1.5;">Sehubungan dengan pembinaan kedisiplinan santri di SDIT Alia Nurul Jihadi, kami mengharap kehadiran Bapak/Ibu untuk bermusyawarah terkait perkembangan ananda:</p>' +
+    '<table class="table-data">' +
+      '<tr><td><b>Nama Santri</b></td><td>:</td><td><b>' + (v.studentName || '-') + '</b></td></tr>' +
+      '<tr><td><b>Kelas</b></td><td>:</td><td>' + (v.kelas || v.className || '-') + '</td></tr>' +
+      '<tr><td><b>Pelanggaran</b></td><td>:</td><td style="color:red; font-weight:bold;">' + (v.bentuk || v.violationType || '-') + '</td></tr>' +
+      '<tr><td><b>Poin</b></td><td>:</td><td><b>' + (v.poin || v.points || 0) + ' Poin</b></td></tr>' +
+      '<tr><td><b>Tindakan</b></td><td>:</td><td>' + (v.tindak || v.tindakLanjut || v.action || '-') + '</td></tr>' +
+    '</table>' +
+    '<p style="font-size:14px;">Pertemuan akan dilaksanakan pada:</p>' +
+    '<table class="table-data">' +
+      '<tr><td>Hari / Tanggal</td><td>:</td><td>...........................................................</td></tr>' +
+      '<tr><td>Waktu</td><td>:</td><td>.................. WIB s/d Selesai</td></tr>' +
+      '<tr><td>Tempat</td><td>:</td><td>Ruang Konseling / Kesiswaan SDIT Alia Nurul Jihadi</td></tr>' +
+    '</table>' +
+    '<p style="font-size:14px;">Demikian surat ini kami sampaikan. Atas kerja samanya kami ucapkan terima kasih.<br><i>Wassalamu’alaikum Warahmatullahi Wabarakatuh.</i></p>' +
+    '<div class="ttd">' +
+      '<div class="ttd-box">Mengetahui,<br>Kepala Sekolah<br><br><br><br><b>( ................................... )</b></div>' +
+      '<div class="ttd-box">Guru BK / Kesiswaan<br><br><br><br><b>( ................................... )</b></div>' +
+    '</div>' +
+    '</body></html>';
 
-      <div class="content">
-        <table style="width: 100%; margin-bottom: 15px;">
-          <tr>
-            <td style="width: 12%;">Nomor</td><td style="width: 3%;">:</td><td style="width: 50%;">.../SDIT-ANJ/BK/.../2026</td>
-            <td style="text-align: right;">Tangerang, ${v.date || '........................ 2026'}</td>
-          </tr>
-          <tr><td>Lampiran</td><td>:</td><td>-</td><td></td></tr>
-          <tr><td>Perihal</td><td>:</td><td><b>Panggilan Orang Tua / Wali Murid</b></td><td></td></tr>
-        </table>
-
-        <p>Kepada Yth.<br><b>Bapak / Ibu Orang Tua / Wali dari ${v.studentName}</b><br>di Tempat</p>
-
-        <p><i>Assalamu’alaikum Warahmatullahi Wabarakatuh,</i></p>
-        <p>Semoga Bapak/Ibu senantiasa dalam lindungan dan limpahan rahmat Allah SWT. Sehubungan dengan proses pembinaan kedisiplinan santri di SDIT Alia Nurul Jihadi, dengan ini kami mengundang Bapak/Ibu untuk hadir bermusyawarah membicarakan perkembangan ananda:</p>
-
-        <table class="table-data">
-          <tr><td><b>Nama Santri</b></td><td>:</td><td><b>${v.studentName}</b></td></tr>
-          <tr><td><b>Kelas</b></td><td>:</td><td>${v.kelas || v.className || '-'}</td></tr>
-          <tr><td><b>Catatan Pelanggaran</b></td><td>:</td><td><span style="color:red;">${v.bentuk || v.violationType || '-'}</span></td></tr>
-          <tr><td><b>Akumulasi Poin</b></td><td>:</td><td><b>${v.poin || v.points || 0} Poin</b></td></tr>
-          <tr><td><b>Tindakan Pembinaan</b></td><td>:</td><td>${v.tindak || v.tindakLanjut || v.action || '-'}</td></tr>
-        </table>
-
-        <p>Musyawarah dan silaturahmi pembinaan insya Allah akan dilaksanakan pada:</p>
-        <table class="table-data">
-          <tr><td>Hari / Tanggal</td><td>:</td><td>...........................................................</td></tr>
-          <tr><td>Waktu</td><td>:</td><td>.................. WIB s/d Selesai</td></tr>
-          <tr><td>Tempat</td><td>:</td><td>Ruang Konseling / Kesiswaan SDIT Alia Nurul Jihadi</td></tr>
-        </table>
-
-        <p>Mengingat pentingnya koordinasi demi kebaikan perkembangan ananda, kami sangat mengharapkan kehadiran Bapak/Ibu tepat pada waktunya.</p>
-        <p>Demikian surat undangan ini kami sampaikan. Atas perhatian dan kerja sama yang baik, kami ucapkan terima kasih.</p>
-        <p><i>Wassalamu’alaikum Warahmatullahi Wabarakatuh.</i></p>
-
-        <div class="ttd-container">
-          <div class="ttd-box">
-            Mengetahui,<br>Kepala Sekolah SDIT
-            <br><br><br><br><br>
-            <b>( ........................................ )</b>
-          </div>
-          <div class="ttd-box">
-            Guru BK / Kesiswaan
-            <br><br><br><br><br>
-            <b>( ........................................ )</b>
-          </div>
-        </div>
-      </div>
-      <script>
-        window.onload = function() { window.print(); }
-      </script>
-    </body>
-    </html>
-  `);
-  printWindow.document.close();
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function() { w.print(); }, 500);
 }
 
 // 3. Fungsi Cetak Rekapitulasi Pelanggaran Lengkap
@@ -1965,7 +1932,7 @@ function printRekapPelanggaran() {
     return;
   }
 
-  const rows = appState.violations.map(function(v, i) {
+  var rows = appState.violations.map(function(v, i) {
     return '<tr>' +
       '<td style="border:1px solid #000; padding:6px; text-align:center;">' + (i + 1) + '</td>' +
       '<td style="border:1px solid #000; padding:6px; text-align:center;">' + (v.date || '-') + '</td>' +
@@ -1978,56 +1945,42 @@ function printRekapPelanggaran() {
     '</tr>';
   }).join('');
 
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Rekapitulasi Pelanggaran Siswa - SDIT Alia Nurul Jihadi</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 25px; color: #000; }
-        .kop-wrapper { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 12px; margin-bottom: 20px; }
-        .kop-logo { position: absolute; left: 10px; top: 0px; width: 90px; }
-        .kop-text-1 { font-size: 18px; margin: 0; }
-        .kop-brand { font-size: 30px; font-weight: 900; color: #FF0000; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing: 2px; }
-        .kop-brand-sub { font-size: 14px; font-weight: bold; }
-        .kop-izin { font-size: 13px; font-weight: bold; margin: 2px 0; }
-        .kop-alamat { font-size: 11px; margin: 2px 0; }
-        .kop-akreditasi { position: absolute; left: 10px; bottom: 6px; font-size: 11px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
-        th { border: 1px solid #000; background-color: #f1f5f9; padding: 8px; text-transform: uppercase; }
-        @media print { @page { size: landscape; margin: 10mm; } }
-      </style>
-    </head>
-    <body>
-      <div class="kop-wrapper">
-        <img class="kop-logo" src="Logo SDIT Transparan HD.png" alt="Logo" onerror="this.src='Logo.png'">
-        <div class="kop-text-1">Sekolah Dasar Islam Terpadu</div>
-        <div class="kop-brand">ALIA</div>
-        <div class="kop-brand-sub">NURUL JIHADI</div>
-        <div class="kop-izin">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>
-        <div class="kop-alamat">Perum Dasana Indah Blok SO – RT. 05/016 Kel. Bojong Nangka – Kec. Kelapa Dua</div>
-        <div class="kop-alamat">Tangerang – Banten Telp./Fax. (021) 5420.4541</div>
-        <div class="kop-akreditasi">Terakreditasi A</div>
-      </div>
-      <h3 style="text-align:center; margin-bottom:15px; text-transform:uppercase;">REKAPITULASI PELANGGARAN & KEDISIPLINAN SANTRI</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>No</th><th>Tanggal</th><th>Nama Siswa</th><th>Kelas</th><th>Bentuk Pelanggaran</th><th>Poin</th><th>Tindak Lanjut</th><th>Status</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <script>
-        window.onload = function() { window.print(); }
-      </script>
-    </body>
-    </html>
-  `);
-  printWindow.document.close();
-}
+  var w = window.open('', '_blank');
+  var html = '<!DOCTYPE html><html><head><title>Rekap Pelanggaran</title>' +
+    '<style>' +
+    'body { font-family: Arial, sans-serif; padding: 20px; color: #000; }' +
+    '.kop { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 10px; margin-bottom: 15px; }' +
+    '.kop img { position: absolute; left: 10px; top: 0; width: 85px; }' +
+    '.kop .t1 { font-size: 16px; margin: 0; }' +
+    '.kop .brand { font-size: 28px; font-weight: 900; color: #ff0000; margin: 2px 0 0; letter-spacing: 2px; }' +
+    '.kop .sub { font-size: 13px; font-weight: bold; }' +
+    '.kop .iz { font-size: 12px; font-weight: bold; margin: 2px 0; }' +
+    '.kop .al { font-size: 10px; margin: 2px 0; }' +
+    '.kop .ak { position: absolute; left: 10px; bottom: 5px; font-size: 10px; font-weight: bold; }' +
+    'table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }' +
+    'th { border: 1px solid #000; background-color: #f1f5f9; padding: 6px; }' +
+    '@media print { @page { size: landscape; margin: 10mm; } }' +
+    '</style></head><body>' +
+    '<div class="kop">' +
+      '<img src="Logo SDIT Transparan HD.png" onerror="this.src=\'Logo.png\'">' +
+      '<div class="t1">Sekolah Dasar Islam Terpadu</div>' +
+      '<div class="brand">ALIA</div>' +
+      '<div class="sub">NURUL JIHADI</div>' +
+      '<div class="iz">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>' +
+      '<div class="al">Perum Dasana Indah Blok SO - RT. 05/016 Kel. Bojong Nangka - Kec. Kelapa Dua</div>' +
+      '<div class="al">Tangerang - Banten Telp./Fax. (021) 5420.4541</div>' +
+      '<div class="ak">Terakreditasi A</div>' +
+    '</div>' +
+    '<h3 style="text-align:center; margin-bottom:10px;">REKAPITULASI PELANGGARAN & KEDISIPLINAN SANTRI</h3>' +
+    '<table><thead><tr><th>No</th><th>Tanggal</th><th>Nama Siswa</th><th>Kelas</th><th>Bentuk Pelanggaran</th><th>Poin</th><th>Tindak Lanjut</th><th>Status</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>' +
+    '</body></html>';
 
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function() { w.print(); }, 500);
+}
 window.openAddViolationModal = function() {
   const m = document.getElementById('modalAddViolation');
   if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
