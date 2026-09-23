@@ -2589,10 +2589,19 @@ window.addEventListener('DOMContentLoaded', function() {
       firebase.initializeApp(firebaseConfig);
     }
     // Inisialisasi Layanan Firebase
-const db = firebase.firestore();
-const auth = firebase.auth();
-console.log("Firebase Firestore & Auth terhubung!");
+var db = null;
+try {
+  db = firebase.firestore();
+} catch (e) {
+  console.warn("Firestore belum siap:", e);
+}
 
+function getAuth() {
+  if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+    return firebase.auth();
+  }
+  return null;
+}
 var currentUserRole = 'guru';
 
 function togglePasswordVisibility() {
