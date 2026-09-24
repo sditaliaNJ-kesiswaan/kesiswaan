@@ -2320,7 +2320,7 @@ function applyIdentityToDom() {
   document.getElementById('bannerSchoolMotto').innerText = '“' + appState.slogan + '”';
   
   document.getElementById('sidebarAcademicYear').innerText = appState.academicYear;
-  document.getElementById('bannerAcademicYear').innerText = appState.academicYear.split(' ')[0] || 'TP 2026/2027';
+  document.getElementById('bannerAcademicYear').innerText = appState.academicYear;
 
   if (document.getElementById('settingInputSchoolName')) {
     document.getElementById('settingInputSchoolName').value = appState.schoolName;
