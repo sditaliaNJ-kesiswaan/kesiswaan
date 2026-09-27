@@ -157,7 +157,61 @@
         <span>Sign In</span>
         <i class="fa-solid fa-arrow-right"></i>
       </button>
+      <!-- Link Pendaftaran Guru -->
+        <p class="text-center text-xs text-slate-500 mt-4">
+          Belum punya akun? 
+          <button type="button" onclick="bukaModalDaftar()" class="text-purple-700 font-bold hover:underline">
+            Daftar di sini
+          </button>
+        </p>
     </form>
+    <!-- Modal Pendaftaran Akun Guru -->
+    <div id="modalDaftarGuru" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs hidden p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative border border-slate-100">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <h3 class="font-bold text-slate-800 text-base">Pendaftaran Akun Guru</h3>
+            <p class="text-xs text-slate-500">SDIT ALIA NURUL JIHADI</p>
+          </div>
+          <button type="button" onclick="tutupModalDaftar()" class="text-slate-400 hover:text-slate-600 p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <form id="formRegisterGuru" onsubmit="handleUserRegister(event)" class="mt-4 space-y-3.5">
+          <div id="registerAlertMsg" class="hidden text-xs p-3 rounded-xl"></div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap & Gelar</label>
+            <input type="text" id="regNamaLengkap" required placeholder="Contoh: Ust. Ahmad Fauzi, S.Pd." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+            <input type="email" id="regEmail" required placeholder="guru@sditalianj.sch.id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi (Min. 6 Karakter)</label>
+            <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Ulangi Kata Sandi</label>
+            <input type="password" id="regPasswordConfirm" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+          </div>
+
+          <div class="pt-2 flex gap-2">
+            <button type="button" onclick="tutupModalDaftar()" class="w-1/2 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50">
+              Batal
+            </button>
+            <button type="submit" id="btnSubmitDaftar" class="w-1/2 py-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-200">
+              Daftar Sekarang
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <div class="mt-6 text-[11px] text-slate-400">
       SDIT Alia Nurul Jihadi &copy; 2026
@@ -2616,7 +2670,88 @@ function togglePasswordVisibility() {
     eyeIcon.classList.add('fa-eye');
   }
 }
+// --- FUNGSI PENDAFTARAN AKUN GURU MANDIRI ---
+function bukaModalDaftar() {
+  var modal = document.getElementById('modalDaftarGuru');
+  if (modal) {
+    modal.classList.remove('hidden');
+    var alertBox = document.getElementById('registerAlertMsg');
+    if (alertBox) alertBox.classList.add('hidden');
+    var form = document.getElementById('formRegisterGuru');
+    if (form) form.reset();
+  }
+}
 
+function tutupModalDaftar() {
+  var modal = document.getElementById('modalDaftarGuru');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function handleUserRegister(e) {
+  if (e) e.preventDefault();
+  
+  var nama = document.getElementById('regNamaLengkap').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var pass = document.getElementById('regPassword').value;
+  var passConfirm = document.getElementById('regPasswordConfirm').value;
+  var alertBox = document.getElementById('registerAlertMsg');
+  var btn = document.getElementById('btnSubmitDaftar');
+
+  alertBox.className = "hidden text-xs p-3 rounded-xl";
+
+  if (pass !== passConfirm) {
+    alertBox.textContent = "Konfirmasi kata sandi tidak cocok!";
+    alertBox.className = "text-xs p-3 rounded-xl bg-rose-50 text-rose-600 font-semibold mb-3 border border-rose-200 block";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mendaftarkan...';
+
+  try {
+    // 1. Buat akun di Firebase Authentication
+    var userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+    var user = userCredential.user;
+
+    // 2. Simpan profil lengkap ke Firestore koleksi "users"
+    if (typeof db !== 'undefined' && db) {
+      await db.collection('users').doc(user.uid).set({
+        uid: user.uid,
+        nama: nama,
+        email: email,
+        username: email.split('@')[0],
+        jabatan: 'Wali Kelas / Guru',
+        role: 'guru',
+        status: 'Aktif',
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+    }
+
+    alertBox.textContent = "Pendaftaran berhasil! Akun sudah aktif dan tersimpan di database.";
+    alertBox.className = "text-xs p-3 rounded-xl bg-emerald-50 text-emerald-700 font-semibold mb-3 border border-emerald-200 block";
+    
+    setTimeout(function() {
+      tutupModalDaftar();
+      // Otomatis isi kolom login agar guru tinggal masuk
+      var inputLoginEmail = document.getElementById('loginEmailInput');
+      if (inputLoginEmail) inputLoginEmail.value = email;
+    }, 1500);
+
+  } catch (error) {
+    console.error("Gagal daftar:", error);
+    var pesan = "Gagal mendaftar: " + error.message;
+    if (error.code === 'auth/email-already-in-use') {
+      pesan = "Email ini sudah terdaftar. Silakan gunakan email lain atau langsung login.";
+    } else if (error.code === 'auth/weak-password') {
+      pesan = "Kata sandi terlalu lemah. Minimal 6 karakter.";
+    }
+    alertBox.textContent = pesan;
+    alertBox.className = "text-xs p-3 rounded-xl bg-rose-50 text-rose-600 font-semibold mb-3 border border-rose-200 block";
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Daftar Sekarang';
+  }
+}
 function handleUserLogin(e) {
   if (e) e.preventDefault();
   var userInput = document.getElementById('loginEmailInput').value.trim();
