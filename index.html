@@ -1675,12 +1675,47 @@ window.resetSiswaFilter = function() {
   renderStudentTable();
 };
 
-
-window.renderUserTable = function() {
+window.renderUserTable = async function() {
   const tbody = document.getElementById('userTableBody');
   if (!tbody) return;
+
+  // 1. Ambil data pengguna dari Firestore jika tersedia
+  try {
+    var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
+    if (dbObj) {
+      const snap = await dbObj.collection('users').get();
+      snap.forEach(function(doc) {
+        const d = doc.data();
+        // Cek jika akun belum ada di list tabel
+        const exists = appState.users.some(function(u) {
+          return (u.uid && u.uid === doc.id) || (u.username && d.username && u.username === d.username) || (u.email && d.email && u.email === d.email);
+        });
+        if (!exists) {
+          appState.users.push({
+            id: doc.id,
+            uid: doc.id,
+            nama: d.nama || 'Guru',
+            username: d.username || (d.email ? d.email.split('@')[0] : 'user'),
+            email: d.email || '',
+            jabatan: d.jabatan || 'Wali Kelas / Guru',
+            status: d.status || 'Aktif'
+          });
+        }
+      });
+    }
+  } catch (err) {
+    console.warn("Gagal memuat pengguna dari Firestore:", err);
+  }
+
+  // 2. Render ke tabel HTML
   tbody.innerHTML = appState.users.map(function(u, i) {
     const isCur = u.username === appState.currentUser.username;
+    const isDefaultAdmin = (u.username === 'riandy.admin');
+    
+    // Tombol Kick / Hapus (hanya untuk selain akun Anda sendiri)
+    const btnKick = !isDefaultAdmin && !isCur ? 
+      '<button onclick="kickUser(\'' + (u.uid || u.id) + '\', \'' + (u.nama ? u.nama.replace(/'/g, "\\'") : 'Pengguna') + '\')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition ml-1" title="Kick / Hapus Akun"><i class="fa-solid fa-trash-can"></i></button>' : '';
+
     return '<tr class="hover:bg-purple-50/50 transition">' +
       '<td class="py-3 px-4 text-center font-bold text-slate-400">' + (i + 1) + '</td>' +
       '<td class="py-3 px-4 font-bold text-slate-800 flex items-center space-x-2">' +
@@ -1689,12 +1724,38 @@ window.renderUserTable = function() {
       '</td>' +
       '<td class="py-3 px-4 font-mono text-slate-600">' + u.username + '</td>' +
       '<td class="py-3 px-4"><span class="px-2.5 py-1 bg-purple-100 text-brand-900 rounded-lg font-bold text-[11px]">' + u.jabatan + '</span></td>' +
-      '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ' + (u.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600') + '">' + u.status + '</span></td>' +
-      '<td class="py-3 px-4 text-center">' +
-        '<button onclick="editUser(' + u.id + ')" class="p-1.5 text-brand-700 hover:text-brand-900 hover:bg-brand-100 rounded-lg transition" title="Edit Akun Pengguna"><i class="fa-solid fa-pen-to-square"></i></button>' +
+      '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ' + (u.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700') + '">' + u.status + '</span></td>' +
+      '<td class="py-3 px-4 text-center flex items-center justify-center">' +
+        '<button onclick="editUser(\'' + u.id + '\')" class="p-1.5 text-brand-700 hover:text-brand-900 hover:bg-brand-100 rounded-lg transition" title="Edit Akun Pengguna"><i class="fa-solid fa-pen-to-square"></i></button>' +
+        btnKick +
       '</td>' +
     '</tr>';
   }).join('');
+};
+
+// Fungsi Kick / Hapus Pengguna
+window.kickUser = async function(userId, namaUser) {
+  if (!confirm('Apakah Anda yakin ingin meng-kick/menghapus akun "' + namaUser + '" dari sistem?')) {
+    return;
+  }
+  
+  try {
+    var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
+    if (dbObj) {
+      await dbObj.collection('users').doc(userId).delete();
+    }
+    
+    // Hapus dari tampilan lokal
+    appState.users = appState.users.filter(function(u) {
+      return u.id !== userId && u.uid !== userId;
+    });
+    
+    alert('Akun "' + namaUser + '" berhasil di-kick/dihapus.');
+    window.renderUserTable();
+  } catch (err) {
+    console.error("Gagal menghapus akun:", err);
+    alert('Gagal menghapus akun: ' + err.message);
+  }
 };
 
 window.editUser = function(userId) {
