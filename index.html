@@ -354,7 +354,10 @@
         <i class="fa-solid fa-image text-brand-700"></i>
         <span class="hidden sm:inline">Ganti Logo</span>
       </button>
-
+<button type="button" onclick="handleUserLogout()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition" title="Keluar dari Aplikasi">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span class="hidden sm:inline">Keluar</span>
+            </button>
       <!-- Current User Profile Pill -->
       <div class="flex items-center space-x-2.5 pl-2 border-l border-purple-100 cursor-pointer" onclick="navigateTo('pengguna')" title="Kelola Akun Pengguna">
         <div class="w-9 h-9 rounded-full bg-brand-800 text-white flex items-center justify-center font-bold text-xs shadow-xs border-2 border-brand-400" id="headerAvatarText">
@@ -2838,6 +2841,17 @@ async function handleUserRegister(e) {
   } finally {
     btn.disabled = false;
     btn.innerHTML = 'Daftar Sekarang';
+  }
+}
+    async function handleUserLogout() {
+  if (confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
+    try {
+      var authObj = (typeof auth !== 'undefined') ? auth : firebase.auth();
+      await authObj.signOut();
+    } catch (err) {
+      console.warn("Sign out error:", err);
+    }
+    window.location.reload();
   }
 }
 function handleUserLogin(e) {
