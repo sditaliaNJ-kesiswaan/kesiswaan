@@ -1679,7 +1679,9 @@ window.resetSiswaFilter = function() {
 window.renderUserTable = async function() {
   const tbody = document.getElementById('userTableBody');
   if (!tbody) return;
-
+// Bersihkan akun dummy bawaan template jika tersisa di memori
+appState.users = appState.users.filter(u => !['mahmud.kesiswaan', 'sarah.wali', 'fauzi.kepsek'].includes(u.username));
+  
   // 1. Ambil data pengguna dari Firestore jika tersedia
   try {
     var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
