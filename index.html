@@ -193,12 +193,22 @@
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi (Min. 6 Karakter)</label>
-            <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+            <div class="relative flex items-center">
+              <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" class="w-full pl-3.5 pr-11 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+              <button type="button" onclick="toggleRegPassword('regPassword', 'eyeReg1')" class="absolute right-3.5 text-slate-400 hover:text-purple-700">
+                <i id="eyeReg1" class="fa-regular fa-eye"></i>
+              </button>
+            </div>
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Ulangi Kata Sandi</label>
-            <input type="password" id="regPasswordConfirm" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+            <div class="relative flex items-center">
+              <input type="password" id="regPasswordConfirm" required minlength="6" placeholder="••••••••" class="w-full pl-3.5 pr-11 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+              <button type="button" onclick="toggleRegPassword('regPasswordConfirm', 'eyeReg2')" class="absolute right-3.5 text-slate-400 hover:text-purple-700">
+                <i id="eyeReg2" class="fa-regular fa-eye"></i>
+              </button>
+            </div>
           </div>
 
           <div class="pt-2 flex gap-2">
@@ -2668,6 +2678,21 @@ function togglePasswordVisibility() {
     passField.type = 'password';
     eyeIcon.classList.remove('fa-eye-slash');
     eyeIcon.classList.add('fa-eye');
+  }
+}
+    function toggleRegPassword(inputId, iconId) {
+  var input = document.getElementById(inputId);
+  var icon = document.getElementById(iconId);
+  if (input && icon) {
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
   }
 }
 // --- FUNGSI PENDAFTARAN AKUN GURU MANDIRI ---
