@@ -2710,12 +2710,14 @@ async function handleUserRegister(e) {
 
   try {
     // 1. Buat akun di Firebase Authentication
-    var userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+    var authObj = (typeof auth !== 'undefined') ? auth : firebase.auth();
+    var userCredential = await authObj.createUserWithEmailAndPassword(email, pass);
     var user = userCredential.user;
 
     // 2. Simpan profil lengkap ke Firestore koleksi "users"
-    if (typeof db !== 'undefined' && db) {
-      await db.collection('users').doc(user.uid).set({
+    var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
+    if (dbObj) {
+      await dbObj.collection('users').doc(user.uid).set({
         uid: user.uid,
         nama: nama,
         email: email,
