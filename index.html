@@ -2915,12 +2915,62 @@ function handleUserLogin(e) {
   btn.innerHTML = '<span>Memeriksa...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
 
   firebase.auth().signInWithEmailAndPassword(email, pass)
-    .then(function(userCredential) {
-      btn.innerHTML = '<span>Berhasil Masuk!</span> <i class="fa-solid fa-check"></i>';
-      setTimeout(function() {
-        var screen = document.getElementById('authLoginScreen');
-        if (screen) screen.style.display = 'none';
-      }, 300);
+ .then(async function(userCredential) {
+  btn.innerHTML = '<span>Berhasil Masuk!</span> <i class="fa-solid fa-check"></i>';
+  var user = userCredential.user;
+  
+  // Ambil profil data user dari Firestore
+  try {
+    var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
+    if (dbObj && user) {
+      var docSnap = await dbObj.collection('users').doc(user.uid).get();
+      var uData = null;
+      if (docSnap.exists) {
+        uData = docSnap.data();
+      } else {
+        var qSnap = await dbObj.collection('users').where('email', '==', user.email).get();
+        if (!qSnap.empty) {
+          uData = qSnap.docs[0].data();
+        }
+      }
+      
+      if (uData) {
+        appState.currentUser = {
+          id: user.uid,
+          nama: uData.nama || user.displayName || user.email.split('@')[0],
+          username: uData.username || user.email.split('@')[0],
+          jabatan: uData.jabatan || uData.role || 'Guru',
+          status: uData.status || 'Aktif'
+        };
+      } else {
+        appState.currentUser = {
+          id: user.uid,
+          nama: user.displayName || user.email.split('@')[0],
+          username: user.email.split('@')[0],
+          jabatan: (user.email === 'riandygue@gmail.com' || user.email.indexOf('admin') !== -1) ? 'Administrator' : 'Guru',
+          status: 'Aktif'
+        };
+      }
+      
+      if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
+      if (typeof savePersistedData === 'function') savePersistedData();
+      
+      // Sembunyikan menu Pengguna & Pengaturan bila bukan Admin
+      var isAdmin = (appState.currentUser.jabatan === 'Administrator' || appState.currentUser.username === 'riandy.admin');
+      var navPengguna = document.getElementById('nav-pengguna');
+      var navPengaturan = document.getElementById('nav-pengaturan');
+      if (navPengguna) navPengguna.style.display = isAdmin ? '' : 'none';
+      if (navPengaturan) navPengaturan.style.display = isAdmin ? '' : 'none';
+    }
+  } catch (err) {
+    console.warn("Gagal sinkron data user login:", err);
+  }
+
+  setTimeout(function() {
+    var screen = document.getElementById('authLoginScreen');
+    if (screen) screen.style.display = 'none';
+    if (typeof navigateTo === 'function') navigateTo('dashboard');
+  }, 400);
     })
     .catch(function(error) {
       btn.disabled = false;
