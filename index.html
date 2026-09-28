@@ -1857,6 +1857,37 @@ window.handleSaveEditUser = async function(e) {
   if (typeof window.closeEditUserModal === 'function') window.closeEditUserModal();
   if (typeof window.showToast === 'function') window.showToast('Akun pengguna berhasil diperbarui!');
 };
+  window.openEditUserModal = function(id) {
+  const u = (appState.users || []).find(function(x) { return String(x.id) === String(id) || x.username === String(id); });
+  if (!u) {
+    alert('Data pengguna tidak ditemukan!');
+    return;
+  }
+  const modal = document.getElementById('modalEditUser');
+  if (!modal) return;
+  
+  document.getElementById('editUserId').value = u.id || '';
+  document.getElementById('editUserNama').value = u.nama || '';
+  document.getElementById('editUserUsername').value = u.username || '';
+  document.getElementById('editUserJabatan').value = u.jabatan || u.role || 'Guru';
+  document.getElementById('editUserStatus').value = u.status || 'Aktif';
+  
+  const chkActive = document.getElementById('editUserSetActive');
+  if (chkActive) {
+    chkActive.checked = (appState.currentUser && (String(appState.currentUser.id) === String(u.id) || appState.currentUser.username === u.username));
+  }
+  
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+};
+
+window.closeEditUserModal = function() {
+  const modal = document.getElementById('modalEditUser');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+};
 window.openAddUserModal = function() {
   const modal = document.getElementById('modalAddUser');
   if (modal) {
