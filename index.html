@@ -1404,6 +1404,22 @@ function savePersistedData() {
 
 
 window.navigateTo = function(viewId) {
+  // Cek hak akses admin
+  const currentUser = appState.currentUser || {};
+  const isAdmin = (currentUser.jabatan === 'Administrator' || currentUser.username === 'riandy.admin');
+
+  // Tolak jika bukan admin mencoba akses menu pengguna atau pengaturan
+  if (!isAdmin && (viewId === 'pengguna' || viewId === 'pengaturan')) {
+    alert("Akses Terbatas: Menu ini hanya dapat diakses oleh Administrator.");
+    viewId = 'dashboard';
+  }
+
+  // Sembunyikan tombol menu di sidebar jika bukan admin
+  const navPengguna = document.getElementById('nav-pengguna');
+  const navPengaturan = document.getElementById('nav-pengaturan');
+  if (navPengguna) navPengguna.style.display = isAdmin ? '' : 'none';
+  if (navPengaturan) navPengaturan.style.display = isAdmin ? '' : 'none';
+
   appState.currentView = viewId;
   document.querySelectorAll('.view-panel').forEach(function(el) { el.classList.add('hidden'); });
   const target = document.getElementById('view-' + viewId);
@@ -1411,6 +1427,7 @@ window.navigateTo = function(viewId) {
     target.classList.remove('hidden');
     target.classList.add('block');
   }
+
 
   document.querySelectorAll('.nav-item').forEach(function(el) {
     el.classList.remove('bg-brand-800', 'text-white', 'shadow-sm');
