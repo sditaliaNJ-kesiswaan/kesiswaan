@@ -2947,7 +2947,7 @@ function handleUserLogin(e) {
           id: user.uid,
           nama: user.displayName || user.email.split('@')[0],
           username: user.email.split('@')[0],
-          jabatan: (user.email === 'riandygue@gmail.com' || user.email.indexOf('admin') !== -1) ? 'Administrator' : 'Guru',
+          jabatan: (user.email === 'riandyju@gmail.com' || user.email.indexOf('admin') !== -1) ? 'Administrator' : 'Guru',
           status: 'Aktif'
         };
       }
@@ -2956,7 +2956,7 @@ function handleUserLogin(e) {
       if (typeof savePersistedData === 'function') savePersistedData();
       
       // Sembunyikan menu Pengguna & Pengaturan bila bukan Admin
-      var isAdmin = (appState.currentUser.jabatan === 'Administrator' || appState.currentUser.username === 'riandy.admin');
+    var isAdmin = (appState.currentUser.jabatan === 'Administrator' || appState.currentUser.username === 'riandyju' || appState.currentUser.username === 'riandy.admin');
       var navPengguna = document.getElementById('nav-pengguna');
       var navPengaturan = document.getElementById('nav-pengaturan');
       if (navPengguna) navPengguna.style.display = isAdmin ? '' : 'none';
