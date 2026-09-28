@@ -1804,29 +1804,59 @@ window.closeEditUserModal = function() {
   }
 };
 
-window.handleSaveEditUser = function(e) {
+window.handleSaveEditUser = async function(e) {
   e.preventDefault();
-  const id = parseInt(document.getElementById('editUserId').value, 10);
+  const rawId = document.getElementById('editUserId').value;
   const nama = document.getElementById('editUserNama').value.trim();
   const username = document.getElementById('editUserUsername').value.trim();
   const jabatan = document.getElementById('editUserJabatan').value;
   const status = document.getElementById('editUserStatus').value;
   const setActive = document.getElementById('editUserSetActive').checked;
 
-  const idx = appState.users.findIndex(function(x) { return x.id === id; });
+  // 1. Simpan perubahan ke Firestore
+  try {
+    var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
+    if (dbObj) {
+      const userRef = dbObj.collection('users').doc(rawId);
+      const docSnap = await userRef.get();
+      if (docSnap.exists) {
+        await userRef.update({ nama: nama, username: username, jabatan: jabatan, role: jabatan, status: status });
+      } else {
+        const qSnap = await dbObj.collection('users').where('username', '==', username).get();
+        qSnap.forEach(async function(doc) {
+          await doc.ref.update({ nama: nama, username: username, jabatan: jabatan, role: jabatan, status: status });
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("Gagal update firestore:", err);
+  }
+
+  // 2. Perbarui data lokal appState
+  const idx = appState.users.findIndex(function(x) { return String(x.id) === String(rawId) || x.username === username; });
   if (idx !== -1) {
     appState.users[idx] = Object.assign({}, appState.users[idx], { nama: nama, username: username, jabatan: jabatan, status: status });
-    if (setActive || appState.currentUser.id === id) {
-      appState.currentUser = { id: id, nama: nama, username: username, jabatan: jabatan, status: status };
-      syncCurrentUserDisplay();
-    }
-    savePersistedData();
-    window.renderUserTable();
-    window.closeEditUserModal();
-    window.showToast('Akun pengguna berhasil diperbarui!');
   }
-};
 
+  // 3. Jika dijadikan akun aktif atau memang sedang aktif
+  const isCurrentActive = (appState.currentUser && (String(appState.currentUser.id) === String(rawId) || appState.currentUser.username === username));
+  if (setActive || isCurrentActive) {
+    appState.currentUser = { id: rawId, nama: nama, username: username, jabatan: jabatan, status: status };
+    if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
+    
+    // Perbarui visibilitas menu Pengguna & Pengaturan berdasarkan jabatan baru
+    const isAdmin = (jabatan === 'Administrator' || username === 'riandy.admin');
+    const navPengguna = document.getElementById('nav-pengguna');
+    const navPengaturan = document.getElementById('nav-pengaturan');
+    if (navPengguna) navPengguna.style.display = isAdmin ? '' : 'none';
+    if (navPengaturan) navPengaturan.style.display = isAdmin ? '' : 'none';
+  }
+
+  if (typeof savePersistedData === 'function') savePersistedData();
+  if (typeof window.renderUserTable === 'function') await window.renderUserTable();
+  if (typeof window.closeEditUserModal === 'function') window.closeEditUserModal();
+  if (typeof window.showToast === 'function') window.showToast('Akun pengguna berhasil diperbarui!');
+};
 window.openAddUserModal = function() {
   const modal = document.getElementById('modalAddUser');
   if (modal) {
