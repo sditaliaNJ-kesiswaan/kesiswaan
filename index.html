@@ -3070,7 +3070,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
           appState.currentUser = {
             id: user.uid,
             nama: 'Riandy Julfriamdony, S. Kom',
-            username: 'riandy.admin',
+            username: 'Riandy Julfriamdony',
             jabatan: 'Administrator',
             role: 'admin',
             status: 'Aktif'
@@ -3085,6 +3085,17 @@ firebase.auth().onAuthStateChanged(async function(user) {
             status: 'Aktif'
           };
         }
+
+        // Simpan ke localStorage agar tidak reset
+        try {
+          localStorage.setItem('activeUser', JSON.stringify(appState.currentUser));
+          localStorage.setItem('currentUserRole', currentUserRole);
+        } catch(e) {}
+      }
+
+      // Perbarui tampilan header, inisial avatar (RJ), dan nama kanan atas seketika
+      if (typeof syncCurrentUserDisplay === 'function') {
+        syncCurrentUserDisplay();
       }
 
       // Muat ulang data terbaru dari Firestore (Siswa & Pengguna)
