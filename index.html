@@ -3027,15 +3027,58 @@ function handleUserLogout() {
 }
 
 // Pantau sesi login pengguna secara langsung
-firebase.auth().onAuthStateChanged(function(user) {
-  var loginScreen = document.getElementById('authLoginScreen');
-  if (user) {
-    if (loginScreen) loginScreen.style.display = 'none';
-    currentUserRole = (user.email === 'riandyju@gmail.com') ? 'admin' : 'guru';
-    console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
-  } else {
-    if (loginScreen) loginScreen.style.display = 'flex';
-  }
+firebase.auth().onAuthStateChanged(async function(user) {
+    var loginScreen = document.getElementById('authLoginScreen');
+    if (user) {
+      if (loginScreen) loginScreen.style.display = 'none';
+      currentUserRole = (user.email === 'riandyju@gmail.com') ? 'admin' : 'guru';
+      console.log('Login aktif:', user.email, '| Peran:', currentUserRole);
+
+      // Sinkronkan data profil resmi akun utama secara otomatis di setiap perangkat
+      if (typeof appState !== 'undefined') {
+        if (user.email === 'riandyju@gmail.com') {
+          appState.currentUser = {
+            id: user.uid,
+            nama: 'Riandy Julfriamdony, S. Kom',
+            username: 'riandy.admin',
+            jabatan: 'Administrator',
+            role: 'admin',
+            status: 'Aktif'
+          };
+        } else if (!appState.currentUser || !appState.currentUser.nama) {
+          appState.currentUser = {
+            id: user.uid,
+            nama: user.displayName || user.email.split('@')[0],
+            username: user.email.split('@')[0],
+            jabatan: currentUserRole === 'admin' ? 'Administrator' : 'Guru',
+            role: currentUserRole,
+            status: 'Aktif'
+          };
+        }
+      }
+
+      // Muat ulang data terbaru dari Firestore (Siswa & Pengguna)
+      try {
+        if (typeof window.loadInitialDataFromFirestore === 'function') {
+          await window.loadInitialDataFromFirestore();
+        }
+        if (typeof window.renderUserTable === 'function') {
+          window.renderUserTable();
+        }
+        if (typeof window.renderStudentTable === 'function') {
+          window.renderStudentTable();
+        }
+        if (typeof window.updateDashboard === 'function') {
+          window.updateDashboard();
+        } else if (typeof window.renderDashboard === 'function') {
+          window.renderDashboard();
+        }
+      } catch (err) {
+        console.warn('Gagal sinkron data otomatis:', err);
+      }
+    } else {
+      if (loginScreen) loginScreen.style.display = 'flex';
+    }
 });
   </script>
 </body>
