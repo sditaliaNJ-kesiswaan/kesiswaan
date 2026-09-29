@@ -2995,25 +2995,46 @@ function handleUserLogin(e) {
         }
       }
       
-      if (uData) {
-        appState.currentUser = {
-          id: user.uid,
-          nama: uData.nama || user.displayName || user.email.split('@')[0],
-          username: uData.username || user.email.split('@')[0],
-          jabatan: uData.jabatan || uData.role || 'Guru',
-          status: uData.status || 'Aktif'
-        };
-      } else {
-        appState.currentUser = {
-          id: user.uid,
-          nama: user.displayName || user.email.split('@')[0],
-          username: user.email.split('@')[0],
-          jabatan: (user.email === 'riandyju@gmail.com' || user.email.indexOf('admin') !== -1) ? 'Administrator' : 'Guru',
-          status: 'Aktif'
-        };
-      }
-      
-      if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
+      if (user.email === 'riandyju@gmail.com') {
+      appState.currentUser = {
+        id: user.uid,
+        nama: 'Riandy Julfriamdony, S. Kom',
+        username: 'Riandy Julfriamdony',
+        jabatan: 'Administrator',
+        role: 'admin',
+        status: 'Aktif'
+      };
+    } else if (uData) {
+      appState.currentUser = {
+        id: user.uid,
+        nama: uData.nama || user.displayName || user.email.split('@')[0],
+        username: uData.username || user.email.split('@')[0],
+        jabatan: uData.jabatan || uData.role || 'Guru',
+        role: (uData.jabatan === 'Administrator' || uData.role === 'admin') ? 'admin' : 'guru',
+        status: uData.status || 'Aktif'
+      };
+    } else {
+      appState.currentUser = {
+        id: user.uid,
+        nama: user.displayName || user.email.split('@')[0],
+        username: user.email.split('@')[0],
+        jabatan: user.email.indexOf('admin') !== -1 ? 'Administrator' : 'Guru',
+        role: user.email.indexOf('admin') !== -1 ? 'admin' : 'guru',
+        status: 'Aktif'
+      };
+    }
+
+    currentUserRole = appState.currentUser.role;
+
+    try {
+      localStorage.setItem('activeUser', JSON.stringify(appState.currentUser));
+      localStorage.setItem('currentUserRole', currentUserRole);
+    } catch(e) {}
+
+    if (typeof syncCurrentUserDisplay === 'function') {
+      syncCurrentUserDisplay();
+    }      
+   
       if (typeof savePersistedData === 'function') savePersistedData();
       
       // Sembunyikan menu Pengguna & Pengaturan bila bukan Admin
