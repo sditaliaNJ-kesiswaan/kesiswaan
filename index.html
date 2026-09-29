@@ -1841,11 +1841,31 @@ window.handleSaveEditUser = async function(e) {
   // 3. Jika dijadikan akun aktif atau memang sedang aktif
   const isCurrentActive = (appState.currentUser && (String(appState.currentUser.id) === String(rawId) || appState.currentUser.username === username));
   if (setActive || isCurrentActive) {
-    appState.currentUser = { id: rawId, nama: nama, username: username, jabatan: jabatan, status: status };
-    if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
-    
-    // Perbarui visibilitas menu Pengguna & Pengaturan berdasarkan jabatan baru
     const isAdmin = (jabatan === 'Administrator' || username === 'riandy.admin');
+    
+    // Perbarui objek akun aktif dan peran sistem global
+    appState.currentUser = {
+      id: rawId || (appState.currentUser ? appState.currentUser.id : username),
+      nama: nama,
+      username: username,
+      jabatan: jabatan,
+      role: isAdmin ? 'admin' : 'guru',
+      status: status
+    };
+    currentUserRole = isAdmin ? 'admin' : 'guru';
+
+    // Simpan ke penyimpanan lokal browser agar tidak reset saat pindah menu
+    try {
+      localStorage.setItem('activeUser', JSON.stringify(appState.currentUser));
+      localStorage.setItem('currentUserRole', currentUserRole);
+    } catch(e) {}
+
+    // Perbarui tampilan header & sapaan dashboard
+    if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
+    if (typeof updateDashboard === 'function') updateDashboard();
+    else if (typeof renderDashboard === 'function') renderDashboard();
+
+    // Perbarui visibilitas menu Pengguna & Pengaturan berdasarkan jabatan baru
     const navPengguna = document.getElementById('nav-pengguna');
     const navPengaturan = document.getElementById('nav-pengaturan');
     if (navPengguna) navPengguna.style.display = isAdmin ? '' : 'none';
