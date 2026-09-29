@@ -1405,16 +1405,26 @@ function savePersistedData() {
 
 window.navigateTo = function(viewId) {
   // Cek hak akses admin
-  const currentUser = appState.currentUser || {};
-  const isAdmin = (currentUser.jabatan === 'Administrator' || currentUser.username === 'riandy.admin');
+ const curUser = (typeof appState !== 'undefined' && appState.currentUser) ? appState.currentUser : {};
+  const userJabatan = (curUser.jabatan || '').toLowerCase();
+  const userRole = (curUser.role || '').toLowerCase();
+  
+  // Admin sah jika jabatannya Administrator, rolenya admin, currentUserRole adalah admin, atau akun utama
+  const isAdmin = (
+    userJabatan === 'administrator' || 
+    userRole === 'admin' || 
+    (typeof currentUserRole !== 'undefined' && currentUserRole === 'admin') ||
+    curUser.username === 'riandy.admin' ||
+    (typeof firebase !== 'undefined' && firebase.auth().currentUser && firebase.auth().currentUser.email === 'riandyju@gmail.com')
+  );
 
-  // Tolak jika bukan admin mencoba akses menu pengguna atau pengaturan
+  // Tolak hanya jika BUKAN admin mencoba masuk ke menu pengguna atau pengaturan
   if (!isAdmin && (viewId === 'pengguna' || viewId === 'pengaturan')) {
     alert("Akses Terbatas: Menu ini hanya dapat diakses oleh Administrator.");
     viewId = 'dashboard';
   }
 
-  // Sembunyikan tombol menu di sidebar jika bukan admin
+  // Tampilkan atau sembunyikan tombol menu di sidebar sesuai status admin
   const navPengguna = document.getElementById('nav-pengguna');
   const navPengaturan = document.getElementById('nav-pengaturan');
   if (navPengguna) navPengguna.style.display = isAdmin ? '' : 'none';
