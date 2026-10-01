@@ -3343,10 +3343,20 @@ firebase.auth().onAuthStateChanged(async function(user) {
 
       box.innerHTML = 
         '<div style="background:' + accentBg + '; border: 8px double ' + borderColor + '; padding: 32px 28px; position: relative; font-family: ui-sans-serif, system-ui, sans-serif;">' +
-          '<div style="text-align: center; margin-bottom: 14px;">' +
-            '<img src="' + logoImg + '" alt="Logo" style="height: 58px; margin: 0 auto 8px auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
-            '<h2 style="font-size: 15px; font-weight: 800; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
-            '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
+        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
+            '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
+                      '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 80px; width: auto; object-fit: contain;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
+            '</div>' +
+            '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
+              '<h2 style="font-size: 19px; font-weight: 900; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
+              '<p style="font-size: 11px; font-weight: 700; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">SEKOLAH DASAR ISLAM TERPADU</p>' +
+              '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
+            '</div>' +
+            '<div style="width: 85px; display: flex; justify-content: flex-end; flex-shrink: 0;">' +
+              '<div style="width: 52px; height: 52px; border-radius: 9999px; background: rgba(0,0,0,0.03); border: 1px dashed ' + borderColor + '; display: flex; align-items: center; justify-content: center;">' +
+                '<i class="fa-solid fa-award" style="font-size: 26px; color: ' + borderColor + ';"></i>' +
+              '</div>' +
+            '</div>' +
           '</div>' +
 
           '<div style="border-top: 2px solid ' + borderColor + '; border-bottom: 1px solid ' + borderColor + '; padding: 8px 0; margin-bottom: 16px; text-align: center;">' +
