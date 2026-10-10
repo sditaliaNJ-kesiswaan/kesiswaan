@@ -3225,17 +3225,29 @@ firebase.auth().onAuthStateChanged(async function(user) {
       <div class="bg-purple-50/70 p-3 px-6 border-b border-purple-100 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
         <div class="flex items-center space-x-2">
           <span class="text-xs font-bold text-slate-700">Pilih Template:</span>
-          <div class="inline-flex rounded-lg border border-purple-200 bg-white p-1 text-xs font-semibold shadow-sm">
-            <button type="button" onclick="window.setCertTemplate('gold')" id="btnTplGold" class="px-3 py-1 rounded-md bg-amber-500 text-white font-bold transition-all flex items-center space-x-1 shadow-sm">
-              <i class="fa-solid fa-star text-[10px]"></i><span>Gold Islami</span>
-            </button>
-            <button type="button" onclick="window.setCertTemplate('purple')" id="btnTplPurple" class="px-3 py-1 rounded-md text-slate-600 hover:text-brand-800 transition-all flex items-center space-x-1">
-              <i class="fa-solid fa-gem text-[10px]"></i><span>Royal Purple</span>
-            </button>
-            <button type="button" onclick="window.setCertTemplate('classic')" id="btnTplClassic" class="px-3 py-1 rounded-md text-slate-600 hover:text-emerald-800 transition-all flex items-center space-x-1">
-              <i class="fa-solid fa-certificate text-[10px]"></i><span>Klasik Hijau</span>
-            </button>
-          </div>
+     <div class="inline-flex flex-wrap gap-1 rounded-lg border border-purple-200 bg-white p-1 text-xs font-semibold shadow-sm">
+              <!-- 3 Template Awal -->
+              <button type="button" onclick="window.setCertTemplate('gold')" id="btnTplGold" class="px-2.5 py-1 rounded-md bg-amber-500 text-white font-bold transition flex items-center space-x-1">
+                <i class="fa-solid fa-star text-[10px]"></i><span>Gold Islami</span>
+              </button>
+              <button type="button" onclick="window.setCertTemplate('purple')" id="btnTplPurple" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-brand-800 transition flex items-center space-x-1">
+                <i class="fa-solid fa-gem text-[10px]"></i><span>Royal Purple</span>
+              </button>
+              <button type="button" onclick="window.setCertTemplate('classic')" id="btnTplClassic" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-brand-800 transition flex items-center space-x-1">
+                <i class="fa-solid fa-award text-[10px]"></i><span>Klasik Hijau</span>
+              </button>
+
+              <!-- 3 Varian Mewah Baru -->
+              <button type="button" onclick="window.setCertTemplate('gold-luxury')" id="btnTplGoldLuxury" class="px-2.5 py-1 rounded-md text-amber-800 hover:bg-amber-50 transition flex items-center space-x-1 border border-amber-200">
+                <i class="fa-solid fa-crown text-[10px] text-amber-500"></i><span>Royal Gold Luxury</span>
+              </button>
+              <button type="button" onclick="window.setCertTemplate('emerald-arabesque')" id="btnTplEmerald" class="px-2.5 py-1 rounded-md text-emerald-800 hover:bg-emerald-50 transition flex items-center space-x-1 border border-emerald-200">
+                <i class="fa-solid fa-star-and-crescent text-[10px] text-emerald-600"></i><span>Emerald Arabesque</span>
+              </button>
+              <button type="button" onclick="window.setCertTemplate('imperial-maroon')" id="btnTplMaroon" class="px-2.5 py-1 rounded-md text-rose-800 hover:bg-rose-50 transition flex items-center space-x-1 border border-rose-200">
+                <i class="fa-solid fa-ribbon text-[10px] text-rose-600"></i><span>Imperial Maroon</span>
+              </button>
+            </div>
         </div>
 
         <div class="flex items-center space-x-2">
@@ -3295,111 +3307,234 @@ firebase.auth().onAuthStateChanged(async function(user) {
       window.renderCertificatePreview();
     };
 
-    window.updateCertButtonStyles = function() {
-      const bGold = document.getElementById('btnTplGold');
-      const bPurple = document.getElementById('btnTplPurple');
-      const bClassic = document.getElementById('btnTplClassic');
+   window.updateCertButtonStyles = function() {
+    const bGold = document.getElementById('btnTplGold');
+    const bPurple = document.getElementById('btnTplPurple');
+    const bClassic = document.getElementById('btnTplClassic');
+    const bGoldLuxury = document.getElementById('btnTplGoldLuxury');
+    const bEmerald = document.getElementById('btnTplEmerald');
+    const bMaroon = document.getElementById('btnTplMaroon');
 
-      const defaultCls = 'px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1';
-      if (bGold) bGold.className = defaultCls;
-      if (bPurple) bPurple.className = defaultCls;
-      if (bClassic) bClassic.className = defaultCls;
+    const defaultCls = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 border border-transparent';
+    if (bGold) bGold.className = defaultCls;
+    if (bPurple) bPurple.className = defaultCls;
+    if (bClassic) bClassic.className = defaultCls;
+    if (bGoldLuxury) bGoldLuxury.className = 'px-2.5 py-1 rounded-md text-amber-800 hover:bg-amber-50 transition-all flex items-center space-x-1 border border-amber-200';
+    if (bEmerald) bEmerald.className = 'px-2.5 py-1 rounded-md text-emerald-800 hover:bg-emerald-50 transition-all flex items-center space-x-1 border border-emerald-200';
+    if (bMaroon) bMaroon.className = 'px-2.5 py-1 rounded-md text-rose-800 hover:bg-rose-50 transition-all flex items-center space-x-1 border border-rose-200';
 
-      if (window.currentCertTheme === 'gold' && bGold) {
-        bGold.className = 'px-3 py-1 rounded-md bg-amber-500 text-white font-bold shadow-sm transition-all flex items-center space-x-1';
-      } else if (window.currentCertTheme === 'purple' && bPurple) {
-        bPurple.className = 'px-3 py-1 rounded-md bg-brand-800 text-white font-bold shadow-sm transition-all flex items-center space-x-1';
-      } else if (window.currentCertTheme === 'classic' && bClassic) {
-        bClassic.className = 'px-3 py-1 rounded-md bg-emerald-700 text-white font-bold shadow-sm transition-all flex items-center space-x-1';
-      }
-    };
+    if (window.currentCertTheme === 'gold' && bGold) {
+      bGold.className = 'px-2.5 py-1 rounded-md bg-amber-500 text-white font-bold shadow-sm transition-all flex items-center space-x-1';
+    } else if (window.currentCertTheme === 'purple' && bPurple) {
+      bPurple.className = 'px-2.5 py-1 rounded-md bg-purple-700 text-white font-bold shadow-sm transition-all flex items-center space-x-1';
+    } else if (window.currentCertTheme === 'classic' && bClassic) {
+      bClassic.className = 'px-2.5 py-1 rounded-md bg-emerald-700 text-white font-bold shadow-sm transition-all flex items-center space-x-1';
+    } else if (window.currentCertTheme === 'gold-luxury' && bGoldLuxury) {
+      bGoldLuxury.className = 'px-2.5 py-1 rounded-md bg-amber-600 text-white font-bold shadow-sm transition-all flex items-center space-x-1 ring-2 ring-amber-300';
+    } else if (window.currentCertTheme === 'emerald-arabesque' && bEmerald) {
+      bEmerald.className = 'px-2.5 py-1 rounded-md bg-emerald-800 text-white font-bold shadow-sm transition-all flex items-center space-x-1 ring-2 ring-emerald-300';
+    } else if (window.currentCertTheme === 'imperial-maroon' && bMaroon) {
+      bMaroon.className = 'px-2.5 py-1 rounded-md bg-rose-900 text-white font-bold shadow-sm transition-all flex items-center space-x-1 ring-2 ring-rose-300';
+    }
+  };
 
-    window.renderCertificatePreview = function() {
-      const p = window.currentCertData;
-      const box = document.getElementById('certificatePrintArea');
-      if (!p || !box) return;
+  window.renderCertificatePreview = function() {
+    const p = window.currentCertData;
+    const box = document.getElementById('certificatePrintArea');
+    if (!p || !box) return;
 
-      let borderColor = '#d97706'; // Gold
-      let accentBg = 'linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%)';
-      let titleColor = '#b45309';
-      let subTitleColor = '#92400e';
+    const theme = window.currentCertTheme || 'gold';
+    const tglCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const periodeText = p.periode ? p.periode : 'Tahun Ajaran 2026/2027';
+    const nisText = (p.nis && p.nis !== '-') ? 'NIS: ' + p.nis + ' &bull; ' : '';
+    const pelatihText = (p.pelatih && p.pelatih !== '-') ? '<p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Waktu Pelaksanaan / Juara: <strong>' + periodeText + '</strong> &bull; Pembimbing: <strong>' + p.pelatih + '</strong></p>' : '<p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Waktu Pelaksanaan / Juara: <strong>' + periodeText + '</strong></p>';
 
-      if (window.currentCertTheme === 'purple') {
-        borderColor = '#6b21a8'; // Royal Purple
-        accentBg = 'linear-gradient(135deg, #faf5ff 0%, #ffffff 50%, #f3e8ff 100%)';
-        titleColor = '#6b21a8';
-        subTitleColor = '#581c87';
-      } else if (window.currentCertTheme === 'classic') {
-        borderColor = '#047857'; // Emerald Green
-        accentBg = 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #dcfce7 100%)';
-        titleColor = '#047857';
-        subTitleColor = '#065f46';
-      }
+    // ==========================================
+    // 3 TEMPLATE MEWAH DENGAN ORNAMEN & WATERMARK
+    // ==========================================
+    if (theme === 'gold-luxury' || theme === 'emerald-arabesque' || theme === 'imperial-maroon') {
+      const luxuryConfig = {
+        'gold-luxury': {
+          primary: '#b45309',
+          accent: '#d97706',
+          innerBorder: '#f59e0b',
+          titleColor: '#78350f',
+          bgGradient: 'linear-gradient(135deg, #fffdfa 0%, #fefcf3 50%, #fffdfa 100%)',
+          outerBorder: '#b45309',
+          editionBadge: 'ROYAL GOLD LUXURY EDITION'
+        },
+        'emerald-arabesque': {
+          primary: '#065f46',
+          accent: '#059669',
+          innerBorder: '#10b981',
+          titleColor: '#064e3b',
+          bgGradient: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #f0fdf4 100%)',
+          outerBorder: '#065f46',
+          editionBadge: 'EMERALD ARABESQUE EDITION'
+        },
+        'imperial-maroon': {
+          primary: '#881337',
+          accent: '#be123c',
+          innerBorder: '#e11d48',
+          titleColor: '#4c0519',
+          bgGradient: 'linear-gradient(135deg, #fff1f2 0%, #ffffff 50%, #fff1f2 100%)',
+          outerBorder: '#881337',
+          editionBadge: 'IMPERIAL MAROON EDITION'
+        }
+      }[theme];
 
-      const logoImg = (typeof appState !== 'undefined' && appState.schoolLogo) ? appState.schoolLogo : 'https://raw.githubusercontent.com/sditalianj-kesiswaan/kesiswaan/main/logo.png';
-      const periodeText = p.periode ? p.periode : 'Tahun Ajaran 2026/2027';
-      const pelatihText = (p.pelatih && p.pelatih !== '-') ? '<p style="font-size: 11px; color: #475569; margin-top: 4px;">Pembimbing / Pelatih: <strong>' + p.pelatih + '</strong></p>' : '';
-      const nisText = (p.nis && p.nis !== '-') ? 'NIS: ' + p.nis + ' &bull; ' : '';
+      const cornerSvg = '<svg viewBox="0 0 100 100" width="65" height="65" style="fill: none; stroke: ' + luxuryConfig.primary + '; stroke-width: 2.5; stroke-linecap: round;">' +
+        '<path d="M 10 10 L 85 10 M 10 10 L 10 85" stroke-width="3" />' +
+        '<path d="M 18 18 L 65 18 M 18 18 L 18 65" stroke-width="1.5" />' +
+        '<circle cx="18" cy="18" r="3.5" fill="' + luxuryConfig.primary + '" />' +
+        '<path d="M 28 10 C 28 28 10 28 10 28" />' +
+        '<path d="M 10 40 C 22 40 40 22 40 10" />' +
+      '</svg>';
 
       box.innerHTML = 
-        '<div style="background:' + accentBg + '; border: 8px double ' + borderColor + '; padding: 32px 28px; position: relative; font-family: ui-sans-serif, system-ui, sans-serif;">' +
-        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
-            '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
-              '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
-            '</div>' +
-            '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
-              '<h2 style="font-size: 19px; font-weight: 900; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
-              '<p style="font-size: 11px; font-weight: 700; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">SEKOLAH DASAR ISLAM TERPADU</p>' +
-              '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
-            '</div>' +
-            '<div style="width: 85px; text-align: right; flex-shrink: 0;">' +
-              '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 80px; width: auto; object-fit: contain; margin-left: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
-            '</div>' +
-          '</div>' +
-        
+        '<div style="background: ' + luxuryConfig.bgGradient + '; border: 8px solid ' + luxuryConfig.outerBorder + '; padding: 8px; position: relative; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;">' +
+          '<div style="border: 2px solid ' + luxuryConfig.innerBorder + '; padding: 30px 24px; position: relative; background: rgba(255,255,255,0.7);">' +
+            
+            '<div style="position: absolute; top: 4px; left: 4px;">' + cornerSvg + '</div>' +
+            '<div style="position: absolute; top: 4px; right: 4px; transform: scaleX(-1);">' + cornerSvg + '</div>' +
+            '<div style="position: absolute; bottom: 4px; left: 4px; transform: scaleY(-1);">' + cornerSvg + '</div>' +
+            '<div style="position: absolute; bottom: 4px; right: 4px; transform: scale(-1, -1);">' + cornerSvg + '</div>' +
 
-          '<div style="border-top: 2px solid ' + borderColor + '; border-bottom: 1px solid ' + borderColor + '; padding: 8px 0; margin-bottom: 16px; text-align: center;">' +
-            '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
-            '<p style="font-size: 11px; font-weight: 600; color: ' + subTitleColor + '; margin: 2px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Nomor: SDIT-ANJ/PRESTASI/' + new Date().getFullYear() + '/' + p.id.toString().slice(-4) + '</p>' +
-          '</div>' +
-
-          '<div style="text-align: center; margin: 18px 0;">' +
-            '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
-            '<h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + borderColor + ';">' + p.studentName + '</h3>' +
-            '<p style="font-size: 12px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas ' + p.kelas + '</p>' +
-          '</div>' +
-
-          '<div style="text-align: center; margin: 18px 0; background: rgba(255,255,255,0.7); border: 1px dashed ' + borderColor + '; border-radius: 12px; padding: 12px;">' +
-            '<p style="font-size: 11px; color: #475569; margin: 0 0 4px 0;">Atas prestasinya meraih pencapaian gemilang:</p>' +
-            '<h4 style="font-size: 17px; font-weight: 800; color: ' + titleColor + '; margin: 2px 0 4px 0;">' + p.judul + '</h4>' +
-            '<p style="font-size: 12px; font-weight: 700; color: #334155; margin: 0;">Kategori: ' + p.kategori + ' &bull; Tingkat: ' + p.tingkat + '</p>' +
-            '<p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Waktu Pelaksanaan / Juara: <strong>' + periodeText + '</strong></p>' +
-            pelatihText +
-          '</div>' +
-
-          '<div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px;">' +
-            '<div style="text-align: center; width: 220px;">' +
-              '<p style="font-size: 11px; color: #334155; margin: 0 0 45px 0;">Mengetahui,<br><strong>Kepala Sekolah</strong></p>' +
-              '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Kepala SDIT Alia Nurul Jihadi</p>' +
-              '<p style="font-size: 9px; color: #64748b; margin: 0;">NIP/NPY. -</p>' +
+            '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.05; pointer-events: none; z-index: 0;">' +
+              '<img src="Logo SDIT Transparan HD.png" style="width: 300px; height: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
             '</div>' +
 
-            '<div style="text-align: center; width: 140px;">' +
-              '<div style="width: 58px; height: 58px; margin: 0 auto; border-radius: 9999px; border: 2px dashed ' + borderColor + '; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: ' + borderColor + '; transform: rotate(-10deg);">' +
-                'CAP RESMI' +
+'<div style="position: relative; z-index: 1;">' +
+              '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
+                '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
+                  '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
+                '</div>' +
+                '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
+                  '<h2 style="font-size: 19px; font-weight: 900; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
+                  '<p style="font-size: 11px; font-weight: 700; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">SEKOLAH DASAR ISLAM TERPADU</p>' +
+                  '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
+                '</div>' +
+                '<div style="width: 85px; text-align: right; flex-shrink: 0;">' +
+                  '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 80px; width: auto; object-fit: contain; margin-left: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
+                '</div>' +
               '</div>' +
-            '</div>' +
 
-            '<div style="text-align: center; width: 220px;">' +
-              '<p style="font-size: 11px; color: #334155; margin: 0 0 45px 0;">Tangerang, ' + periodeText + '<br><strong>Bidang Kesiswaan</strong></p>' +
-              '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Riandy Julfriamdony, S. Kom</p>' +
-              '<p style="font-size: 9px; color: #64748b; margin: 0;">Koordinator Kesiswaan</p>' +
+              '<div style="border-top: 2px solid ' + luxuryConfig.primary + '; border-bottom: 1px solid ' + luxuryConfig.innerBorder + '; padding: 8px 0; margin-bottom: 16px; text-align: center;">' +
+                '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + luxuryConfig.titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
+                '<p style="font-size: 10px; font-weight: 800; color: ' + luxuryConfig.accent + '; margin: 2px 0 0 0; text-transform: uppercase; letter-spacing: 1.5px;">' + luxuryConfig.editionBadge + '</p>' +
+                '<p style="font-size: 10px; color: #64748b; margin: 2px 0 0 0;">Nomor: ' + (p.noPiagam || ('ANJ/PRESTASI/' + new Date().getFullYear() + '/' + (p.id || '001'))) + '</p>' +
+              '</div>' +
+
+              '<div style="text-align: center; margin: 18px 0;">' +
+                '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
+                '<h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + luxuryConfig.accent + '; text-underline-offset: 4px;">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
+                '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
+              '</div>' +
+
+              '<div style="text-align: center; margin: 16px 0; padding: 12px; background: rgba(255,255,255,0.85); border-radius: 8px; border: 1px solid rgba(0,0,0,0.06);">' +
+                '<p style="font-size: 12px; color: #334155; margin: 0;">Atas pencapaian prestasi gemilang sebagai:</p>' +
+                '<h4 style="font-size: 17px; font-weight: 800; color: ' + luxuryConfig.titleColor + '; margin: 6px 0 4px 0;">' + (p.namaLomba || 'Nama Kejuaraan') + '</h4>' +
+                '<p style="font-size: 12px; font-weight: 700; color: #334155; margin: 0;">Kategori: ' + (p.kategori || '-') + ' &bull; Tingkat: ' + (p.tingkat || 'Sekolah') + ' &bull; Hasil: ' + (p.peringkat || 'Juara') + '</p>' +
+                pelatihText +
+              '</div>' +
+
+              '<div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px;">' +
+                '<div style="text-align: center; width: 220px;">' +
+                  '<p style="font-size: 11px; color: #334155; margin: 0 0 45px 0;">Mengetahui,<br><strong>Kepala Sekolah</strong></p>' +
+                  '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Kepala SDIT Alia Nurul Jihadi</p>' +
+                  '<p style="font-size: 9px; color: #64748b; margin: 0;">NIP/NPY. -</p>' +
+                '</div>' +
+                '<div style="text-align: center; width: 140px;">' +
+                  '<div style="width: 58px; height: 58px; margin: 0 auto; border-radius: 9999px; border: 2px dashed ' + luxuryConfig.primary + '; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: ' + luxuryConfig.titleColor + '; background: rgba(255,255,255,0.9);">' +
+                    'CAP RESMI' +
+                  '</div>' +
+                '</div>' +
+                '<div style="text-align: center; width: 220px;">' +
+                  '<p style="font-size: 11px; color: #334155; margin: 0 0 45px 0;">Tangerang, ' + periodeText + '<br><strong>Bidang Kesiswaan</strong></p>' +
+                  '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Riandy Julfriamdony, S. Kom</p>' +
+                  '<p style="font-size: 9px; color: #64748b; margin: 0;">Koordinator Kesiswaan</p>' +
+                '</div>' +
+              '</div>' +
+
             '</div>' +
           '</div>' +
         '</div>';
-    };
+      return;
+    }
 
-    window.printCertificateDoc = function() {
+    // ==========================================
+    // 3 TEMPLATE LAMA (TETAP SEPERTI ASLINYA)
+    // ==========================================
+    let borderColor = '#d97706';
+    let accentBg = 'linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #fef3c7 100%)';
+    let titleColor = '#b45309';
+    let subTitleColor = '#92400e';
+
+    if (theme === 'purple') {
+      borderColor = '#6b21a8';
+      accentBg = 'linear-gradient(135deg, #faf5ff 0%, #ffffff 50%, #f3e8ff 100%)';
+      titleColor = '#6b21a8';
+      subTitleColor = '#581c87';
+    } else if (theme === 'classic') {
+      borderColor = '#047857';
+      accentBg = 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #dcfce7 100%)';
+      titleColor = '#047857';
+      subTitleColor = '#065f46';
+    }
+
+    box.innerHTML = 
+      '<div style="background:' + accentBg + '; border: 8px double ' + borderColor + '; padding: 32px 28px; position: relative; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;">' +
+        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
+          '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
+            '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
+          '</div>' +
+          '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
+            '<h2 style="font-size: 19px; font-weight: 900; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
+            '<p style="font-size: 11px; font-weight: 700; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">SEKOLAH DASAR ISLAM TERPADU</p>' +
+            '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
+          '</div>' +
+          '<div style="width: 85px; text-align: right; flex-shrink: 0;">' +
+            '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 80px; width: auto; object-fit: contain; margin-left: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
+          '</div>' +
+        '</div>' +
+
+        '<div style="border-top: 2px solid ' + borderColor + '; border-bottom: 1px solid ' + borderColor + '; padding: 8px 0; margin-bottom: 16px; text-align: center;">' +
+          '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
+          '<p style="font-size: 11px; font-weight: 600; color: ' + subTitleColor + '; margin: 2px 0 0; text-transform: uppercase; letter-spacing: 1px;">Nomor: ' + (p.noPiagam || ('ANJ/PRESTASI/' + new Date().getFullYear() + '/' + (p.id || '001'))) + '</p>' +
+        '</div>' +
+
+        '<div style="text-align: center; margin: 18px 0;">' +
+          '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
+          '<h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + borderColor + ';">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
+          '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
+        '</div>' +
+
+        '<div style="text-align: center; margin: 18px 0; padding: 12px; background: rgba(255,255,255,0.7); border-radius: 8px;">' +
+          '<p style="font-size: 12px; color: #334155; margin: 0;">Atas prestasinya sebagai:</p>' +
+          '<h4 style="font-size: 18px; font-weight: 800; color: ' + titleColor + '; margin: 6px 0 4px 0;">' + (p.namaLomba || 'Nama Kejuaraan') + '</h4>' +
+          '<p style="font-size: 12px; font-weight: 700; color: #334155; margin: 0;">Kategori: ' + (p.kategori || '-') + ' &bull; Tingkat: ' + (p.tingkat || 'Sekolah') + ' &bull; Hasil: ' + (p.peringkat || 'Juara') + '</p>' +
+          pelatihText +
+        '</div>' +
+
+        '<div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px;">' +
+          '<div style="text-align: center; width: 220px;">' +
+            '<p style="font-size: 11px; color: #334155; margin: 0 0 45px 0;">Mengetahui,<br><strong>Kepala Sekolah</strong></p>' +
+            '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Kepala SDIT Alia Nurul Jihadi</p>' +
+            '<p style="font-size: 9px; color: #64748b; margin: 0;">NIP/NPY. -</p>' +
+          '</div>' +
+          '<div style="text-align: center; width: 140px;">' +
+            '<div style="width: 58px; height: 58px; margin: 0 auto; border-radius: 9999px; border: 2px dashed ' + borderColor + '; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: ' + borderColor + '; background: rgba(255,255,255,0.9);">' +
+              'CAP RESMI' +
+            '</div>' +
+          '</div>' +
+          '<div style="text-align: center; width: 220px;">' +
+            '<p style="font-size: 11px; color: #334155; margin: 0 0 45px 0;">Tangerang, ' + periodeText + '<br><strong>Bidang Kesiswaan</strong></p>' +
+            '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Riandy Julfriamdony, S. Kom</p>' +
+            '<p style="font-size: 9px; color: #64748b; margin: 0;">Koordinator Kesiswaan</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  };    window.printCertificateDoc = function() {
       const content = document.getElementById('certificatePrintArea');
       if (!content) return;
 
