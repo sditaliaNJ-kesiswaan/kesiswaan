@@ -3250,6 +3250,37 @@ firebase.auth().onAuthStateChanged(async function(user) {
             </div>
         </div>
 
+        <!-- Toolbar Pengaturan Font & Ukuran Teks (Ala Word) -->
+          <div class="w-full flex flex-wrap items-center gap-3 pt-2 pb-1 border-t border-purple-100 text-xs">
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-font text-slate-500"></i>
+              <label class="font-bold text-slate-700">Font:</label>
+              <select id="certFontFamily" onchange="window.updateCertTypography()" class="border border-purple-200 rounded-md px-2 py-1 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                <option value="ui-sans-serif, system-ui, -apple-system, sans-serif">Bawaan (Modern Sans)</option>
+                <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Garamond', serif">Garamond</option>
+                <option value="'Century Gothic', sans-serif">Century Gothic</option>
+                <option value="'Monotype Corsiva', cursive">Monotype Corsiva (Kaligrafi)</option>
+                <option value="'Cinzel', serif">Cinzel (Klasik Romawi)</option>
+                <option value="'Playfair Display', serif">Playfair Display</option>
+                <option value="custom">Font Lain di Komputer...</option>
+              </select>
+            </div>
+
+            <!-- Input Nama Font Lokal dari Komputer -->
+            <div id="customFontWrapper" class="hidden items-center gap-1">
+              <input type="text" id="certCustomFont" placeholder="Ketik nama font di PC..." oninput="window.updateCertTypography()" class="border border-purple-200 rounded-md px-2 py-1 bg-white text-xs w-40 text-slate-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+            </div>
+
+            <!-- Pengatur Ukuran Nama Santri -->
+            <div class="flex items-center gap-1.5 ml-2">
+              <i class="fa-solid fa-text-height text-slate-500"></i>
+              <label class="font-bold text-slate-700">Ukuran Nama:</label>
+              <input type="number" id="certNameFontSize" value="24" min="14" max="44" oninput="window.updateCertTypography()" class="w-14 border border-purple-200 rounded-md px-1.5 py-1 bg-white text-xs text-center font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500">
+              <span class="text-slate-500 font-semibold">px</span>
+            </div>
+          </div>
         <div class="flex items-center space-x-2">
           <button type="button" onclick="window.printCertificateDoc()" class="px-4 py-1.5 bg-gradient-to-r from-purple-700 to-brand-800 text-white text-xs font-bold rounded-lg shadow hover:opacity-95 flex items-center space-x-1.5 active:scale-95 transition-all">
             <i class="fa-solid fa-print"></i>
@@ -3301,6 +3332,37 @@ firebase.auth().onAuthStateChanged(async function(user) {
       }
     };
 
+    window.certTypography = {
+    fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
+    nameSize: 24
+  };
+
+  window.updateCertTypography = function() {
+    var select = document.getElementById('certFontFamily');
+    var customWrap = document.getElementById('customFontWrapper');
+    var customInput = document.getElementById('certCustomFont');
+    var sizeInput = document.getElementById('certNameFontSize');
+
+    if (!select || !sizeInput) return;
+
+    if (select.value === 'custom') {
+      if (customWrap) {
+        customWrap.classList.remove('hidden');
+        customWrap.classList.add('flex');
+      }
+      var customVal = customInput ? customInput.value.trim() : '';
+      window.certTypography.fontFamily = customVal ? ("'" + customVal + "', sans-serif") : 'ui-sans-serif, system-ui, sans-serif';
+    } else {
+      if (customWrap) {
+        customWrap.classList.add('hidden');
+        customWrap.classList.remove('flex');
+      }
+      window.certTypography.fontFamily = select.value;
+    }
+
+    window.certTypography.nameSize = parseInt(sizeInput.value, 10) || 24;
+    window.renderCertificatePreview();
+  };
     window.setCertTemplate = function(theme) {
       window.currentCertTheme = theme;
       window.updateCertButtonStyles();
@@ -3344,6 +3406,8 @@ firebase.auth().onAuthStateChanged(async function(user) {
     if (!p || !box) return;
 
     const theme = window.currentCertTheme || 'gold';
+    const activeFont = (window.certTypography && window.certTypography.fontFamily) ? window.certTypography.fontFamily : 'ui-sans-serif, system-ui, -apple-system, sans-serif';
+    const activeNameSize = (window.certTypography && window.certTypography.nameSize) ? window.certTypography.nameSize : 24;
     const tglCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     const periodeText = p.periode ? p.periode : 'Tahun Ajaran 2026/2027';
     const nisText = (p.nis && p.nis !== '-') ? 'NIS: ' + p.nis + ' &bull; ' : '';
@@ -3392,7 +3456,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
       '</svg>';
 
       box.innerHTML = 
-        '<div style="background: ' + luxuryConfig.bgGradient + '; border: 8px solid ' + luxuryConfig.outerBorder + '; padding: 8px; position: relative; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;">' +
+        '<div style="background: ' + luxuryConfig.bgGradient + '; border: 8px solid ' + luxuryConfig.outerBorder + '; padding: 8px; position: relative; font-family: ' + activeFont + ';">' +
           '<div style="border: 2px solid ' + luxuryConfig.innerBorder + '; padding: 30px 24px; position: relative; background: rgba(255,255,255,0.7);">' +
             
             '<div style="position: absolute; top: 4px; left: 4px;">' + cornerSvg + '</div>' +
@@ -3427,7 +3491,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
 
               '<div style="text-align: center; margin: 18px 0;">' +
                 '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
-                '<h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + luxuryConfig.accent + '; text-underline-offset: 4px;">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
+                '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + luxuryConfig.accent + '; text-underline-offset: 4px;">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
                 '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
               '</div>' +
 
@@ -3483,7 +3547,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
     }
 
     box.innerHTML = 
-      '<div style="background:' + accentBg + '; border: 8px double ' + borderColor + '; padding: 32px 28px; position: relative; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;">' +
+      '<div style="background:' + accentBg + '; border: 8px double ' + borderColor + '; padding: 32px 28px; position: relative; font-family: ' + activeFont + ';">' +
         '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
           '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
             '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
@@ -3505,7 +3569,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
 
         '<div style="text-align: center; margin: 18px 0;">' +
           '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
-          '<h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + borderColor + ';">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
+          '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + borderColor + ';">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
           '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
         '</div>' +
 
