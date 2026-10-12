@@ -3612,14 +3612,17 @@ const activeFrame = window.selectedCertFrame || 'none';
             '<p style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0; text-decoration: underline;">Riandy Julfriamdony, S. Kom</p>' +
             '<p style="font-size: 9px; color: #64748b; margin: 0;">Koordinator Kesiswaan</p>' +
           '</div>' +
+    '</div>' +
         '</div>' +
-      '</div>';
-  };    window.printCertificateDoc = function() {
-      const content = document.getElementById('certificatePrintArea');
-      if (!content) return;
-const printWindow = window.open('', '_blank', 'width=950,height=700');
-      const printWindow = window.open('', '_blank', 'width=950,height=700');
-      printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Santri') + '</title>');
+    '</div>';
+};
+
+window.printCertificateDoc = function() {
+    const content = document.getElementById('certificatePrintArea');
+    if (!content) return;
+
+    const printWindow = window.open('', '_blank', 'width=950,height=700');
+    printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Santri') + '</title>');/title>');
       printWindow.document.write('<style>');
       printWindow.document.write('@page { size: landscape; margin: 10mm; }');
       printWindow.document.write('body { margin: 0; padding: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: ui-sans-serif, system-ui, sans-serif; display: flex; justify-content: center; align-items: center; }');
