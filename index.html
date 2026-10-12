@@ -3614,6 +3614,7 @@ const activeFrame = window.selectedCertFrame || 'none';
           '</div>' +
     '</div>' +
         '</div>' +
+'</div>' +
     '</div>';
 };
 
@@ -3622,7 +3623,7 @@ window.printCertificateDoc = function() {
     if (!content) return;
 
     const printWindow = window.open('', '_blank', 'width=950,height=700');
-    printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Santri') + '</title>');/title>');
+    printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Santri') + '</title>');
       printWindow.document.write('<style>');
       printWindow.document.write('@page { size: landscape; margin: 10mm; }');
       printWindow.document.write('body { margin: 0; padding: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: ui-sans-serif, system-ui, sans-serif; display: flex; justify-content: center; align-items: center; }');
