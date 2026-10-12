@@ -3291,14 +3291,37 @@ firebase.auth().onAuthStateChanged(async function(user) {
                             <option value="frame-maroon.jpeg">Maroon</option>
                         </select>
                     </div>
-          </div>
-        <div class="flex items-center space-x-2">
-          <button type="button" onclick="window.printCertificateDoc()" class="px-4 py-1.5 bg-gradient-to-r from-purple-700 to-brand-800 text-white text-xs font-bold rounded-lg shadow hover:opacity-95 flex items-center space-x-1.5 active:scale-95 transition-all">
-            <i class="fa-solid fa-print"></i>
-            <span>Cetak / Simpan PDF</span>
-          </button>
-        </div>
-      </div>
+          </div> 
+        '<div class="flex items-center gap-4 flex-wrap mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">' +
+    '<div class="flex items-center gap-1.5">' +
+        '<i class="fa-solid fa-arrows-up-down text-slate-500"></i>' +
+        '<label class="font-bold text-slate-700">Geser Kop/Logo (Y):</label>' +
+        '<input type="range" id="sliderKopY" min="40" max="130" value="85" oninput="window.adjustCertLayout()" class="w-20 accent-purple-600 cursor-pointer">' +
+        '<span id="valKopY" class="font-bold text-purple-600 w-8">85px</span>' +
+    '</div>' +
+    '<div class="flex items-center gap-1.5">' +
+        '<i class="fa-solid fa-arrows-up-down text-slate-500"></i>' +
+        '<label class="font-bold text-slate-700">Geser TTD (Y):</label>' +
+        '<input type="range" id="sliderTtdY" min="-20" max="50" value="10" oninput="window.adjustCertLayout()" class="w-20 accent-purple-600 cursor-pointer">' +
+        '<span id="valTtdY" class="font-bold text-purple-600 w-8">10px</span>' +
+    '</div>' +
+    '<div class="flex items-center gap-1.5">' +
+        '<i class="fa-solid fa-arrows-left-right text-slate-500"></i>' +
+        '<label class="font-bold text-slate-700">Margin Samping (X):</label>' +
+        '<input type="range" id="sliderMarginX" min="60" max="150" value="115" oninput="window.adjustCertLayout()" class="w-20 accent-purple-600 cursor-pointer">' +
+        '<span id="valMarginX" class="font-bold text-purple-600 w-9">115px</span>' +
+    '</div>' +
+    '<div class="ml-auto text-sky-700 bg-sky-100 px-2 py-0.5 rounded font-semibold text-[11px]">' +
+        '✏️ Teks preview bisa diklik & diketik bebas' +
+    '</div>' +
+'</div>' +
+      '<div class="flex items-center space-x-2">' +
+       '<button type="button" onclick="window.printCertificateDoc()" class="px-4 py-1.5 bg-gradient-to-r from-purple-700 to-brand-800 text-white text-xs font-bold rounded-lg shadow-sm hover:brightness-110 flex items-center gap-1.5 cursor-pointer">' +
+            '<i class="fa-solid fa-print"></i>' +
+            '<span>Cetak / Simpan PDF</span>' +
+        '</button>' +
+    '</div>' +
+'</div>' +
 
       <!-- Preview Area (Scrollable) -->
       <div class="p-4 sm:p-6 overflow-y-auto bg-slate-100/70 flex justify-center items-center flex-1">
@@ -3483,7 +3506,7 @@ const activeFrame = window.selectedCertFrame || 'none';
               '<img src="Logo SDIT Transparan HD.png" style="width: 300px; height: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
             '</div>' +
 
-'<div style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '80px 115px 65px 115px' : '25px 35px 20px 35px') + ';">' +
+'<div id="certContentWrapper" style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '85px 115px 65px 115px' : '25px 35px 20px 35px') + ';">' +
     '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 10px;">' +
         '<div style="width: 55px; text-align: left; flex-shrink: 0;">' +
             '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 48px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
@@ -3517,7 +3540,7 @@ const activeFrame = window.selectedCertFrame || 'none';
                 pelatihText +
               '</div>' +
 
-            '<div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: flex-start; padding: 0 20px;">' +
+          '<div id="certTtdBlock" style="margin-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 25px;">' +
         // Kolom Kiri: Kepala Sekolah
         '<div style="width: 220px; text-align: center;">' +
             '<p style="font-size: 11px; color: #334155; margin: 0; min-height: 32px; display: flex; flex-direction: column; justify-content: flex-end;">' +
@@ -3625,7 +3648,44 @@ return;
 '</div>' +
     '</div>';
 };
+window.adjustCertLayout = function() {
+    var kopEl = document.getElementById('sliderKopY');
+    var ttdEl = document.getElementById('sliderTtdY');
+    var marginEl = document.getElementById('sliderMarginX');
 
+    var kopY = kopEl ? kopEl.value : 85;
+    var ttdY = ttdEl ? ttdEl.value : 10;
+    var marginX = marginEl ? marginEl.value : 115;
+
+    if (document.getElementById('valKopY')) document.getElementById('valKopY').innerText = kopY + 'px';
+    if (document.getElementById('valTtdY')) document.getElementById('valTtdY').innerText = ttdY + 'px';
+    if (document.getElementById('valMarginX')) document.getElementById('valMarginX').innerText = marginX + 'px';
+
+    var certContentWrap = document.getElementById('certContentWrapper');
+    if (certContentWrap) {
+        certContentWrap.style.paddingTop = kopY + 'px';
+        certContentWrap.style.paddingLeft = marginX + 'px';
+        certContentWrap.style.paddingRight = marginX + 'px';
+    }
+
+    var certTtdBlock = document.getElementById('certTtdBlock');
+    if (certTtdBlock) {
+        certTtdBlock.style.marginTop = ttdY + 'px';
+    }
+};
+
+window.enableInlineEditing = function() {
+    var certBox = document.getElementById('certContentWrapper');
+    if (!certBox) return;
+
+    var editableElements = certBox.querySelectorAll('h2, p, span, strong');
+    editableElements.forEach(function(el) {
+        el.setAttribute('contenteditable', 'true');
+        el.style.outline = 'none';
+        el.onfocus = function() { el.style.background = 'rgba(254, 240, 138, 0.4)'; el.style.borderRadius = '3px'; };
+        el.onblur = function() { el.style.background = 'transparent'; };
+    });
+};
 window.printCertificateDoc = function() {
     const content = document.getElementById('certificatePrintArea');
     if (!content) return;
