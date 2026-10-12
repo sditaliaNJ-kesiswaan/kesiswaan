@@ -3483,7 +3483,7 @@ const activeFrame = window.selectedCertFrame || 'none';
               '<img src="Logo SDIT Transparan HD.png" style="width: 300px; height: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
             '</div>' +
 
-'<div style="position: relative; z-index: 1; padding: 25px 35px 20px 35px;">' +
+'<div style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '55px 65px 30px 65px' : '25px 35px 20px 35px') + ';">' +
               '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
                 '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
                   '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 65px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
@@ -3498,7 +3498,7 @@ const activeFrame = window.selectedCertFrame || 'none';
                 '</div>' +
               '</div>' +
 
-              '<div style="border-top: 2px solid ' + luxuryConfig.primary + '; border-bottom: 1px solid ' + luxuryConfig.innerBorder + '; padding: 8px 0; margin-bottom: 16px; text-align: center;">' +
+             '<div style="' + (activeFrame !== 'none' ? '' : 'border-top: 2px solid ' + luxuryConfig.primary + '; border-bottom: 1px solid ' + luxuryConfig.innerBorder + ';') + ' padding: 8px 0; margin-bottom: 12px; text-align: center;">' +
                 '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + luxuryConfig.titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
                 '<p style="font-size: 10px; font-weight: 800; color: ' + luxuryConfig.accent + '; margin: 2px 0 0 0; text-transform: uppercase; letter-spacing: 1.5px;">' + luxuryConfig.editionBadge + '</p>' +
                 '<p style="font-size: 10px; color: #64748b; margin: 2px 0 0 0;">Nomor: ' + (p.noPiagam || ('ANJ/PRESTASI/' + new Date().getFullYear() + '/' + (p.id || '001'))) + '</p>' +
@@ -3562,11 +3562,12 @@ const activeFrame = window.selectedCertFrame || 'none';
     }
 
     box.innerHTML = 
-      '<div style="background:' + accentBg + '; border: 8px double ' + borderColor + '; padding: 32px 28px; position: relative; font-family: ' + activeFont + ';">' +
-      frameOverlayHtml +
-        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
+     '<div style="background:' + (activeFrame !== 'none' ? 'transparent' : accentBg) + '; border: ' + (activeFrame !== 'none' ? 'none' : '8px double ' + borderColor) + '; padding: 0; position: relative; font-family: ' + activeFont + ';">' +
+    frameOverlayHtml +
+    '<div style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '55px 65px 35px 65px' : '32px 28px') + ';">' +
+    '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 12px;">' +
           '<div style="width: 85px; text-align: left; flex-shrink: 0;">' +
-            '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
+            '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 65px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
           '</div>' +
           '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
             '<h2 style="font-size: 19px; font-weight: 900; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
@@ -3574,12 +3575,11 @@ const activeFrame = window.selectedCertFrame || 'none';
             '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
           '</div>' +
           '<div style="width: 85px; text-align: right; flex-shrink: 0;">' +
-            '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 80px; width: auto; object-fit: contain; margin-left: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
+            '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 65px; width: auto; object-fit: contain; margin-left: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
           '</div>' +
         '</div>' +
 
-        '<div style="border-top: 2px solid ' + borderColor + '; border-bottom: 1px solid ' + borderColor + '; padding: 8px 0; margin-bottom: 16px; text-align: center;">' +
-          '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
+'<div style="' + (activeFrame !== 'none' ? '' : 'border-top: 2px solid ' + borderColor + '; border-bottom: 1px solid ' + borderColor + ';') + ' padding: 8px 0; margin-bottom: 16px; text-align: center;">' +          '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
           '<p style="font-size: 11px; font-weight: 600; color: ' + subTitleColor + '; margin: 2px 0 0; text-transform: uppercase; letter-spacing: 1px;">Nomor: ' + (p.noPiagam || ('ANJ/PRESTASI/' + new Date().getFullYear() + '/' + (p.id || '001'))) + '</p>' +
         '</div>' +
 
@@ -3617,7 +3617,7 @@ const activeFrame = window.selectedCertFrame || 'none';
   };    window.printCertificateDoc = function() {
       const content = document.getElementById('certificatePrintArea');
       if (!content) return;
-
+const printWindow = window.open('', '_blank', 'width=950,height=700');
       const printWindow = window.open('', '_blank', 'width=950,height=700');
       printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Santri') + '</title>');
       printWindow.document.write('<style>');
