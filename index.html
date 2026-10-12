@@ -3374,6 +3374,10 @@ firebase.auth().onAuthStateChanged(async function(user) {
     window.certTypography.nameSize = parseInt(sizeInput.value, 10) || 24;
     window.renderCertificatePreview();
   };
+    window.updateCertFrame = function(frameValue) {
+        window.selectedCertFrame = frameValue;
+        window.renderCertificatePreview();
+    };
     window.setCertTemplate = function(theme) {
       window.currentCertTheme = theme;
       window.updateCertButtonStyles();
@@ -3436,7 +3440,7 @@ const activeFrame = window.selectedCertFrame || 'none';
           titleColor: '#78350f',
           bgGradient: 'linear-gradient(135deg, #fffdfa 0%, #fefcf3 50%, #fffdfa 100%)',
           outerBorder: '#b45309',
-          editionBadge: 'ROYAL GOLD LUXURY EDITION'
+          editionBadge: ''
         },
         'emerald-arabesque': {
           primary: '#065f46',
@@ -3445,7 +3449,7 @@ const activeFrame = window.selectedCertFrame || 'none';
           titleColor: '#064e3b',
           bgGradient: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #f0fdf4 100%)',
           outerBorder: '#065f46',
-          editionBadge: 'EMERALD ARABESQUE EDITION'
+          editionBadge: ''
         },
         'imperial-maroon': {
           primary: '#881337',
@@ -3454,7 +3458,7 @@ const activeFrame = window.selectedCertFrame || 'none';
           titleColor: '#4c0519',
           bgGradient: 'linear-gradient(135deg, #fff1f2 0%, #ffffff 50%, #fff1f2 100%)',
           outerBorder: '#881337',
-          editionBadge: 'IMPERIAL MAROON EDITION'
+          editionBadge: ''
         }
       }[theme];
 
