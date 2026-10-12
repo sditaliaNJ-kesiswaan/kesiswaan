@@ -3428,7 +3428,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
     const nisText = (p.nis && p.nis !== '-') ? 'NIS: ' + p.nis + ' &bull; ' : '';
     const pelatihText = (p.pelatih && p.pelatih !== '-') ? '<p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Waktu Pelaksanaan / Juara: <strong>' + periodeText + '</strong> &bull; Pembimbing: <strong>' + p.pelatih + '</strong></p>' : '<p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Waktu Pelaksanaan / Juara: <strong>' + periodeText + '</strong></p>';
 const activeFrame = window.selectedCertFrame || 'none';
-    const frameOverlayHtml = (activeFrame !== 'none') ? `<div style="position: absolute; inset: 0; background-image: url('${activeFrame}'); background-size: 100% 100%; background-repeat: no-repeat; pointer-events: none; z-index: 1;"></div>` : '';    // ==========================================
+    const frameOverlayHtml = (activeFrame !== 'none') ? `<div style="position: absolute; inset: 0; background-image: url('${activeFrame}'); background-size: 100% 100%; background-repeat: no-repeat; z-index: 0; pointer-events: none;"></div>` : '';
     // 3 TEMPLATE MEWAH DENGAN ORNAMEN & WATERMARK
     // ==========================================
     if (theme === 'gold-luxury' || theme === 'emerald-arabesque' || theme === 'imperial-maroon') {
