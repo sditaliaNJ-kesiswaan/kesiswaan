@@ -3481,7 +3481,7 @@ const activeFrame = window.selectedCertFrame || 'none';
               '<img src="Logo SDIT Transparan HD.png" style="width: 300px; height: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
             '</div>' +
 
-'<div id="certContentWrapper" style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '30px 80px 20px 80px' : '15px 25px 10px 25px') + ';">' +
+'<div id="certContentWrapper" style="position: relative; z-index: 5; padding: 10px 40px 10px 40px;">' +
         '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 10px;">' +
                         '<div style="width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.style.display=\'none\'">' +
@@ -3501,13 +3501,13 @@ const activeFrame = window.selectedCertFrame || 'none';
                 '<p style="font-size: 10px; color: #64748b; margin: 2px 0 0 0;">Nomor: ' + (p.noPiagam || ('ANJ/PRESTASI/' + new Date().getFullYear() + '/' + (p.id || '001'))) + '</p>' +
               '</div>' +
 
-              '<div style="text-align: center; margin: 18px 0;">' +
+'<div style="text-align: center; margin: 4px 0;">' +
                 '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
                 '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + luxuryConfig.accent + '; text-underline-offset: 4px;">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
                 '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
               '</div>' +
 
-             '<div style="text-align: center; margin: 16px 0; padding: 12px; background: transparent; border: none;">' +
+'<div style="text-align: center; margin: 4px 0; padding: 2px; background: transparent; border: none;">' +
                 '<p style="font-size: 12px; color: #334155; margin: 0;">Atas pencapaian prestasi gemilang sebagai:</p>' +
                 '<h4 style="font-size: 17px; font-weight: 800; color: ' + luxuryConfig.titleColor + '; margin: 6px 0 4px 0;">' + (p.namaLomba || 'Nama Kejuaraan') + '</h4>' +
                 '<p style="font-size: 12px; font-weight: 700; color: #334155; margin: 0;">Kategori: ' + (p.kategori || '-') + ' &bull; Tingkat: ' + (p.tingkat || 'Sekolah') + ' &bull; Hasil: ' + (p.peringkat || 'Juara') + '</p>' +
