@@ -3292,36 +3292,23 @@ firebase.auth().onAuthStateChanged(async function(user) {
                         </select>
                     </div>
           </div> 
-      <div class="flex items-center justify-between gap-3 flex-wrap mt-2 pt-2 border-t border-purple-100 text-xs">
-    <div class="flex items-center gap-3 flex-wrap">
-        <div class="flex items-center gap-1">
-            <span class="text-slate-500 font-bold">Kop (Y):</span>
-            <input type="range" id="sliderKopY" min="30" max="120" value="85" oninput="window.adjustCertLayout()" class="w-16 h-1.5 accent-purple-600 cursor-pointer">
-            <span id="valKopY" class="font-bold text-purple-700 text-[11px] w-6">85</span>
-        </div>
-        <div class="flex items-center gap-1">
-            <span class="text-slate-500 font-bold">TTD (Y):</span>
-            <input type="range" id="sliderTtdY" min="-30" max="50" value="10" oninput="window.adjustCertLayout()" class="w-16 h-1.5 accent-purple-600 cursor-pointer">
-            <span id="valTtdY" class="font-bold text-purple-700 text-[11px] w-6">10</span>
-        </div>
-        <div class="flex items-center gap-1">
-            <span class="text-slate-500 font-bold">Margin (X):</span>
-            <input type="range" id="sliderMarginX" min="40" max="140" value="100" oninput="window.adjustCertLayout()" class="w-16 h-1.5 accent-purple-600 cursor-pointer">
-            <span id="valMarginX" class="font-bold text-purple-700 text-[11px] w-6">100</span>
-        </div>
-        <span class="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded text-[10px] font-medium">✏️ Teks bisa diklik langsung untuk edit</span>
-    </div>
-    
-    <div>
-        <button type="button" onclick="window.printCertificateDoc()" class="px-3 py-1 bg-gradient-to-r from-purple-700 to-indigo-800 text-white text-xs font-bold rounded-lg shadow-sm hover:brightness-110 flex items-center gap-1.5 cursor-pointer">
-            <i class="fa-solid fa-print"></i>
-            <span>Cetak / PDF</span>
-        </button>
-    </div>
-</div>
-      <!-- Preview Area (Scrollable) -->
-      <div class="p-4 sm:p-6 overflow-y-auto bg-slate-100/70 flex justify-center items-center flex-1">
-        <div id="certificatePrintArea" class="w-full max-w-[800px] bg-white rounded-xl shadow-lg transition-all duration-300">
+<div class="flex items-center justify-between gap-3 flex-wrap mt-2 pt-2 border-t border-purple-100 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2">
+                                <i class="fa-solid fa-arrows-up-down-left-right"></i> Mode Bebas: Klik & geser elemen, atau klik teks untuk mengetik langsung
+                            </span>
+                        </div>
+                        <div>
+                            <button type="button" onclick="window.printCertificateDoc()" class="px-4 py-2 bg-gradient-to-r from-purple-700 to-indigo-800 text-white text-xs font-bold rounded-lg shadow-sm hover:brightness-110 flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-print"></i>
+                                <span>Cetak / Simpan PDF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview Area (Luas & Bisa di-Scroll sampai Bawah) -->
+                    <div class="p-4 sm:p-6 overflow-y-auto max-h-[78vh] bg-slate-100/70 flex justify-center items-start flex-1">        
+                      <div id="certificatePrintArea" class="w-full max-w-[800px] bg-white rounded-xl shadow-lg transition-all duration-300">
           <!-- Konten sertifikat akan di-render dinamis oleh JavaScript -->
         </div>
       </div>
