@@ -3306,16 +3306,14 @@ firebase.auth().onAuthStateChanged(async function(user) {
                         </div>
                     </div>
 
-                    <!-- Preview Area (Luas & Bisa di-Scroll sampai Bawah) -->
-                    <div class="p-4 sm:p-6 overflow-y-auto max-h-[78vh] bg-slate-100/70 flex justify-center items-start flex-1">        
-                      <div id="certificatePrintArea" class="w-full max-w-[800px] bg-white rounded-xl shadow-lg transition-all duration-300">
-          <!-- Konten sertifikat akan di-render dinamis oleh JavaScript -->
-        </div>
-      </div>
-
-    </div>
-  </div>
-
+                   <!-- Preview Area (Luas & Bisa di-Scroll sampai Bawah) -->
+                    <div class="w-full p-4 sm:p-6 overflow-y-auto max-h-[75vh] bg-slate-100/70 flex justify-center items-start">
+                        <div id="certificatePrintArea" class="w-full max-w-[850px] bg-white rounded-xl shadow-lg transition-all duration-300">
+                            <!-- Konten sertifikat akan di-render dinamis oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
   <script>
     // Logic Cetak Piagam & Pilihan Template
     window.currentCertData = null;
