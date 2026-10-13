@@ -2352,15 +2352,22 @@ function renderPrestasi() {
     const pelatihBadge = (p.pelatih && p.pelatih !== '-') ? '<span class="inline-block mt-1 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200"><i class="fa-solid fa-user-tie mr-1 text-slate-400"></i>' + p.pelatih + '</span>' : '';
 
     // Tombol Cetak Piagam hanya untuk Administrator
-    const actionBtn = isAdm ? 
-      '<div class="mt-4 pt-3 border-t border-purple-50 flex items-center justify-between">' +
-        '<span class="text-[11px] text-slate-400">Aksi Kesiswaan</span>' +
-        '<button onclick="window.openCertificateModal(' + p.id + ')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-700 to-brand-800 text-white text-xs font-bold rounded-lg shadow-sm hover:from-purple-800 hover:to-brand-900 transition-all active:scale-95">' +
-          '<i class="fa-solid fa-award"></i>' +
-          '<span>Cetak Piagam</span>' +
-        '</button>' +
-      '</div>' : '';
-
+const actionBtn = isAdm ? 
+            '<div class="mt-4 pt-3 border-t border-purple-50 flex items-center justify-between">' +
+                '<span class="text-[11px] text-slate-400">Aksi Kesiswaan</span>' +
+                '<div class="flex items-center space-x-1.5">' +
+                    '<button onclick="window.openCertificateModal(' + p.id + ')" class="inline-flex items-center space-x-1 px-2.5 py-1.5 bg-gradient-to-r from-purple-700 to-brand-800 hover:from-purple-800 hover:to-brand-900 text-white rounded-lg text-xs font-semibold shadow-sm transition-all" title="Cetak Piagam">' +
+                        '<i class="fa-solid fa-award"></i>' +
+                        '<span>Cetak</span>' +
+                    '</button>' +
+                    '<button onclick="window.openEditPrestasiModal(' + p.id + ')" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs border border-amber-200 transition-all" title="Edit Data">' +
+                        '<i class="fa-solid fa-pen-to-square"></i>' +
+                    '</button>' +
+                    '<button onclick="window.handleDeletePrestasi(' + p.id + ')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs border border-rose-200 transition-all" title="Hapus Data">' +
+                        '<i class="fa-solid fa-trash-can"></i>' +
+                    '</button>' +
+                '</div>' +
+            '</div>' : '';
     return '<div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">' +
       '<div>' +
         '<div class="flex items-start space-x-3 mb-3">' +
@@ -2377,6 +2384,34 @@ function renderPrestasi() {
     '</div>';
   }).join('');
 }
+window.handleDeletePrestasi = function(id) {
+    if (!confirm('Apakah Anda yakin ingin menghapus data prestasi ini?')) return;
+    appState.prestasi = appState.prestasi.filter(function(x) { return x.id !== id; });
+    if (typeof saveData === 'function') saveData();
+    if (typeof renderPrestasi === 'function') renderPrestasi();
+};
+
+window.openEditPrestasiModal = function(id) {
+    const item = appState.prestasi.find(function(x) { return x.id === id; });
+    if (!item) return;
+    
+    if (typeof window.openAddPrestasiModal === 'function') window.openAddPrestasiModal();
+    
+    const form = document.querySelector('form[onsubmit*="handleSavePrestasi"]') || document.getElementById('formAddPrestasi');
+    if (form) form.dataset.editId = id;
+    
+    const sId = document.getElementById('prestasiSiswaSelect');
+    if (sId) sId.value = item.studentId || item.santriId || '';
+    
+    const jdl = document.getElementById('prestasiJudul') || document.querySelector('input[name="judul"]');
+    if (jdl) jdl.value = item.judul || '';
+    
+    const ktg = document.getElementById('prestasiKategori') || document.querySelector('select[name="kategori"]');
+    if (ktg) ktg.value = item.kategori || '';
+    
+    const tgk = document.getElementById('prestasiTingkat') || document.querySelector('select[name="tingkat"]');
+    if (tgk) tgk.value = item.tingkat || '';
+};  
 window.openAddPrestasiModal = function() {
   const m = document.getElementById('modalAddPrestasi');
   if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
