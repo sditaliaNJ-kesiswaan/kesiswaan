@@ -3294,22 +3294,22 @@ firebase.auth().onAuthStateChanged(async function(user) {
                                 <i class="fa-solid fa-print"></i>
                                 <span>Cetak / Simpan PDF</span>
                             </button>
-                        </div>
-                    </div>
+</div>
                 </div>
+            </div>
 
-            <!-- Preview Area (Tengah & Pas Layar) -->
-  <div class="w-full flex-1 overflow-y-auto bg-slate-200/80 flex justify-center items-start p-2 sm:p-4">
-    <div id="certificatePrintArea" class="w-full max-w-[980px] bg-transparent transition-all duration-300">
-            <!-- Konten sertifikat akan di-render dinamis oleh JavaScript -->
+            <!-- Preview Area (Tengah & Pas Layar Proporsional A4) -->
+            <div class="w-full flex-1 overflow-hidden bg-slate-200/80 flex justify-center items-center p-2">
+                <div id="certificatePrintArea" class="w-[840px] max-w-full aspect-[297/210] bg-transparent transition-all duration-300 transform scale-[0.66] lg:scale-[0.72] origin-center flex flex-col justify-between">
+                    <!-- Konten sertifikat akan di-render dinamis oleh JavaScript -->
+</div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-</div>
-             
-  <script>
-    // Logic Cetak Piagam & Pilihan Template
-    window.currentCertData = null;
+
+        <script>
+            // Logic Cetak Piagam & Pilihan Template
+            window.currentCertData = null;
     window.currentCertTheme = 'gold';
 
     window.openCertificateModal = function(prestasiId) {
