@@ -3488,19 +3488,17 @@ const activeFrame = window.selectedCertFrame || 'none';
 
 '<div id="certContentWrapper" style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '85px 115px 65px 115px' : '25px 35px 20px 35px') + ';">' +
     '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 10px;">' +
-        '<div style="width: 55px; text-align: left; flex-shrink: 0;">' +
-            '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="height: 48px; width: auto; object-fit: contain;" onerror="this.style.display=\'none\'">' +
-        '</div>' +
-        '<div style="flex: 1; text-align: center; padding: 0 12px;">' +
-            '<h2 style="font-size: 18px; font-weight: 900; letter-spacing: 1.2px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
-            '<p style="font-size: 11px; font-weight: 700; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">SEKOLAH DASAR ISLAM TERPADU</p>' +
-            '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
-        '</div>' +
-        '<div style="width: 55px; text-align: right; flex-shrink: 0;">' +
-            '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="height: 48px; width: auto; object-fit: contain; margin-left: auto;" onerror="this.style.display=\'none\'">' +
-        '</div>' +
-              '</div>' +
-
+'<div style="width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.style.display=\'none\'">' +
+                    '</div>' +
+                    '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
+                        '<h2 style="font-size: 19px; font-weight: 900; letter-spacing: 1.5px; color: #1e293b; margin: 0; text-transform: uppercase;">SDIT ALIA NURUL JIHADI</h2>' +
+                        '<p style="font-size: 11px; font-weight: 700; color: #475569; margin: 2px 0 0 0; letter-spacing: 1px;">SEKOLAH DASAR ISLAM TERPADU</p>' +
+                        '<p style="font-size: 10px; font-style: italic; color: #64748b; margin: 2px 0 0 0;">"Mendidik Dengan Keakraban dan Kasih Sayang"</p>' +
+                    '</div>' +
+                    '<div style="width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<img src="Logo SDIT Transparan HD.png" alt="Logo SDIT Alia" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.style.display=\'none\'">' +
+                    '</div>' +
              '<div style="' + (activeFrame !== 'none' ? '' : 'border-top: 2px solid ' + luxuryConfig.primary + '; border-bottom: 1px solid ' + luxuryConfig.innerBorder + ';') + ' padding: 8px 0; margin-bottom: 12px; text-align: center;">' +
                 '<h1 style="font-size: 24px; font-weight: 900; letter-spacing: 2px; color: ' + luxuryConfig.titleColor + '; margin: 0; text-transform: uppercase;">PIAGAM PENGHARGAAN</h1>' +
                 '<p style="font-size: 10px; font-weight: 800; color: ' + luxuryConfig.accent + '; margin: 2px 0 0 0; text-transform: uppercase; letter-spacing: 1.5px;">' + luxuryConfig.editionBadge + '</p>' +
@@ -3527,15 +3525,10 @@ const activeFrame = window.selectedCertFrame || 'none';
                 '<span>Mengetahui,</span>' +
                 '<strong>Kepala Sekolah</strong>' +
             '</p>' +
-            '<div style="height: 40px;"></div>' +
+            '<div style="height: 60px;"></div>' +
             '<p style="font-size: 11px; font-weight: 800; color: #1e293b; margin: 0; text-decoration: underline;">Kepala SDIT Alia Nurul Jihadi</p>' +
             '<p style="font-size: 9px; color: #64748b; margin: 0;">NIP/NPY. -</p>' +
         '</div>' +
-
-        // Cap Resmi Tengah
-'<div style="flex: 1; display: flex; justify-content: center; align-items: center; padding-top: 25px;">' +
-    '<div style="width: 58px; height: 58px; border: 1.5px dashed #b45309; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #b45309; letter-spacing: 0.5px;">CAP RESMI</div>' +
-'</div>' +
 
 // Kolom Kanan: Kesiswaan
 '<div style="width: 220px; text-align: center;">' +
@@ -3543,7 +3536,7 @@ const activeFrame = window.selectedCertFrame || 'none';
         '<span>Tangerang, ' + (window.currentCertData ? window.currentCertData.period : 'Tahun Ajaran 2026/2027') + '</span>' +
         '<strong>Bidang Kesiswaan</strong>' +
     '</p>' +
-    '<div style="height: 40px;"></div>' +
+    '<div style="height: 60px;"></div>' +
     '<p style="font-size: 11px; font-weight: 800; color: #1e293b; margin: 0; text-decoration: underline;">Riandy Julfriamdony, S. Kom</p>' +
     '<p style="font-size: 9px; color: #64748b; margin: 0;">Koordinator Kesiswaan</p>' +
 '</div>' +
