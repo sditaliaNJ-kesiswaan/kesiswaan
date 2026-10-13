@@ -3395,15 +3395,18 @@ firebase.auth().onAuthStateChanged(async function(user) {
 
     window.certTypography.nameSize = parseInt(sizeInput.value, 10) || 24;
     window.renderCertificatePreview();
+    setTimeout(function() { if (window.initCanvaMode) window.initCanvaMode(); }, 150);
   };
-    window.updateCertFrame = function(frameValue) {
-        window.selectedCertFrame = frameValue;
-        window.renderCertificatePreview();
-    };
-    window.setCertTemplate = function(theme) {
+window.updateCertFrame = function(frameValue) {
+    window.selectedCertFrame = frameValue;
+    window.renderCertificatePreview();
+    setTimeout(function() { if (window.initCanvaMode) window.initCanvaMode(); }, 150);
+};
+      window.setCertTemplate = function(theme) {
       window.currentCertTheme = theme;
       window.updateCertButtonStyles();
       window.renderCertificatePreview();
+        setTimeout(function() { if (window.initCanvaMode) window.initCanvaMode(); }, 150);
     };
 
    window.updateCertButtonStyles = function() {
