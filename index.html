@@ -3470,7 +3470,7 @@ const activeFrame = window.selectedCertFrame || 'none';
 
       box.innerHTML = 
         '<div style="background: ' + luxuryConfig.bgGradient + '; border: 8px solid ' + luxuryConfig.outerBorder + '; padding: 8px; position: relative; font-family: ' + activeFont + ';">' +
-          '<div style="border: 2px solid ' + luxuryConfig.innerBorder + '; padding: 30px 24px; position: relative; background: rgba(255,255,255,0.7);">' +
+          '<div style="border: 2px solid ' + luxuryConfig.innerBorder + '; padding: 10px 20px; position: relative; background: rgba(255,255,255,0.7);">' +
             frameOverlayHtml +
             '<div style="position: absolute; top: 4px; left: 4px;">' + cornerSvg + '</div>' +
             '<div style="position: absolute; top: 4px; right: 4px; transform: scaleX(-1);">' + cornerSvg + '</div>' +
@@ -3481,9 +3481,9 @@ const activeFrame = window.selectedCertFrame || 'none';
               '<img src="Logo SDIT Transparan HD.png" style="width: 300px; height: auto;" onerror="this.src=\'Logo SDIT Vektor.png\'">' +
             '</div>' +
 
-'<div id="certContentWrapper" style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '85px 115px 65px 115px' : '25px 35px 20px 35px') + ';">' +
-    '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 10px;">' +
-'<div style="width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+'<div id="certContentWrapper" style="position: relative; z-index: 5; padding: ' + (activeFrame !== 'none' ? '30px 80px 20px 80px' : '15px 25px 10px 25px') + ';">' +
+        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 10px;">' +
+                        '<div style="width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<img src="Logo Yayasan ALIA.png" alt="Logo Yayasan ALIA" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.style.display=\'none\'">' +
                     '</div>' +
                     '<div style="flex: 1; text-align: center; padding: 0 10px;">' +
