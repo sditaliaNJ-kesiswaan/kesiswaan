@@ -3307,8 +3307,8 @@ firebase.auth().onAuthStateChanged(async function(user) {
                     </div>
 
                    <!-- Preview Area (Luas & Bisa di-Scroll sampai Bawah) -->
-<div class="w-full flex-1 overflow-auto bg-slate-100/70 flex justify-center items-center p-2">
-    <div id="certificatePrintArea" class="w-full max-w-[760px] bg-white rounded-xl shadow-lg transition-all duration-300 transform scale-[0.82] lg:scale-[0.88] origin-center">
+<div class="w-full flex-1 overflow-y-auto bg-slate-100/70 flex justify-center items-start p-2" style="min-height: 480px;">
+    <div id="certificatePrintArea" class="bg-white rounded-xl shadow-lg transition-all duration-300" style="transform: scale(0.75); transform-origin: top center; margin-bottom: -130px;">
                             <!-- Konten sertifikat akan di-render dinamis oleh JavaScript -->
                         </div>
                     </div>
