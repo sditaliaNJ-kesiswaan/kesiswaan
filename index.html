@@ -3351,6 +3351,9 @@ firebase.auth().onAuthStateChanged(async function(user) {
       if (m) {
         m.classList.remove('hidden');
         m.classList.add('flex');
+        setTimeout(function() {
+            if (window.initCanvaMode) window.initCanvaMode();
+        }, 150);
       }
     };
 
@@ -3644,42 +3647,83 @@ return;
 '</div>' +
     '</div>';
 };
-window.adjustCertLayout = function() {
-    var kopEl = document.getElementById('sliderKopY');
-    var ttdEl = document.getElementById('sliderTtdY');
-    var marginEl = document.getElementById('sliderMarginX');
+window.initCanvaMode = function() {
+    var container = document.getElementById('certificatePrintArea');
+    if (!container) return;
 
-    var kopY = kopEl ? kopEl.value : 85;
-    var ttdY = ttdEl ? ttdEl.value : 10;
-    var marginX = marginEl ? marginEl.value : 115;
-
-    if (document.getElementById('valKopY')) document.getElementById('valKopY').innerText = kopY + 'px';
-    if (document.getElementById('valTtdY')) document.getElementById('valTtdY').innerText = ttdY + 'px';
-    if (document.getElementById('valMarginX')) document.getElementById('valMarginX').innerText = marginX + 'px';
-
-    var certContentWrap = document.getElementById('certContentWrapper');
-    if (certContentWrap) {
-        certContentWrap.style.paddingTop = kopY + 'px';
-        certContentWrap.style.paddingLeft = marginX + 'px';
-        certContentWrap.style.paddingRight = marginX + 'px';
-    }
-
-    var certTtdBlock = document.getElementById('certTtdBlock');
-    if (certTtdBlock) {
-        certTtdBlock.style.marginTop = ttdY + 'px';
-    }
-};
-
-window.enableInlineEditing = function() {
-    var certBox = document.getElementById('certContentWrapper');
-    if (!certBox) return;
-
-    var editableElements = certBox.querySelectorAll('h2, p, span, strong');
-    editableElements.forEach(function(el) {
+    // 1. Teks bisa diketik langsung & diubah ukurannya
+    var textElements = container.querySelectorAll('h1, h2, h3, h4, p, span, strong');
+    textElements.forEach(function(el) {
         el.setAttribute('contenteditable', 'true');
         el.style.outline = 'none';
-        el.onfocus = function() { el.style.background = 'rgba(254, 240, 138, 0.4)'; el.style.borderRadius = '3px'; };
-        el.onblur = function() { el.style.background = 'transparent'; };
+        el.style.cursor = 'text';
+
+        // Tahan Alt + scroll mouse untuk memperbesar/memperkecil font teks
+        el.addEventListener('wheel', function(e) {
+            if (e.altKey) {
+                e.preventDefault();
+                var currentSize = parseFloat(window.getComputedStyle(el).fontSize) || 14;
+                var newSize = e.deltaY < 0 ? currentSize + 1 : Math.max(8, currentSize - 1);
+                el.style.fontSize = newSize + 'px';
+            }
+        });
+    });
+
+    // 2. Elemen yang bisa digeser bebas (Logo, Teks Utama, Blok Tanda Tangan)
+    var dragTargets = container.querySelectorAll('img, #certTtdBlock, h2, h4');
+    dragTargets.forEach(function(target) {
+        target.style.position = 'relative';
+        target.style.cursor = 'move';
+
+        // Putar scroll mouse langsung di atas logo untuk resize gambar
+        if (target.tagName.toLowerCase() === 'img') {
+            target.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                var currentW = target.offsetWidth;
+                var delta = e.deltaY < 0 ? 5 : -5;
+                var newW = Math.max(20, Math.min(300, currentW + delta));
+                target.style.width = newW + 'px';
+                target.style.height = 'auto';
+            });
+        }
+
+        // Fitur geser bebas (Drag and Drop)
+        var isDragging = false;
+        var startX, startY;
+        var initialTranslateX = 0, initialTranslateY = 0;
+
+        target.addEventListener('mousedown', function(e) {
+            if (target.getAttribute('contenteditable') === 'true' && document.activeElement === target) {
+                return;
+            }
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            var transform = target.style.transform;
+            var match = transform.match(/translate\(([-0-9.]+)px,\s*([-0-9.]+)px\)/);
+            if (match) {
+                initialTranslateX = parseFloat(match[1]);
+                initialTranslateY = parseFloat(match[2]);
+            } else {
+                initialTranslateX = 0;
+                initialTranslateY = 0;
+            }
+
+            target.style.zIndex = '50';
+            e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            var dx = e.clientX - startX;
+            var dy = e.clientY - startY;
+            target.style.transform = 'translate(' + (initialTranslateX + dx) + 'px, ' + (initialTranslateY + dy) + 'px)';
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (isDragging) isDragging = false;
+        });
     });
 };
 window.printCertificateDoc = function() {
