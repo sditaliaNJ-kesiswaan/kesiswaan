@@ -2155,14 +2155,17 @@ window.saveAttendanceRecord = function() {
     if (classLabel) classLabel.textContent = selectedClass;
     const classText = document.getElementById('rekapSelectedClassText');
 if (classText) classText.textContent = selectedClass;    
-    const logoEl = document.getElementById('rekapKopLogo');
+const logoEl = document.getElementById('rekapKopLogo');
     if (logoEl) {
-        const appLogo = document.querySelector('header img, nav img, aside img, .sidebar img');
-        if (appLogo && appLogo.src) {
-            logoEl.src = appLogo.src;
-        } else if (typeof appState !== 'undefined' && appState.logo) {
-            logoEl.src = appState.logo;
+        // Cari logo transparan yang dipakai pada modal/surat pelanggaran
+        const suratLogo = document.querySelector('#kopSuratLogo, #modalSurat img, #modalPelanggaran img, [id*="surat"] img');
+        if (suratLogo && suratLogo.src) {
+            logoEl.src = suratLogo.src;
+        } else {
+            // Gunakan path logo transparan jika tidak terdeteksi
+            logoEl.src = 'logo.png';
         }
+    }
     }
     // Ambil daftar santri di kelas terpilih
     const santriList = (appState.santri || appState.students || []).filter(function(s) {
