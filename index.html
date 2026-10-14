@@ -2153,7 +2153,8 @@ window.saveAttendanceRecord = function() {
     
     if (titleEl) titleEl.textContent = 'Rekapitulasi Presensi ' + selectedClass;
     if (classLabel) classLabel.textContent = selectedClass;
-    
+    const classText = document.getElementById('rekapSelectedClassText');
+if (classText) classText.textContent = selectedClass;    
     // Ambil daftar santri di kelas terpilih
     const santriList = (appState.santri || appState.students || []).filter(function(s) {
         return s.kelas === selectedClass;
@@ -2217,6 +2218,13 @@ window.closeRekapKelasModal = function() {
 window.printRekapPresensi = function() {
     const modalContent = document.getElementById('modalRekapPresensiKelas').querySelector('.p-6').cloneNode(true);
     
+    // Ambil URL logo resmi sekolah yang sedang aktif di pojok kiri atas aplikasi
+    const originalLogo = document.querySelector('aside img, nav img, header img');
+    const printLogo = modalContent.querySelector('#rekapKopLogo');
+    if (originalLogo && printLogo) {
+        printLogo.src = originalLogo.src;
+    }
+    
     // Hilangkan tombol kontrol dan aksi agar lembar cetak bersih
     const controlBar = modalContent.querySelector('.flex.flex-wrap.items-center.justify-between');
     if (controlBar) controlBar.remove();
@@ -2224,7 +2232,7 @@ window.printRekapPresensi = function() {
     const printWin = window.open('', '_blank', 'width=900,height=700');
     printWin.document.write('<!DOCTYPE html><html><head><title>Rekap Presensi Siswa</title>');
     printWin.document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
-    printWin.document.write('<style>@media print { body { padding: 25px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #94a3b8; padding: 6px 8px; text-align: center; font-size: 11px; } th { background-color: #f8fafc !important; } td:nth-child(2) { text-align: left !important; } }</style>');
+    printWin.document.write('<style>@media print { body { padding: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #94a3b8; padding: 5px 8px; text-align: center; font-size: 11px; } th { background-color: #f8fafc !important; } td:nth-child(2) { text-align: left !important; } }</style>');
     printWin.document.write('</head><body class="font-sans antialiased text-slate-800">');
     printWin.document.write(modalContent.innerHTML);
     printWin.document.write('</body></html>');
@@ -2234,8 +2242,8 @@ window.printRekapPresensi = function() {
         printWin.focus();
         printWin.print();
         printWin.close();
-    }, 600);
-};  
+    }, 700);
+};
 window.filterLevelKelas = function(lvl) {
   document.querySelectorAll('.lvl-filter-btn').forEach(function(b) {
     b.classList.remove('bg-brand-800', 'text-white', 'shadow-xs');
