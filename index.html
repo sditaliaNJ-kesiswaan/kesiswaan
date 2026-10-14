@@ -2150,7 +2150,8 @@ window.saveAttendanceRecord = function() {
     const titleEl = document.getElementById('rekapModalTitle');
     const classLabel = document.getElementById('rekapSelectedClass');
     const tbody = document.getElementById('rekapTableBody');
-    
+    const classSelectEl = document.getElementById('filterKelas') || document.getElementById('selectKelas') || document.getElementById('pilihKelas');
+const selectedClass = classSelectEl ? classSelectEl.value : '';
     if (titleEl) titleEl.textContent = 'Rekapitulasi Presensi ' + selectedClass;
     if (classLabel) classLabel.textContent = selectedClass;
     const classText = document.getElementById('rekapSelectedClassText');
@@ -2167,10 +2168,9 @@ const logoEl = document.getElementById('rekapKopLogo');
         }
     }
     }
-    // Ambil daftar santri di kelas terpilih
-    const santriList = (appState.santri || appState.students || []).filter(function(s) {
-        return s.kelas === selectedClass;
-    });
+const santriList = (appState.santri || appState.students || []).filter(function(s) {
+    return !selectedClass || s.kelas === selectedClass;
+});
 
     // Ambil data riwayat presensi
     const allAbsensi = appState.absensi || [];
