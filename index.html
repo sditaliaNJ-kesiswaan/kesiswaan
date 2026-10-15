@@ -2149,34 +2149,29 @@ window.saveAttendanceRecord = function() {
         const dateInput = document.getElementById('attendanceDate') || document.querySelector('input[type="date"]');
         const selectedDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
 
-        // Ambil HANYA kontainer tabel presensi aktif
-        const tableContainer = document.getElementById('attendanceTableBody') 
-                            || document.querySelector('#attendanceTable tbody') 
-                            || document.querySelector('#attendance-table tbody');
-                            
-        // Jika tidak ditemukan ID khusus, cari tabel di dalam seksi presensi
-        const rows = tableContainer 
-            ? tableContainer.querySelectorAll('tr') 
-            : document.querySelectorAll('#section-presensi tbody tr, #presensi tbody tr');
+        // Ambil elemen tabel sesuai ID yang ada
+        const tableBody = document.getElementById('attendanceSheetBody');
+        if (!tableBody) {
+            console.error('Tabel attendanceSheetBody tidak ditemukan!');
+            return;
+        }
 
+        const rows = tableBody.querySelectorAll('tr');
         const recordsToSend = [];
 
         rows.forEach(tr => {
-            // Hindari baris tersembunyi
-            if (tr.offsetParent === null && !tableContainer) return;
-            
             const cells = tr.querySelectorAll('td');
-            if (cells.length >= 4) {
-                const statusSelect = tr.querySelector('select');
-                const ketInput = tr.querySelector('input[type="text"]');
+            if (cells.length >= 3) {
+                const nama = cells[1] ? cells[1].innerText.trim() : '';
+                const nis = cells[2] ? cells[2].innerText.trim() : '';
 
-                // NIS kolom ke-2 (cells[1]), Nama kolom ke-4 (cells[3])
-                const nis = cells[1] ? cells[1].innerText.trim() : '';
-                const nama = cells[3] ? cells[3].innerText.trim() : (cells[2] ? cells[2].innerText.trim() : '');
+                const statusSelect = tr.querySelector('select');
                 const status = statusSelect ? statusSelect.value : 'Hadir';
+
+                const ketInput = tr.querySelector('input[type="text"]');
                 const keterangan = ketInput ? ketInput.value.trim() : '';
 
-                if (nama && !nama.toLowerCase().includes('tidak ada data') && !nama.toLowerCase().includes('admin')) {
+                if (nama && !nama.toLowerCase().includes('tidak ada')) {
                     recordsToSend.push({
                         tanggal: selectedDate,
                         kelas: selectedClass,
@@ -2206,10 +2201,10 @@ window.saveAttendanceRecord = function() {
             });
         }
     } catch (e) {
-        console.error('Error saat memproses data ke Sheets:', e);
+        console.error('Error pengiriman Sheets:', e);
     }
 };
-window.closeRekapKelasModal = function() {
+  window.closeRekapKelasModal = function() {
     const modal = document.getElementById('modalRekapPresensiKelas');
     if (modal) {
         modal.classList.add('hidden');
