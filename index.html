@@ -2144,7 +2144,8 @@ window.saveAttendanceRecord = function() {
 
 window.openRekapKelasModal = function() {
     const classSelect = document.getElementById('attendanceClassSelect');
-    const selectedClass = classSelect ? classSelect.value : '';
+    const rawClass = classSelect ? classSelect.value : '';
+    const cleanClass = rawClass.replace(/^Kelas\s+/i, '').trim();
 
     const modal = document.getElementById('modalRekapPresensiKelas');
     const titleEl = document.getElementById('rekapModalTitle');
@@ -2153,37 +2154,43 @@ window.openRekapKelasModal = function() {
     const logoEl = document.getElementById('rekapKopLogo');
     const tbody = document.getElementById('rekapTableBody');
 
-    if (titleEl) titleEl.textContent = 'Rekapitulasi Presensi ' + selectedClass;
-    if (classLabel) classLabel.textContent = selectedClass;
-    if (classText) classText.textContent = selectedClass;
+    if (titleEl) titleEl.textContent = 'Rekapitulasi Presensi ' + rawClass;
+    if (classLabel) classLabel.textContent = rawClass;
+    if (classText) classText.textContent = cleanClass;
 
-    // Ambil logo resmi sekolah yang sedang aktif di header aplikasi
     const activeLogo = document.querySelector('aside img, nav img, header img');
     if (logoEl && activeLogo && activeLogo.src) {
         logoEl.src = activeLogo.src;
     }
 
-    const santriList = (appState.santri || appState.students || []).filter(function(s) {
-        const target = (typeof selectedClass !== 'undefined') ? selectedClass : '';
-        return !target || s.kelas === target;
+    const santriList = (appState.students || appState.santri || []).filter(function(s) {
+        const sKelas = (s.kelas || s.rombel || '').replace(/^Kelas\s+/i, '').trim();
+        return !cleanClass || sKelas === cleanClass || (s.kelas || s.rombel) === rawClass;
     });
 
-    const allAbsensi = appState.absensi || [];
+    const records = appState.attendanceRecords || {};
     let rowsHtml = '';
 
     if (santriList.length === 0) {
-        rowsHtml = '<tr><td colspan="7" class="py-4 text-center text-slate-400">Tidak ada data santri untuk kelas ini.</td></tr>';
+        rowsHtml = '<tr><td colspan="8" class="py-4 text-center text-slate-400">Tidak ada data santri untuk kelas ini.</td></tr>';
     } else {
         santriList.forEach(function(s, idx) {
             let h = 0, sakit = 0, iz = 0, a = 0;
-            allAbsensi.forEach(function(rec) {
-                if (rec.studentId == s.id || rec.santriId == s.id) {
-                    if (rec.status === 'H') h++;
-                    else if (rec.status === 'S') sakit++;
-                    else if (rec.status === 'I') iz++;
-                    else if (rec.status === 'A') a++;
+
+            Object.keys(records).forEach(function(key) {
+                if (!cleanClass || key.endsWith('_' + cleanClass) || key.endsWith('_' + rawClass)) {
+                    const dayRecord = records[key] || {};
+                    const rec = dayRecord[s.id] || (s.nis ? dayRecord[s.nis] : null) || dayRecord[idx + 1];
+                    if (rec) {
+                        const st = (typeof rec === 'object') ? rec.status : rec;
+                        if (st === 'H') h++;
+                        else if (st === 'S') sakit++;
+                        else if (st === 'I') iz++;
+                        else if (st === 'A') a++;
+                    }
                 }
             });
+
             const total = h + sakit + iz + a;
             rowsHtml += '<tr class="border-b border-slate-100 hover:bg-slate-50/60">' +
                 '<td class="py-2.5 px-3 text-center text-slate-500 font-medium">' + (idx + 1) + '</td>' +
@@ -2204,7 +2211,6 @@ window.openRekapKelasModal = function() {
         modal.classList.add('flex');
     }
 };
-
 window.closeRekapKelasModal = function() {
     const modal = document.getElementById('modalRekapPresensiKelas');
     if (modal) {
