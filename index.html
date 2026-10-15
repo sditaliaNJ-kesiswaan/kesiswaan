@@ -2177,6 +2177,11 @@ window.openRekapKelasModal = function() {
     if (titleEl) titleEl.textContent = 'Rekapitulasi Presensi ' + rawClass;
     if (classLabel) classLabel.textContent = rawClass;
     if (classText) classText.textContent = cleanClass;
+  const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const subTitleEl = document.querySelector('#modalRekapPresensiKelas p');
+    if (subTitleEl) {
+        subTitleEl.textContent = 'Kelas: ' + cleanClass + ' | Semester Ganjil TA 2026/2027 | Dicetak per: ' + todayStr;
+    }
 
     const activeLogo = document.querySelector('aside img, nav img, header img');
     if (logoEl && activeLogo && activeLogo.src) {
