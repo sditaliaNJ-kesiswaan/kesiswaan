@@ -2173,35 +2173,45 @@ window.openRekapKelasModal = function() {
     let rowsHtml = '';
 
     if (santriList.length === 0) {
-        rowsHtml = '<tr><td colspan="8" class="py-4 text-center text-slate-400">Tidak ada data santri untuk kelas ini.</td></tr>';
+        rowsHtml = '<tr><td colspan="9" class="py-4 text-center text-slate-400">Tidak ada data santri untuk kelas ini.</td></tr>';
     } else {
         santriList.forEach(function(s, idx) {
             let h = 0, sakit = 0, iz = 0, a = 0;
+            let notes = [];
 
             Object.keys(records).forEach(function(key) {
                 if (!cleanClass || key.endsWith('_' + cleanClass) || key.endsWith('_' + rawClass)) {
                     const dayRecord = records[key] || {};
                     const rec = dayRecord[s.id] || (s.nis ? dayRecord[s.nis] : null) || dayRecord[idx + 1];
                     if (rec) {
-                        const st = (typeof rec === 'object') ? rec.status : rec;
+                        const st = (typeof rec === 'object') ? (rec.status || rec.kehadiran) : rec;
+                        const txt = (typeof rec === 'object') ? (rec.note || rec.keterangan || rec.alasan || rec.catatan || '') : '';
+
                         if (st === 'H') h++;
                         else if (st === 'S') sakit++;
                         else if (st === 'I') iz++;
                         else if (st === 'A') a++;
+
+                        if (txt && txt.trim() !== '') {
+                            notes.push(txt.trim());
+                        }
                     }
                 }
             });
 
             const total = h + sakit + iz + a;
-            rowsHtml += '<tr class="border-b border-slate-100 hover:bg-slate-50/60">' +
-                '<td class="py-2.5 px-3 text-center text-slate-500 font-medium">' + (idx + 1) + '</td>' +
-                '<td class="py-2.5 px-3 font-semibold text-slate-800">' + (s.nama || s.name || '-') + '</td>' +
-                '<td class="py-2.5 px-3 text-center text-slate-500 font-mono text-xs">' + (s.nis || '-') + '</td>' +
-                '<td class="py-2.5 px-3 text-center font-bold text-emerald-600">' + h + '</td>' +
-                '<td class="py-2.5 px-3 text-center font-bold text-amber-500">' + sakit + '</td>' +
-                '<td class="py-2.5 px-3 text-center font-bold text-blue-600">' + iz + '</td>' +
-                '<td class="py-2.5 px-3 text-center font-bold text-rose-600">' + a + '</td>' +
-                '<td class="py-2.5 px-3 text-center font-bold text-slate-700 bg-slate-50/50">' + total + ' hari</td>' +
+            const keteranganHtml = notes.length > 0 ? notes.join('; ') : '-';
+
+            rowsHtml += '<tr class="border-b border-slate-200">' +
+                '<td class="py-2 px-2 text-center text-slate-600">' + (idx + 1) + '</td>' +
+                '<td class="py-2 px-3 font-semibold text-slate-800">' + (s.nama || s.name || '-') + '</td>' +
+                '<td class="py-2 px-2 text-center text-slate-500 font-mono text-xs">' + (s.nis || '-') + '</td>' +
+                '<td class="py-2 px-2 text-center font-bold text-emerald-600">' + h + '</td>' +
+                '<td class="py-2 px-2 text-center font-bold text-amber-500">' + sakit + '</td>' +
+                '<td class="py-2 px-2 text-center font-bold text-blue-600">' + iz + '</td>' +
+                '<td class="py-2 px-2 text-center font-bold text-rose-600">' + a + '</td>' +
+                '<td class="py-2 px-2 text-center font-bold text-slate-700 bg-slate-50">' + total + ' hari</td>' +
+                '<td class="py-2 px-3 text-left text-xs text-slate-700 font-medium">' + keteranganHtml + '</td>' +
                 '</tr>';
         });
     }
@@ -2212,43 +2222,68 @@ window.openRekapKelasModal = function() {
         modal.classList.add('flex');
     }
 };
-window.closeRekapKelasModal = function() {
-    const modal = document.getElementById('modalRekapPresensiKelas');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-};
+
 window.printRekapPresensi = function() {
-    const modalContent = document.getElementById('modalRekapPresensiKelas').querySelector('.p-6').cloneNode(true);
-    
-    // Ambil URL logo resmi sekolah yang sedang aktif di pojok kiri atas aplikasi
-    const originalLogo = document.querySelector('aside img, nav img, header img');
-    const printLogo = modalContent.querySelector('#rekapKopLogo');
-    if (originalLogo && printLogo) {
-        printLogo.src = originalLogo.src;
-    }
-    
-    // Hilangkan tombol kontrol dan aksi agar lembar cetak bersih
-    const controlBar = modalContent.querySelector('.flex.flex-wrap.items-center.justify-between');
-    if (controlBar) controlBar.remove();
-    
-    const printWin = window.open('', '_blank', 'width=900,height=700');
-    printWin.document.write('<!DOCTYPE html><html><head><title>Rekap Presensi Siswa</title>');
-    printWin.document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
-    printWin.document.write('<style>@media print { body { padding: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #94a3b8; padding: 5px 8px; text-align: center; font-size: 11px; } th { background-color: #f8fafc !important; } td:nth-child(2) { text-align: left !important; } }</style>');
-    printWin.document.write('</head><body class="font-sans antialiased text-slate-800">');
-    printWin.document.write(modalContent.innerHTML);
-    printWin.document.write('</body></html>');
+    const rawClass = document.getElementById('attendanceClassSelect')?.value || 'Kelas';
+    const kopHtml = document.querySelector('#modalRekapPresensiKelas .border-b-2')?.outerHTML || '';
+    const tableBody = document.getElementById('rekapTableBody')?.innerHTML || '';
+
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Rekap Presensi Siswa - ${rawClass}</title>
+            <style>
+                @page { size: landscape; margin: 12mm 15mm; }
+                body { font-family: Arial, sans-serif; font-size: 11px; color: #1e293b; margin: 0; padding: 10px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background-color: #f1f5f9 !important; font-weight: bold; border: 1px solid #475569; padding: 6px 4px; text-align: center; }
+                td { border: 1px solid #64748b; padding: 5px 6px; }
+                .text-center { text-align: center; }
+                .text-left { text-align: left; }
+                .font-bold { font-weight: bold; }
+                .bg-slate-50 { background-color: #f8fafc; }
+                .text-emerald-600 { color: #059669; }
+                .text-amber-500 { color: #d97706; }
+                .text-blue-600 { color: #2563eb; }
+                .text-rose-600 { color: #e11d48; }
+            </style>
+        </head>
+        <body>
+            <div style="text-align: center; margin-bottom: 8px;">
+                ${kopHtml}
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 35px;">No</th>
+                        <th style="width: 220px; text-align: left; padding-left: 8px;">Nama Santri</th>
+                        <th style="width: 90px;">NIS</th>
+                        <th style="width: 50px;">Hadir (H)</th>
+                        <th style="width: 50px;">Sakit (S)</th>
+                        <th style="width: 50px;">Izin (I)</th>
+                        <th style="width: 50px;">Alfa (A)</th>
+                        <th style="width: 75px;">Total Rekam</th>
+                        <th style="text-align: left; padding-left: 8px;">Keterangan / Alasan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableBody}
+                </tbody>
+            </table>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(() => window.close(), 800);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
     printWin.document.close();
-    
-    setTimeout(function() {
-        printWin.focus();
-        printWin.print();
-        printWin.close();
-    }, 700);
 };
-window.filterLevelKelas = function(lvl) {
+  window.filterLevelKelas = function(lvl) {
   document.querySelectorAll('.lvl-filter-btn').forEach(function(b) {
     b.classList.remove('bg-brand-800', 'text-white', 'shadow-xs');
     b.classList.add('bg-white', 'border', 'border-purple-200', 'text-slate-700');
