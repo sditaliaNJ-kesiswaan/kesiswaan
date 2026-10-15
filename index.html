@@ -2224,8 +2224,12 @@ window.openRekapKelasModal = function() {
 };
 
 window.printRekapPresensi = function() {
-    const rawClass = document.getElementById('attendanceClassSelect')?.value || 'Kelas';
-    const kopHtml = document.querySelector('#modalRekapPresensiKelas .border-b-2')?.outerHTML || '';
+    const classSelect = document.getElementById('attendanceClassSelect');
+    const rawClass = classSelect ? classSelect.value : 'Kelas';
+    const cleanClass = rawClass.replace(/^Kelas\s+/i, '').trim();
+
+    const logoEl = document.getElementById('rekapKopLogo') || document.querySelector('aside img, nav img, header img');
+    const logoSrc = logoEl ? logoEl.src : '';
     const tableBody = document.getElementById('rekapTableBody')?.innerHTML || '';
 
     const printWin = window.open('', '_blank');
@@ -2235,26 +2239,69 @@ window.printRekapPresensi = function() {
         <head>
             <title>Rekap Presensi Siswa - ${rawClass}</title>
             <style>
-                @page { size: landscape; margin: 12mm 15mm; }
-                body { font-family: Arial, sans-serif; font-size: 11px; color: #1e293b; margin: 0; padding: 10px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-                th { background-color: #f1f5f9 !important; font-weight: bold; border: 1px solid #475569; padding: 6px 4px; text-align: center; }
-                td { border: 1px solid #64748b; padding: 5px 6px; }
+                @page { size: landscape; margin: 10mm 15mm; }
+                body { font-family: 'Times New Roman', Times, serif, Arial; font-size: 11px; color: #000; margin: 0; padding: 10px; }
+                
+                /* Layout Kop Surat Rapi Berdampingan */
+                .kop-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
+                .kop-table td { border: none !important; padding: 0; vertical-align: middle; }
+                .kop-logo { width: 95px; text-align: left; }
+                .kop-logo img { width: 80px; height: auto; object-fit: contain; }
+                .kop-center { text-align: center; }
+                .kop-center h2 { font-size: 14pt; margin: 0; font-weight: bold; }
+                .kop-center h1 { font-size: 20pt; margin: 2px 0; color: #dc2626; font-weight: 900; }
+                .kop-center h3 { font-size: 13pt; margin: 0; font-weight: bold; }
+                .kop-center p { font-size: 8.5pt; margin: 2px 0 0 0; line-height: 1.3; }
+                .kop-space { width: 95px; }
+
+                /* Garis Kop Ganda */
+                .kop-line { border-top: 2.5px solid #000; border-bottom: 1px solid #000; height: 2px; margin: 6px 0 14px 0; }
+
+                /* Judul Dokumen */
+                .doc-title { text-align: center; margin-bottom: 14px; }
+                .doc-title h4 { margin: 0; font-size: 12pt; text-decoration: underline; font-weight: bold; }
+                .doc-title p { margin: 3px 0 0 0; font-size: 9.5pt; font-weight: bold; }
+
+                /* Tabel Rekap */
+                table.data-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-family: Arial, sans-serif; }
+                table.data-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 1px solid #334155; padding: 6px 4px; text-align: center; font-size: 9pt; font-weight: bold; }
+                table.data-table td { border: 1px solid #475569; padding: 5px 6px; font-size: 8.5pt; }
+                
                 .text-center { text-align: center; }
                 .text-left { text-align: left; }
                 .font-bold { font-weight: bold; }
-                .bg-slate-50 { background-color: #f8fafc; }
-                .text-emerald-600 { color: #059669; }
-                .text-amber-500 { color: #d97706; }
-                .text-blue-600 { color: #2563eb; }
-                .text-rose-600 { color: #e11d48; }
+                .bg-total { background-color: #f8fafc; }
+                .c-hadir { color: #047857; font-weight: bold; }
+                .c-sakit { color: #b45309; font-weight: bold; }
+                .c-izin { color: #1d4ed8; font-weight: bold; }
+                .c-alfa { color: #be123c; font-weight: bold; }
             </style>
         </head>
         <body>
-            <div style="text-align: center; margin-bottom: 8px;">
-                ${kopHtml}
+            <table class="kop-table">
+                <tr>
+                    <td class="kop-logo">
+                        ${logoSrc ? `<img src="${logoSrc}" alt="Logo">` : ''}
+                    </td>
+                    <td class="kop-center">
+                        <h2>Sekolah Dasar Islam Terpadu</h2>
+                        <h1>ALIA</h1>
+                        <h3>NURUL JIHADI</h3>
+                        <p style="font-weight: bold;">IZIN DIKNAS No. 421.2/420.2/1748-DISPENDIK</p>
+                        <p>Perum Dasana Indah Blok SO - RT. 05/016 Kel. Bojong Nangka - Kec. Kelapa Dua<br>Tangerang - Banten Telp./Fax. (021) 5420.4541</p>
+                    </td>
+                    <td class="kop-space"></td>
+                </tr>
+            </table>
+
+            <div class="kop-line"></div>
+
+            <div class="doc-title">
+                <h4>REKAPITULASI PRESENSI & KEHADIRAN SANTRI</h4>
+                <p>Kelas: ${cleanClass} | Semester Ganjil TA 2026/2027</p>
             </div>
-            <table>
+
+            <table class="data-table">
                 <thead>
                     <tr>
                         <th style="width: 35px;">No</th>
@@ -2264,7 +2311,7 @@ window.printRekapPresensi = function() {
                         <th style="width: 50px;">Sakit (S)</th>
                         <th style="width: 50px;">Izin (I)</th>
                         <th style="width: 50px;">Alfa (A)</th>
-                        <th style="width: 75px;">Total Rekam</th>
+                        <th style="width: 80px;">Total Rekam</th>
                         <th style="text-align: left; padding-left: 8px;">Keterangan / Alasan</th>
                     </tr>
                 </thead>
@@ -2272,18 +2319,19 @@ window.printRekapPresensi = function() {
                     ${tableBody}
                 </tbody>
             </table>
+
             <script>
                 window.onload = function() {
                     window.print();
                     setTimeout(() => window.close(), 800);
                 };
-            <\/script>
+            </script>
         </body>
         </html>
     `);
     printWin.document.close();
 };
-  window.filterLevelKelas = function(lvl) {
+                window.filterLevelKelas = function(lvl) {
   document.querySelectorAll('.lvl-filter-btn').forEach(function(b) {
     b.classList.remove('bg-brand-800', 'text-white', 'shadow-xs');
     b.classList.add('bg-white', 'border', 'border-purple-200', 'text-slate-700');
