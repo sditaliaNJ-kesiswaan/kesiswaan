@@ -2153,8 +2153,9 @@ window.openRekapKelasModal = function() {
     const classSelect = document.getElementById('attendanceClassSelect');
     const rawClass = classSelect ? classSelect.value : '';
     const cleanClass = rawClass.replace(/^Kelas\s+/i, '').trim();
-const modal = document.getElementById('modalRekapPresensiKelas');
-  if (modal) {
+
+    const modal = document.getElementById('modalRekapPresensiKelas');
+    if (modal) {
         const closeBtns = modal.querySelectorAll('button');
         closeBtns.forEach(function(btn) {
             if (!btn.textContent.includes('Cetak')) {
@@ -2167,7 +2168,6 @@ const modal = document.getElementById('modalRekapPresensiKelas');
             }
         };
     }
-    const modal = document.getElementById('modalRekapPresensiKelas');
     const titleEl = document.getElementById('rekapModalTitle');
     const classLabel = document.getElementById('rekapSelectedClass');
     const classText = document.getElementById('rekapSelectedClassText');
