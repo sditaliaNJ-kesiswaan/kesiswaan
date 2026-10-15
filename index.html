@@ -2177,12 +2177,23 @@ window.openRekapKelasModal = function() {
     if (titleEl) titleEl.textContent = 'Rekapitulasi Presensi ' + rawClass;
     if (classLabel) classLabel.textContent = rawClass;
     if (classText) classText.textContent = cleanClass;
-  const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-    const subTitleEl = document.querySelector('#modalRekapPresensiKelas p');
-    if (subTitleEl) {
-        subTitleEl.textContent = 'Kelas: ' + cleanClass + ' | Semester Ganjil TA 2026/2027 | Dicetak per: ' + todayStr;
+const dateInput = document.getElementById('attendanceDate') || document.querySelector('input[type="date"]');
+    let tglPresensiStr = '';
+    if (dateInput && dateInput.value) {
+        const parts = dateInput.value.split('-');
+        if (parts.length === 3) {
+            tglPresensiStr = new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        } else {
+            tglPresensiStr = dateInput.value;
+        }
+    } else {
+        tglPresensiStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
+    const subTitleEl = document.querySelector('#modalRekapPresensiKelas p');
+    if (subTitleEl) {
+        subTitleEl.innerHTML = 'Kelas: ' + cleanClass + ' | Semester Ganjil TA 2026/2027<br><span style="font-size: 11px; color: #475569; font-weight: 500;">Tanggal Presensi: ' + tglPresensiStr + '</span>';
+    }
     const activeLogo = document.querySelector('aside img, nav img, header img');
     if (logoEl && activeLogo && activeLogo.src) {
         logoEl.src = activeLogo.src;
@@ -2251,7 +2262,18 @@ window.printRekapPresensi = function() {
     const classSelect = document.getElementById('attendanceClassSelect');
     const rawClass = classSelect ? classSelect.value : 'Kelas';
     const cleanClass = rawClass.replace(/^Kelas\s+/i, '').trim();
-
+const dateInput = document.getElementById('attendanceDate') || document.querySelector('input[type="date"]');
+    let tglPresensiStr = '';
+    if (dateInput && dateInput.value) {
+        const parts = dateInput.value.split('-');
+        if (parts.length === 3) {
+            tglPresensiStr = new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        } else {
+            tglPresensiStr = dateInput.value;
+        }
+    } else {
+        tglPresensiStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
     const logoEl = document.getElementById('rekapKopLogo') || document.querySelector('aside img, nav img, header img');
     const logoSrc = logoEl ? logoEl.src : '';
     const tableBody = document.getElementById('rekapTableBody') ? document.getElementById('rekapTableBody').innerHTML : '';
@@ -2301,7 +2323,8 @@ window.printRekapPresensi = function() {
     htmlContent += '<div class="kop-line"></div>';
     htmlContent += '<div class="doc-title">';
     htmlContent += '<h4>REKAPITULASI PRESENSI & KEHADIRAN SANTRI</h4>';
-    htmlContent += '<p>Kelas: ' + cleanClass + ' | Semester Ganjil TA 2026/2027</p>';
+    htmlContent += '<p style="margin: 2px 0 0 0; font-size: 9.5pt; font-weight: bold;">Kelas: ' + cleanClass + ' | Semester Ganjil TA 2026/2027</p>';
+    htmlContent += '<p style="margin: 3px 0 0 0; font-size: 9pt; font-weight: normal; color: #333;">Tanggal Presensi: ' + tglPresensiStr + '</p>';
     htmlContent += '</div>';
 
     htmlContent += '<table class="data-table"><thead><tr>';
