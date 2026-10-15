@@ -2212,6 +2212,7 @@ const santriList = (appState.santri || appState.students || []).filter(function(
         });
     const tbody = document.getElementById('rekapTableBody');
     if (tbody) tbody.innerHTML = rowsHtml;
+      const modal = document.getElementById('modalRekapPresensiKelas');
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
