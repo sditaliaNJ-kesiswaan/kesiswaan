@@ -2214,45 +2214,43 @@ window.saveAttendanceRecord = function() {
         modal.classList.remove('flex');
     }
 };
-  window.resetAttendanceData = function() {
-        const classSelect = document.getElementById('attendanceClassSelect');
-        const selectedClass = classSelect ? classSelect.value : (document.getElementById('rekapSelectedClass') ? document.getElementById('rekapSelectedClass').innerText.trim() : '');
+window.resetAttendanceData = function() {
+    const rombelElem = document.getElementById('rekapSelectedClass');
+    const selectedClass = rombelElem ? rombelElem.innerText.replace(/[^0-9A-Za-z]/g, '').trim() : '1A';
 
-        const konfirmasi = confirm(`PERINGATAN ADMIN SDIT ALIA NURUL JIHADI:\n\nApakah Anda yakin ingin MENGHAPUS SEMUA riwayat presensi kelas ${selectedClass}?\n\nData kehadiran kelas ini akan dikosongkan kembali ke 0 hari.`);
+    const konfirmasi = confirm(`PERINGATAN ADMIN SDIT ALIA NURUL JIHADI:\n\nApakah Anda yakin ingin MENGHAPUS SEMUA riwayat presensi kelas ${selectedClass}?\n\nSemua rekap H/S/I/A akan dikembalikan ke 0 hari.`);
 
-        if (!konfirmasi) return;
+    if (!konfirmasi) return;
 
-        try {
-            if (window.attendanceData && window.attendanceData[selectedClass]) {
-                delete window.attendanceData[selectedClass];
-            }
-            if (window.attendanceRecords && window.attendanceRecords[selectedClass]) {
-                delete window.attendanceRecords[selectedClass];
-            }
-
-            if (typeof savePersistedData === 'function') {
-                savePersistedData();
-            }
-
-            if (typeof window.showToast === 'function') {
-                window.showToast(`Riwayat presensi kelas ${selectedClass} berhasil dibersihkan!`);
-            } else {
-                alert(`Riwayat presensi kelas ${selectedClass} berhasil dibersihkan!`);
-            }
-
-            if (typeof window.closeRekapKelasModal === 'function') {
-                window.closeRekapKelasModal();
-            }
-
-            if (typeof window.renderAttendanceSheet === 'function') {
-                window.renderAttendanceSheet();
-            }
-        } catch (err) {
-            console.error('Gagal reset presensi:', err);
-            alert('Terjadi kesalahan saat mereset data.');
+    try {
+        if (typeof attendanceData !== 'undefined' && attendanceData[selectedClass]) {
+            delete attendanceData[selectedClass];
         }
-    };
-window.openRekapKelasModal = function() {
+        if (typeof attendanceRecords !== 'undefined' && attendanceRecords[selectedClass]) {
+            delete attendanceRecords[selectedClass];
+        }
+        if (window.attendanceData && window.attendanceData[selectedClass]) {
+            delete window.attendanceData[selectedClass];
+        }
+        if (window.attendanceRecords && window.attendanceRecords[selectedClass]) {
+            delete window.attendanceRecords[selectedClass];
+        }
+
+        localStorage.removeItem('attendance_' + selectedClass);
+        localStorage.removeItem('attendanceData');
+
+        if (typeof savePersistedData === 'function') {
+            savePersistedData();
+        }
+
+        alert(`Data presensi kelas ${selectedClass} berhasil dibersihkan! Halaman akan dimuat ulang.`);
+        location.reload();
+    } catch (err) {
+        console.error('Gagal reset presensi:', err);
+        alert('Terjadi kesalahan saat mereset data: ' + err.message);
+    }
+};
+  window.openRekapKelasModal = function() {
     const classSelect = document.getElementById('attendanceClassSelect');
     const rawClass = classSelect ? classSelect.value : '';
     const cleanClass = rawClass.replace(/^Kelas\s+/i, '').trim();
@@ -2261,7 +2259,7 @@ window.openRekapKelasModal = function() {
     if (modal) {
         const closeBtns = modal.querySelectorAll('button');
         closeBtns.forEach(function(btn) {
-            if (!btn.textContent.includes('Cetak')) {
+            if (!btn.textContent.includes('Cetak') && !btn.textContent.includes('Reset')) {
                 btn.onclick = window.closeRekapKelasModal;
             }
         });
