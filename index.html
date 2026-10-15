@@ -2139,8 +2139,63 @@ window.markAllAttendance = function(st) {
 };
 
 window.saveAttendanceRecord = function() {
-  savePersistedData();
-  window.showToast('Presensi kelas berhasil disimpan!');
+    savePersistedData();
+    window.showToast('Presensi kelas berhasil disimpan!');
+
+    // --- KIRIM OTOMATIS KE GOOGLE SHEETS ---
+    try {
+        const classSelect = document.getElementById('attendanceClassSelect');
+        const selectedClass = classSelect ? classSelect.value : '';
+        const dateInput = document.getElementById('attendanceDate') || document.querySelector('input[type="date"]');
+        const selectedDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+
+        // Ambil baris tabel santri yang sedang tampil
+        const tableBody = document.getElementById('attendanceTableBody') || document.querySelector('#attendanceTable tbody');
+        if (!tableBody) return;
+
+        const rows = tableBody.querySelectorAll('tr');
+        const recordsToSend = [];
+
+        rows.forEach(tr => {
+            const nisEl = tr.querySelector('.nis') || tr.cells[1];
+            const nameEl = tr.querySelector('.student-name') || tr.cells[2];
+            const statusSelect = tr.querySelector('select') || tr.querySelector('.attendance-status');
+            const ketEl = tr.querySelector('input[type="text"]') || tr.cells[4]?.querySelector('input');
+
+            const nis = nisEl ? nisEl.textContent.trim() : '';
+            const nama = nameEl ? nameEl.textContent.trim() : '';
+            const status = statusSelect ? statusSelect.value : 'Hadir';
+            const keterangan = ketEl ? ketEl.value.trim() : '';
+
+            if (nama) {
+                recordsToSend.push({
+                    tanggal: selectedDate,
+                    kelas: selectedClass,
+                    nis: nis,
+                    nama: nama,
+                    status: status,
+                    keterangan: keterangan
+                });
+            }
+        });
+
+        if (recordsToSend.length > 0) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzOGd8GEsB0T8huNsEbs6EtYk5MOBCR9YH1N5_W4t8kXiezqe-FZIWQA_6TORZU5-4h/exec';
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ records: recordsToSend })
+            }).then(() => {
+                console.log('Presensi berhasil dikirim ke Google Sheets');
+            }).catch(err => {
+                console.error('Gagal kirim ke Google Sheets:', err);
+            });
+        }
+    } catch (e) {
+        console.error('Error pengiriman Sheets:', e);
+    }
 };
 window.closeRekapKelasModal = function() {
     const modal = document.getElementById('modalRekapPresensiKelas');
