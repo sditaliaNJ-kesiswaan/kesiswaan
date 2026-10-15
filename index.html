@@ -2167,7 +2167,8 @@ const logoEl = document.getElementById('rekapKopLogo');
     }
     }
 const santriList = (appState.santri || appState.students || []).filter(function(s) {
-    return !selectedClass || s.kelas === selectedClass;
+    const target = (typeof selectedClass !== 'undefined') ? selectedClass : '';
+    return !target || s.kelas === target;
 });
 
     // Ambil data riwayat presensi
@@ -2966,10 +2967,10 @@ function updateDashboardStats() {
 }
 
 
-let chartWeekly = null;
-let chartGender = null;
-let chartStatus = null;
-let chartMonthly = null;
+var chartWeekly = null;
+var chartGender = null;
+var chartStatus = null;
+var chartMonthly = null;
 
 function initCharts() {
   const ctxWeekly = document.getElementById('weeklyAttendanceChart');
