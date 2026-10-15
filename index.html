@@ -2142,12 +2142,31 @@ window.saveAttendanceRecord = function() {
   savePersistedData();
   window.showToast('Presensi kelas berhasil disimpan!');
 };
-
+window.closeRekapKelasModal = function() {
+    const modal = document.getElementById('modalRekapPresensiKelas');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+};
 window.openRekapKelasModal = function() {
     const classSelect = document.getElementById('attendanceClassSelect');
     const rawClass = classSelect ? classSelect.value : '';
     const cleanClass = rawClass.replace(/^Kelas\s+/i, '').trim();
-
+const modal = document.getElementById('modalRekapPresensiKelas');
+  if (modal) {
+        const closeBtns = modal.querySelectorAll('button');
+        closeBtns.forEach(function(btn) {
+            if (!btn.textContent.includes('Cetak')) {
+                btn.onclick = window.closeRekapKelasModal;
+            }
+        });
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                window.closeRekapKelasModal();
+            }
+        };
+    }
     const modal = document.getElementById('modalRekapPresensiKelas');
     const titleEl = document.getElementById('rekapModalTitle');
     const classLabel = document.getElementById('rekapSelectedClass');
