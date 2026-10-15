@@ -2149,22 +2149,34 @@ window.saveAttendanceRecord = function() {
         const dateInput = document.getElementById('attendanceDate') || document.querySelector('input[type="date"]');
         const selectedDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
 
-        // Cari semua baris di area tabel presensi
-        const rows = document.querySelectorAll('#attendanceTable tbody tr, #attendanceTableBody tr, table tbody tr');
+        // Ambil HANYA kontainer tabel presensi aktif
+        const tableContainer = document.getElementById('attendanceTableBody') 
+                            || document.querySelector('#attendanceTable tbody') 
+                            || document.querySelector('#attendance-table tbody');
+                            
+        // Jika tidak ditemukan ID khusus, cari tabel di dalam seksi presensi
+        const rows = tableContainer 
+            ? tableContainer.querySelectorAll('tr') 
+            : document.querySelectorAll('#section-presensi tbody tr, #presensi tbody tr');
+
         const recordsToSend = [];
 
         rows.forEach(tr => {
+            // Hindari baris tersembunyi
+            if (tr.offsetParent === null && !tableContainer) return;
+            
             const cells = tr.querySelectorAll('td');
-            if (cells.length >= 3) {
+            if (cells.length >= 4) {
                 const statusSelect = tr.querySelector('select');
                 const ketInput = tr.querySelector('input[type="text"]');
 
+                // NIS kolom ke-2 (cells[1]), Nama kolom ke-4 (cells[3])
                 const nis = cells[1] ? cells[1].innerText.trim() : '';
-                const nama = cells[2] ? cells[2].innerText.trim() : '';
+                const nama = cells[3] ? cells[3].innerText.trim() : (cells[2] ? cells[2].innerText.trim() : '');
                 const status = statusSelect ? statusSelect.value : 'Hadir';
                 const keterangan = ketInput ? ketInput.value.trim() : '';
 
-                if (nama && !nama.toLowerCase().includes('tidak ada data')) {
+                if (nama && !nama.toLowerCase().includes('tidak ada data') && !nama.toLowerCase().includes('admin')) {
                     recordsToSend.push({
                         tanggal: selectedDate,
                         kelas: selectedClass,
@@ -2177,7 +2189,7 @@ window.saveAttendanceRecord = function() {
             }
         });
 
-        console.log('Jumlah data siap kirim ke Sheets:', recordsToSend.length);
+        console.log('Jumlah santri kelas terkirim:', recordsToSend.length);
 
         if (recordsToSend.length > 0) {
             const scriptURL = 'https://script.google.com/macros/s/AKfycbzOGd8GEsB0T8huNsEbs6EtYk5MOBCR9YH1N5_W4t8kXiezqe-FZIWQA_6TORZU5-4h/exec';
