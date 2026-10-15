@@ -2215,41 +2215,27 @@ window.saveAttendanceRecord = function() {
     }
 };
 window.resetAttendanceData = function() {
-    const rombelElem = document.getElementById('rekapSelectedClass');
-    const selectedClass = rombelElem ? rombelElem.innerText.replace(/[^0-9A-Za-z]/g, '').trim() : '1A';
-
-    const konfirmasi = confirm(`PERINGATAN ADMIN SDIT ALIA NURUL JIHADI:\n\nApakah Anda yakin ingin MENGHAPUS SEMUA riwayat presensi kelas ${selectedClass}?\n\nSemua rekap H/S/I/A akan dikembalikan ke 0 hari.`);
+    const konfirmasi = confirm("PERINGATAN ADMIN SDIT ALIA NURUL JIHADI:\n\nApakah Anda yakin ingin MENGHAPUS SEMUA riwayat presensi uji coba?\n\nSemua rekap kehadiran akan kembali bersih ke 0 hari.");
 
     if (!konfirmasi) return;
 
-    try {
-        if (typeof attendanceData !== 'undefined' && attendanceData[selectedClass]) {
-            delete attendanceData[selectedClass];
-        }
-        if (typeof attendanceRecords !== 'undefined' && attendanceRecords[selectedClass]) {
-            delete attendanceRecords[selectedClass];
-        }
-        if (window.attendanceData && window.attendanceData[selectedClass]) {
-            delete window.attendanceData[selectedClass];
-        }
-        if (window.attendanceRecords && window.attendanceRecords[selectedClass]) {
-            delete window.attendanceRecords[selectedClass];
-        }
+    // Bersihkan semua penyimpanan data lokal browser
+    localStorage.clear();
+    sessionStorage.clear();
 
-        localStorage.removeItem('attendance_' + selectedClass);
-        localStorage.removeItem('attendanceData');
+    // Kosongkan semua variabel array/objek presensi
+    if (typeof attendanceData !== 'undefined') attendanceData = {};
+    if (typeof attendanceRecords !== 'undefined') attendanceRecords = {};
+    if (window.attendanceData) window.attendanceData = {};
+    if (window.attendanceRecords) window.attendanceRecords = {};
 
-        if (typeof savePersistedData === 'function') {
-            savePersistedData();
-        }
-
-        alert(`Data presensi kelas ${selectedClass} berhasil dibersihkan! Halaman akan dimuat ulang.`);
-        location.reload();
-    } catch (err) {
-        console.error('Gagal reset presensi:', err);
-        alert('Terjadi kesalahan saat mereset data: ' + err.message);
+    if (typeof savePersistedData === 'function') {
+        savePersistedData();
     }
-};
+
+    alert("Data berhasil dibersihkan! Halaman akan dimuat ulang.");
+    location.reload();
+};  
   window.openRekapKelasModal = function() {
     const classSelect = document.getElementById('attendanceClassSelect');
     const rawClass = classSelect ? classSelect.value : '';
