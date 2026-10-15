@@ -2915,7 +2915,8 @@ function updateClock() {
   if (cd) cd.innerText = dateStr;
   if (lc) lc.innerText = timeStr;
 }
-
+updateClock();
+setInterval(updateClock, 1000);
 function populateStudentSelectOptions() {
   const selects = ['violationSiswaSelect', 'prestasiSiswaSelect', 'izinSiswaSelect', 'bkSiswaSelect'];
   selects.forEach(function(id) {
