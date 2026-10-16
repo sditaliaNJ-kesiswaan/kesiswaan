@@ -2068,8 +2068,9 @@ function syncCurrentUserDisplay() {
 
 window.renderAttendanceSheet = function() {
 const tbody = document.getElementById('attendanceSheetBody');
-    const classSelect = document.getElementById('attendanceClassSelect');
-    const kelas = classSelect && classSelect.value ? classSelect.value : '1A';
+const classSelect = document.getElementById('attendanceClassSelect');
+    const kelas = (classSelect && classSelect.value) ? classSelect.value : (appState.currentAttendanceClass || '1A');
+    appState.currentAttendanceClass = kelas;
     const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : new Date().toISOString().split('T')[0];
   if (!tbody) return;
 
@@ -2122,8 +2123,10 @@ if (document.getElementById('attendanceClassSelect')) {
     }
 };
 window.setStudentAtt = function(key, sId, st) {
-    const classSelect = document.getElementById('attendanceClassSelect');
-    const currentClass = classSelect ? classSelect.value : '';
+    const sel = document.getElementById('attendanceClassSelect');
+    if (sel && sel.value) {
+        appState.currentAttendanceClass = sel.value;
+    }
 
     if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
     if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
@@ -2131,10 +2134,6 @@ window.setStudentAtt = function(key, sId, st) {
     savePersistedData();
 
     window.renderAttendanceSheet();
-
-    if (classSelect && currentClass) {
-        classSelect.value = currentClass;
-    }
 };
 
 window.setStudentAttNote = function(key, sId, note) {
