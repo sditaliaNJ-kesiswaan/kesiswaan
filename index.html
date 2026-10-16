@@ -2119,11 +2119,19 @@ window.renderAttendanceSheet = function() {
 };
 
 window.setStudentAtt = function(key, sId, st) {
-  if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
-  if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
-  appState.attendanceRecords[key][sId].status = st;
-  savePersistedData();
-  window.renderAttendanceSheet();
+    const classSelect = document.getElementById('attendanceClassSelect');
+    const currentClass = classSelect ? classSelect.value : '';
+
+    if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
+    if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
+    appState.attendanceRecords[key][sId].status = st;
+    savePersistedData();
+
+    window.renderAttendanceSheet();
+
+    if (classSelect && currentClass) {
+        classSelect.value = currentClass;
+    }
 };
 
 window.setStudentAttNote = function(key, sId, note) {
