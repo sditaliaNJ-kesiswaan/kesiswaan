@@ -2069,7 +2069,8 @@ function syncCurrentUserDisplay() {
 window.renderAttendanceSheet = function() {
 const tbody = document.getElementById('attendanceSheetBody');
 const classSelect = document.getElementById('attendanceClassSelect');
-    const kelas = (classSelect && classSelect.value) ? classSelect.value : (appState.currentAttendanceClass || '1A');
+    let rawVal = classSelect && classSelect.value ? classSelect.value : (appState.currentAttendanceClass || '1A');
+    const kelas = rawVal.replace(/^Kelas\s+/i, '').trim();
     appState.currentAttendanceClass = kelas;
     const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : new Date().toISOString().split('T')[0];
   if (!tbody) return;
@@ -2116,10 +2117,17 @@ const classSelect = document.getElementById('attendanceClassSelect');
       '</td>' +
     '</tr>';
   }).join('');
+document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • ' + sakit + ' Sakit • ' + izin + ' Izin • ' + alfa + ' Alfa';
 
-  document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • ' + sakit + ' Sakit • ' + izin + ' Izin • ' + alfa + ' Alfa';
-if (document.getElementById('attendanceClassSelect')) {
-        document.getElementById('attendanceClassSelect').value = kelas;
+    if (classSelect) {
+        for (let i = 0; i < classSelect.options.length; i++) {
+            let optVal = classSelect.options[i].value.replace(/^Kelas\s+/i, '').trim();
+            let optText = classSelect.options[i].text.replace(/^Kelas\s+/i, '').trim();
+            if (optVal === kelas || optText === kelas) {
+                classSelect.selectedIndex = i;
+                break;
+            }
+        }
     }
 };
 window.setStudentAtt = function(key, sId, st) {
