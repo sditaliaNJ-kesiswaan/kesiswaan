@@ -2120,20 +2120,14 @@ const classSelect = document.getElementById('attendanceClassSelect');
 document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • ' + sakit + ' Sakit • ' + izin + ' Izin • ' + alfa + ' Alfa';
 
     if (classSelect) {
-        for (let i = 0; i < classSelect.options.length; i++) {
-            let optVal = classSelect.options[i].value.replace(/^Kelas\s+/i, '').trim();
-            let optText = classSelect.options[i].text.replace(/^Kelas\s+/i, '').trim();
-            if (optVal === kelas || optText === kelas) {
-                classSelect.selectedIndex = i;
-                break;
-            }
-        }
+        classSelect.value = kelas;
     }
 };
 window.setStudentAtt = function(key, sId, st) {
     const sel = document.getElementById('attendanceClassSelect');
     if (sel && sel.value) {
-        appState.currentAttendanceClass = sel.value;
+      appState.currentAttendanceClass = sel.value.replace(/^Kelas\s+/i, '').trim();
+
     }
 
     if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
