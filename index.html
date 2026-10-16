@@ -3152,13 +3152,17 @@ function populateStudentSelectOptions() {
     }).join('');
   });
 
-  const classSel = document.getElementById('attendanceClassSelect');
-  if (classSel) {
-    classSel.innerHTML = ROMBEL_CLASSES.map(function(c) {
-      return '<option value="' + c + '">Kelas ' + c + '</option>';
-    }).join('');
-  }
+const classSel = document.getElementById('attendanceClassSelect');
+    if (classSel) {
+        const currentSelected = classSel.value || appState.currentAttendanceClass || '1A';
 
+        classSel.innerHTML = ROMBEL_CLASSES.map(function(c) {
+            const isSelected = (c === currentSelected) ? ' selected' : '';
+            return '<option value="' + c + '"' + isSelected + '>Kelas ' + c + '</option>';
+        }).join('');
+
+        classSel.value = currentSelected;
+    }
   const filterSel = document.getElementById('filterKelas');
   if (filterSel) {
     filterSel.innerHTML = '<option value="ALL">Semua Kelas (25 Rombel)</option>' +
