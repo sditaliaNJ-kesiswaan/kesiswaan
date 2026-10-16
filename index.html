@@ -2124,11 +2124,8 @@ document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • '
     }
 };
 window.setStudentAtt = function(key, sId, st) {
-    const sel = document.getElementById('attendanceClassSelect');
-    if (sel && sel.value) {
-      appState.currentAttendanceClass = sel.value.replace(/^Kelas\s+/i, '').trim();
-
-    }
+    const activeClass = key.split('_')[1] || (document.getElementById('attendanceClassSelect') ? document.getElementById('attendanceClassSelect').value : '1A');
+    appState.currentAttendanceClass = activeClass;
 
     if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
     if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
@@ -2136,8 +2133,12 @@ window.setStudentAtt = function(key, sId, st) {
     savePersistedData();
 
     window.renderAttendanceSheet();
-};
 
+    const classSelect = document.getElementById('attendanceClassSelect');
+    if (classSelect) {
+        classSelect.value = activeClass;
+    }
+};
 window.setStudentAttNote = function(key, sId, note) {
   if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
   if (!appState.attendanceRecords[key][sId]) appState.attendance
