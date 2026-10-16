@@ -2067,9 +2067,10 @@ function syncCurrentUserDisplay() {
 
 
 window.renderAttendanceSheet = function() {
-  const tbody = document.getElementById('attendanceSheetBody');
-  const kelas = document.getElementById('attendanceClassSelect') ? document.getElementById('attendanceClassSelect').value : '1A';
-  const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : '2026-09-23';
+const tbody = document.getElementById('attendanceSheetBody');
+    const classSelect = document.getElementById('attendanceClassSelect');
+    const kelas = classSelect && classSelect.value ? classSelect.value : '1A';
+    const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : new Date().toISOString().split('T')[0];
   if (!tbody) return;
 
   const studentsInClass = appState.students.filter(function(s) { return s.kelas === kelas; });
@@ -2116,8 +2117,10 @@ window.renderAttendanceSheet = function() {
   }).join('');
 
   document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • ' + sakit + ' Sakit • ' + izin + ' Izin • ' + alfa + ' Alfa';
+if (document.getElementById('attendanceClassSelect')) {
+        document.getElementById('attendanceClassSelect').value = kelas;
+    }
 };
-
 window.setStudentAtt = function(key, sId, st) {
     const classSelect = document.getElementById('attendanceClassSelect');
     const currentClass = classSelect ? classSelect.value : '';
