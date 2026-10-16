@@ -2123,22 +2123,7 @@ document.getElementById('absensiSummaryBadge').innerText = hadir + ' Hadir • '
         classSelect.value = kelas;
     }
 };
-window.setStudentAtt = function(key, sId, st) {
-    const activeClass = key.split('_')[1] || (document.getElementById('attendanceClassSelect') ? document.getElementById('attendanceClassSelect').value : '1A');
-    appState.currentAttendanceClass = activeClass;
-
-    if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
-    if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
-    appState.attendanceRecords[key][sId].status = st;
-    savePersistedData();
-
-    window.renderAttendanceSheet();
-
-    const classSelect = document.getElementById('attendanceClassSelect');
-    if (classSelect) {
-        classSelect.value = activeClass;
-    }
-};
+v
 window.setStudentAttNote = function(key, sId, note) {
   if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
   if (!appState.attendanceRecords[key][sId]) appState.attendance
