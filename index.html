@@ -2190,8 +2190,12 @@ window.saveAttendanceRecord = function() {
                 const nama = cells[1] ? cells[1].innerText.trim() : '';
                 const nis = cells[2] ? cells[2].innerText.trim() : '';
 
-                const statusSelect = tr.querySelector('select');
-                const status = statusSelect ? statusSelect.value : 'Hadir';
+const activeBtn = tr.querySelector('button.bg-emerald-600, button.bg-amber-500, button.bg-purple-600, button.bg-rose-600');
+        const btnText = activeBtn ? activeBtn.innerText.trim() : 'H';
+        let status = 'Hadir';
+        if (btnText === 'S') status = 'Sakit';
+        else if (btnText === 'I') status = 'Izin';
+        else if (btnText === 'A') status = 'Alfa';
 
                 const ketInput = tr.querySelector('input[type="text"]');
                 const keterangan = ketInput ? ketInput.value.trim() : '';
