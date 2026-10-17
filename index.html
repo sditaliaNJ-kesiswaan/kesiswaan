@@ -2140,13 +2140,11 @@ window.setStudentAtt = function(key, sId, st) {
     }
 };
 window.setStudentAttNote = function(key, sId, note) {
-  if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
-  if (!appState.attendanceRecords[key][sId]) appState.attendance
-    Records[key][sId] = { status: 'H', note: '' };
-  appState.attendanceRecords[key][sId].note = note;
-  savePersistedData();
+    if (!appState.attendanceRecords[key]) appState.attendanceRecords[key] = {};
+    if (!appState.attendanceRecords[key][sId]) appState.attendanceRecords[key][sId] = { status: 'H', note: '' };
+    appState.attendanceRecords[key][sId].note = note;
+    savePersistedData();
 };
-
 window.markAllAttendance = function(st) {
   const kelas = document.getElementById('attendanceClassSelect') ? document.getElementById('attendanceClassSelect').value : '1A';
   const tgl = document.getElementById('attendanceDateInput') ? document.getElementById('attendanceDateInput').value : '2026-09-23';
