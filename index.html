@@ -801,7 +801,46 @@
         </button>
       </div>
       </div>
+<!-- Mini Dashboard Pelanggaran & Batang Kelas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <!-- 3 Kartu Angka KPI -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-xs text-slate-500 font-medium">Total Kasus</span>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span id="violationStatTotal" class="text-2xl font-bold text-slate-800">0</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 font-medium">Kasus</span>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-xs text-slate-500 font-medium">Santri Terbina</span>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span id="violationStatSantri" class="text-2xl font-bold text-slate-800">0</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium">Anak</span>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-xs text-slate-500 font-medium">Akumulasi Poin</span>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span id="violationStatPoin" class="text-2xl font-bold text-rose-600">0</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-medium">Poin</span>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Diagram Batang Top Kelas -->
+            <div class="lg:col-span-2 bg-white p-4 rounded-2xl border border-purple-100 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-column text-purple-600"></i> Sebaran Pelanggaran Rombel (Top Kelas)
+                    </span>
+                    <span class="text-[11px] text-slate-400">Diurutkan kasus terbanyak</span>
+                </div>
+                <div id="violationBarChartContainer" class="space-y-2 pt-1">
+                    <!-- Otomatis diisi grafik oleh JS -->
+                </div>
+            </div>
+        </div>
       <div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
         <table class="w-full text-left text-xs text-slate-600">
           <thead class="bg-purple-50/80 text-brand-950 font-bold uppercase tracking-wider text-[11px]">
@@ -2553,8 +2592,58 @@ window.quickAttendanceClass = function(c) {
   }
 };
 
+function renderViolationDashboard() {
+    const list = appState.violations || [];
+    
+    // 1. Hitung Ringkasan KPI
+    const totalKasus = list.length;
+    const uniqueStudents = new Set(list.map(function(v) { return v.studentName || v.nama; })).size;
+    const totalPoin = list.reduce(function(acc, v) { return acc + (parseInt(v.poin || v.points, 10) || 0); }, 0);
 
+    const elTotal = document.getElementById('violationStatTotal');
+    const elSantri = document.getElementById('violationStatSantri');
+    const elPoin = document.getElementById('violationStatPoin');
+    const container = document.getElementById('violationBarChartContainer');
+
+    if (elTotal) elTotal.innerText = totalKasus;
+    if (elSantri) elSantri.innerText = uniqueStudents;
+    if (elPoin) elPoin.innerText = totalPoin;
+
+    if (!container) return;
+
+    // 2. Hitung Pelanggaran per Rombel
+    const classCounts = {};
+    list.forEach(function(v) {
+        const k = v.kelas || v.className || 'Lainnya';
+        classCounts[k] = (classCounts[k] || 0) + 1;
+    });
+
+    const sortedClasses = Object.entries(classCounts)
+        .sort(function(a, b) { return b[1] - a[1]; })
+        .slice(0, 5); // Ambil Top 5 Rombel
+
+    if (sortedClasses.length === 0) {
+        container.innerHTML = '<div class="text-xs text-emerald-600 bg-emerald-50 py-3 px-4 rounded-xl text-center font-medium">Alhamdulillah, belum ada catatan pelanggaran aktif.</div>';
+        return;
+    }
+
+    const maxVal = sortedClasses[0][1];
+
+    container.innerHTML = sortedClasses.map(function(item) {
+        const kelas = item[0];
+        const count = item[1];
+        const pct = Math.round((count / maxVal) * 100);
+        return '<div class="flex items-center gap-3 text-xs">' +
+            '<span class="w-12 font-bold text-slate-700">Kls ' + kelas + '</span>' +
+            '<div class="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">' +
+                '<div class="bg-gradient-to-r from-purple-500 to-rose-500 h-3 rounded-full transition-all duration-500" style="width: ' + pct + '%"></div>' +
+            '</div>' +
+            '<span class="w-16 text-right font-semibold text-slate-700">' + count + ' kasus</span>' +
+        '</div>';
+    }).join('');
+}
 function renderViolations() {
+  renderViolationDashboard();
   const tb = document.getElementById('violationLogBody');
   if (!tb) return;
   
