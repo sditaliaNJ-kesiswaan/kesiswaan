@@ -2563,12 +2563,15 @@ function renderViolations() {
       '<td class="py-3 px-4 text-center font-bold text-rose-600">' + (v.poin || v.points || 0) + '</td>' +
       '<td class="py-3 px-4 text-slate-500">' + (v.tindak || v.tindakLanjut || v.action || '-') + '</td>' +
       '<td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">' + (v.status || 'Dalam Pembinaan') + '</span></td>' +
-      '<td class="py-3 px-4 text-center">' +
-        '<button type="button" onclick="printSuratPanggilan(' + idx + ')" class="px-2.5 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg text-xs font-bold transition inline-flex items-center justify-center gap-1 mx-auto">' +
-          '<i class="fa-solid fa-envelope-open-text"></i>' +
-          '<span>Surat</span>' +
-        '</button>' +
-      '</td>' +
+'<td class="py-3 px-4 text-center whitespace-nowrap">' +
+                            '<button type="button" onclick="printSuratPanggilan(' + idx + ')" class="px-2.5 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 mr-1">' +
+                                '<i class="fa-solid fa-envelope-open-text"></i>' +
+                                '<span>Surat</span>' +
+                            '</button>' +
+                            '<button type="button" onclick="deleteViolationRecord(' + (v.id || idx) + ')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 border border-rose-200 transition-colors" title="Hapus Data Pelanggaran">' +
+                                '<i class="fa-solid fa-trash-can"></i>' +
+                            '</button>' +
+                        '</td>' +
     '</tr>';
   }).join('');
 }
@@ -2783,7 +2786,20 @@ window.handleSaveViolation = function(e) {
   window.closeAddViolationModal();
   window.showToast('Pelanggaran santri berhasil dicatat!');
 };
-
+window.deleteViolationRecord = function(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus catatan pelanggaran ini?')) {
+        appState.violations = (appState.violations || []).filter(function(v) {
+            return v.id !== id;
+        });
+        savePersistedData();
+        if (typeof renderViolations === 'function') {
+            renderViolations();
+        }
+        if (typeof window.showToast === 'function') {
+            window.showToast('Catatan pelanggaran berhasil dihapus!');
+        }
+    }
+};
 function renderPrestasi() {
   const c = document.getElementById('prestasiCardsContainer');
   if (!c) return;
