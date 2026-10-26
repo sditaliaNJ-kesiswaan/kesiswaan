@@ -1239,10 +1239,14 @@
       <button onclick="closeAddViolationModal()" class="text-white hover:text-rose-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <form onsubmit="handleSaveViolation(event)" class="p-6 space-y-3 text-xs">
-      <div>
-        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
-        <select id="violationSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
-      </div>
+<div>
+                        <label class="block font-bold text-slate-600 mb-1">Pilih Rombel / Kelas (25 Kelas)*</label>
+                        <select id="violationClassSelect" onchange="filterViolationStudentsByClass()" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl mb-3 font-semibold text-slate-700"></select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+                        <select id="violationSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
+                    </div>
       <div>
         <label class="block font-bold text-slate-600 mb-1">Bentuk Pelanggaran*</label>
         <input type="text" id="violationBentuk" required placeholder="Contoh: Terlambat halaqah, atribut belum lengkap" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
@@ -2716,13 +2720,58 @@ function printRekapPelanggaran() {
   w.document.close();
   setTimeout(function() { w.print(); }, 500);
 }
-window.openAddViolationModal = function() {
-  const m = document.getElementById('modalAddViolation');
-  if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+// Daftar 25 Rombel Belajar
+const ROMBEL_CLASSES = [
+    '1A', '1B', '1C', '1D', '1E',
+    '2A', '2B', '2C', '2D',
+    '3A', '3B', '3C', '3D',
+    '4A', '4B', '4C', '4D',
+    '5A', '5B', '5C', '5D',
+    '6A', '6B', '6C', '6D'
+];
+
+// Fungsi filter nama santri berdasarkan kelas yang dipilih
+window.filterViolationStudentsByClass = function() {
+    const classSelect = document.getElementById('violationClassSelect');
+    const siswaSelect = document.getElementById('violationSiswaSelect');
+    if (!classSelect || !siswaSelect) return;
+
+    const selectedClass = classSelect.value;
+    const filtered = (appState.students || []).filter(function(s) {
+        return s.kelas === selectedClass;
+    });
+
+    if (filtered.length > 0) {
+        siswaSelect.innerHTML = filtered.map(function(s) {
+            return '<option value="' + s.id + '">' + s.nama + ' - NIS: ' + (s.nis || '-') + '</option>';
+        }).join('');
+    } else {
+        siswaSelect.innerHTML = '<option value="">(Tidak ada santri di kelas ini)</option>';
+    }
 };
+
+window.openAddViolationModal = function() {
+    const m = document.getElementById('modalAddViolation');
+    if (m) {
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+
+        // Isi pilihan rombel jika belum ada
+        const classSelect = document.getElementById('violationClassSelect');
+        if (classSelect) {
+            classSelect.innerHTML = ROMBEL_CLASSES.map(function(k) {
+                return '<option value="' + k + '">Kelas ' + k + '</option>';
+            }).join('');
+            
+            // Otomatis filter santri untuk kelas pertama
+            window.filterViolationStudentsByClass();
+        }
+    }
+};
+
 window.closeAddViolationModal = function() {
-  const m = document.getElementById('modalAddViolation');
-  if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    const m = document.getElementById('modalAddViolation');
+    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
 };
 window.handleSaveViolation = function(e) {
   e.preventDefault();
