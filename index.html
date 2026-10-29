@@ -1206,6 +1206,10 @@
         <input type="text" id="editUserUsername" required class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-mono text-slate-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
       </div>
       <div>
+                <label class="block font-bold text-slate-700 mb-1">Password Baru <span class="text-[10px] text-slate-400 font-normal">(Kosongkan jika tidak ingin diubah)</span></label>
+                <input type="password" id="editUserPassword" placeholder="Masukkan password baru..." class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl text-slate-700 focus:ring-2 focus:ring-brand-500 text-xs">
+            </div>
+      <div>
         <label class="block font-bold text-slate-700 mb-1">Jabatan / Peran Sistem*</label>
         <select id="editUserJabatan" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-semibold text-slate-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
           <option value="Administrator">Administrator</option>
@@ -1968,32 +1972,40 @@ window.handleSaveEditUser = async function(e) {
   const jabatan = document.getElementById('editUserJabatan').value;
   const status = document.getElementById('editUserStatus').value;
   const setActive = document.getElementById('editUserSetActive').checked;
-
+  const newPassword = (document.getElementById('editUserPassword')?.value || '').trim();
   // 1. Simpan perubahan ke Firestore
   try {
     var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
     if (dbObj) {
       const userRef = dbObj.collection('users').doc(rawId);
       const docSnap = await userRef.get();
-      if (docSnap.exists) {
-        await userRef.update({ nama: nama, username: username, jabatan: jabatan, role: jabatan, status: status });
-      } else {
-        const qSnap = await dbObj.collection('users').where('username', '==', username).get();
-        qSnap.forEach(async function(doc) {
-          await doc.ref.update({ nama: nama, username: username, jabatan: jabatan, role: jabatan, status: status });
-        });
-      }
+const updatePayload = { nama: nama, username: username, jabatan: jabatan, role: jabatan, status: status };
+            if (newPassword) {
+                updatePayload.password = newPassword;
+            }
+
+            if (docSnap.exists) {
+                await userRef.update(updatePayload);
+            } else {
+                const qSnap = await dbObj.collection('users').where('username', '==', username).get();
+                qSnap.forEach(async function(doc) {
+                    await doc.ref.update(updatePayload);
+                });
+            }
+        }
+    } catch (err) {
+        console.warn("Gagal update firestore:", err);
     }
-  } catch (err) {
-    console.warn("Gagal update firestore:", err);
-  }
 
-  // 2. Perbarui data lokal appState
-  const idx = appState.users.findIndex(function(x) { return String(x.id) === String(rawId) || x.username === username; });
-  if (idx !== -1) {
-    appState.users[idx] = Object.assign({}, appState.users[idx], { nama: nama, username: username, jabatan: jabatan, status: status });
-  }
-
+    // 2. Perbarui data lokal appState
+    const idx = appState.users.findIndex(function(x) { return String(x.id) === String(rawId) || x.username === username; });
+    if (idx !== -1) {
+        const updatedLocal = { nama: nama, username: username, jabatan: jabatan, status: status };
+        if (newPassword) {
+            updatedLocal.password = newPassword;
+        }
+        appState.users[idx] = Object.assign({}, appState.users[idx], updatedLocal);
+    }
   // 3. Jika dijadikan akun aktif atau memang sedang aktif
   const isCurrentActive = (appState.currentUser && (String(appState.currentUser.id) === String(rawId) || appState.currentUser.username === username));
   if (setActive || isCurrentActive) {
@@ -2047,7 +2059,7 @@ window.handleSaveEditUser = async function(e) {
   document.getElementById('editUserUsername').value = u.username || '';
   document.getElementById('editUserJabatan').value = u.jabatan || u.role || 'Guru';
   document.getElementById('editUserStatus').value = u.status || 'Aktif';
-  
+  if (document.getElementById('editUserPassword')) document.getElementById('editUserPassword').value = '';
   const chkActive = document.getElementById('editUserSetActive');
   if (chkActive) {
     chkActive.checked = (appState.currentUser && (String(appState.currentUser.id) === String(u.id) || appState.currentUser.username === u.username));
