@@ -3639,16 +3639,25 @@ async function handleUserRegister(e) {
     btn.innerHTML = 'Daftar Sekarang';
   }
 }
-    async function handleUserLogout() {
-  if (confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
-    try {
-      var authObj = (typeof auth !== 'undefined') ? auth : firebase.auth();
-      await authObj.signOut();
-    } catch (err) {
-      console.warn("Sign out error:", err);
+async function handleUserLogout() {
+    if (confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
+        try {
+            localStorage.removeItem('activeUser');
+            localStorage.removeItem('currentUserRole');
+            sessionStorage.clear();
+        } catch(e) {}
+
+        try {
+            var authObj = (typeof auth !== 'undefined') ? auth : (typeof firebase !== 'undefined' ? firebase.auth() : null);
+            if (authObj && typeof authObj.signOut === 'function') {
+                await authObj.signOut();
+            }
+        } catch (err) {
+            console.warn("Sign out error:", err);
+        }
+        window.location.reload();
     }
-    window.location.reload();
-  }
+}
 }
 function handleUserLogin(e) {
   if (e) e.preventDefault();
