@@ -3826,11 +3826,23 @@ function handleUserLogin(e) {
 }
 
 function handleUserLogout() {
-  if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
-    firebase.auth().signOut().then(function() {
-      location.reload();
-    });
-  }
+    if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch (e) {}
+
+        firebase.auth().signOut().then(function() {
+            var loginScreen = document.getElementById('authLoginScreen');
+            if (loginScreen) {
+                loginScreen.style.display = 'flex';
+            }
+            window.location.href = window.location.origin + window.location.pathname;
+        }).catch(function(err) {
+            console.warn("Sign out error:", err);
+            window.location.reload();
+        });
+    }
 }
 
 // Pantau sesi login pengguna secara langsung
