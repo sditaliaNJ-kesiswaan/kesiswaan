@@ -3742,19 +3742,79 @@ function handleUserLogin(e) {
     if (typeof navigateTo === 'function') navigateTo('dashboard');
   }, 400);
     })
-    .catch(function(error) {
-      btn.disabled = false;
-      btn.innerHTML = '<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>';
-      errBox.classList.remove('hidden');
+.catch(async function(error) {
+            // Jalur Mandiri: Cek kecocokan username/email dan password di database Firestore / data lokal
+            try {
+                var cleanUser = userInput.toLowerCase().replace('@sditalia.sch.id', '').replace('@gmail.com', '');
+                var foundUser = (appState.users || []).find(function(u) {
+                    var uName = (u.username || '').toLowerCase();
+                    var uEmail = (u.email || '').toLowerCase();
+                    return (uName === cleanUser || uEmail === userInput.toLowerCase() || uName === userInput.toLowerCase()) && String(u.password) === String(pass);
+                });
 
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        errBox.innerText = 'Password salah. Silakan periksa kembali.';
-      } else if (error.code === 'auth/user-not-found') {
-        errBox.innerText = 'Email/Username belum terdaftar di Firebase.';
-      } else {
-        errBox.innerText = 'Gagal masuk: ' + (error.message || 'Periksa koneksi internet.');
-      }
-    });
+                // Jika belum ketemu di lokal, cari langsung ke Firestore
+                if (!foundUser) {
+                    var dbObj = (typeof db !== 'undefined' && db) ? db : (typeof firebase !== 'undefined' ? firebase.firestore() : null);
+                    if (dbObj) {
+                        var snap = await dbObj.collection('users').where('username', '==', cleanUser).get();
+                        if (snap.empty) snap = await dbObj.collection('users').where('username', '==', userInput).get();
+                        if (!snap.empty) {
+                            var d = snap.docs[0].data();
+                            if (String(d.password) === String(pass)) {
+                                foundUser = Object.assign({ id: snap.docs[0].id }, d);
+                            }
+                        }
+                    }
+                }
+
+                if (foundUser) {
+                    btn.innerHTML = '<span>Berhasil Masuk!</span> <i class="fa-solid fa-check"></i>';
+                    appState.currentUser = {
+                        id: foundUser.id || ('usr_' + Date.now()),
+                        nama: foundUser.nama || foundUser.username,
+                        username: foundUser.username,
+                        jabatan: foundUser.jabatan || foundUser.role || 'Guru',
+                        role: (foundUser.jabatan === 'Administrator' || foundUser.role === 'admin') ? 'admin' : 'guru',
+                        status: foundUser.status || 'Aktif'
+                    };
+                    currentUserRole = appState.currentUser.role;
+                    try {
+                        localStorage.setItem('activeUser', JSON.stringify(appState.currentUser));
+                        localStorage.setItem('currentUserRole', currentUserRole);
+                    } catch(e) {}
+
+                    if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
+                    if (typeof savePersistedData === 'function') savePersistedData();
+
+                    var isAdm = (currentUserRole === 'admin');
+                    var navPengguna = document.getElementById('nav-pengguna');
+                    var navPengaturan = document.getElementById('nav-pengaturan');
+                    if (navPengguna) navPengguna.style.display = isAdm ? '' : 'none';
+                    if (navPengaturan) navPengaturan.style.display = isAdm ? '' : 'none';
+
+                    setTimeout(function() {
+                        var screen = document.getElementById('authLoginScreen');
+                        if (screen) screen.style.display = 'none';
+                        if (typeof navigateTo === 'function') navigateTo('dashboard');
+                    }, 400);
+                    return;
+                }
+            } catch (errCheck) {
+                console.warn("Gagal validasi manual:", errCheck);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>';
+            errBox.classList.remove('hidden');
+
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                errBox.innerText = 'Password salah. Silakan periksa kembali.';
+            } else if (error.code === 'auth/user-not-found') {
+                errBox.innerText = 'Email/Username belum terdaftar.';
+            } else {
+                errBox.innerText = 'Gagal masuk: Password atau Username salah.';
+            }
+        });
 }
 
 function handleUserLogout() {
@@ -3826,8 +3886,18 @@ firebase.auth().onAuthStateChanged(async function(user) {
       } catch (err) {
         console.warn('Gagal sinkron data otomatis:', err);
       }
-    } else {
-      if (loginScreen) loginScreen.style.display = 'flex';
+} else {
+        // Pertahankan sesi jika pengguna login menggunakan akun database lokal
+        var savedUser = null;
+        try { savedUser = JSON.parse(localStorage.getItem('activeUser')); } catch(e){}
+        if (savedUser && savedUser.id) {
+            appState.currentUser = savedUser;
+            currentUserRole = savedUser.role || (savedUser.jabatan === 'Administrator' ? 'admin' : 'guru');
+            if (loginScreen) loginScreen.style.display = 'none';
+            if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
+        } else {
+            if (loginScreen) loginScreen.style.display = 'flex';
+        }
     }
 });
   </script>
