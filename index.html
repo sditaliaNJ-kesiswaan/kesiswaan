@@ -3642,20 +3642,19 @@ async function handleUserRegister(e) {
 async function handleUserLogout() {
     if (confirm("Apakah Anda yakin ingin keluar dari aplikasi?")) {
         try {
-            localStorage.removeItem('activeUser');
-            localStorage.removeItem('currentUserRole');
-            sessionStorage.clear();
-        } catch(e) {}
-
-        try {
-            var authObj = (typeof auth !== 'undefined') ? auth : (typeof firebase !== 'undefined' ? firebase.auth() : null);
+            var authObj = (typeof auth !== 'undefined') ? auth : (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth() : null;
             if (authObj && typeof authObj.signOut === 'function') {
                 await authObj.signOut();
             }
         } catch (err) {
             console.warn("Sign out error:", err);
         }
-        window.location.reload();
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch (e) {}
+
+        window.location.href = window.location.origin + window.location.pathname;
     }
 }
  
