@@ -1999,8 +1999,8 @@ const updatePayload = { nama: nama, username: username, jabatan: jabatan, role: 
         appState.users[idx] = Object.assign({}, appState.users[idx], updatedLocal);
     }
   // 3. Jika dijadikan akun aktif atau memang sedang aktif
-  const isCurrentActive = (appState.currentUser && (String(appState.currentUser.id) === String(rawId) || appState.currentUser.username === username));
-  if (setActive || isCurrentActive) {
+const isEditingSelf = (appState.currentUser && appState.currentUser.username === username);
+if (isEditingSelf) {
     const isAdmin = (jabatan === 'Administrator' || username === 'riandy.admin');
     
     // Perbarui objek akun aktif dan peran sistem global
