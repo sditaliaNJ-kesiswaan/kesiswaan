@@ -1998,23 +1998,17 @@ const updatePayload = { nama: nama, username: username, jabatan: jabatan, role: 
         }
         appState.users[idx] = Object.assign({}, appState.users[idx], updatedLocal);
     }
-  // 3. Jika dijadikan akun aktif atau memang sedang aktif
-const isCurrentUserAdmin = (appState.currentUser && (appState.currentUser.username === 'riandy.admin' || appState.currentUser.jabatan === 'Administrator'));
-const isEditingSelf = (appState.currentUser && appState.currentUser.username === username && (username === 'riandy.admin' || !isCurrentUserAdmin));
-if (isEditingSelf) {
-    const isAdmin = (jabatan === 'Administrator' || username === 'riandy.admin');
-    
-    // Perbarui objek akun aktif dan peran sistem global
-    appState.currentUser = {
-      id: rawId || (appState.currentUser ? appState.currentUser.id : username),
-      nama: nama,
-      username: username,
-      jabatan: jabatan,
-      role: isAdmin ? 'admin' : 'guru',
-      status: status
-    };
-    currentUserRole = isAdmin ? 'admin' : 'guru';
-
+// 3. KUNCI MUTLAK: Hanya update currentUser jika yang diedit adalah akun riandy.admin
+if (username === 'riandy.admin') {
+  appState.currentUser = {
+    id: rawId || (appState.currentUser ? appState.currentUser.id : username),
+    nama: nama,
+    username: username,
+    jabatan: jabatan,
+    role: 'admin',
+    status: status
+  };
+  currentUserRole = 'admin';
     // Simpan ke penyimpanan lokal browser agar tidak reset saat pindah menu
     try {
       localStorage.setItem('activeUser', JSON.stringify(appState.currentUser));
