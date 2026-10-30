@@ -2111,13 +2111,66 @@ window.handleSaveNewUser = function(e) {
   window.closeAddUserModal();
   window.showToast('Akun ' + nama + ' berhasil didaftarkan!');
 };
+function applyRoleAccess(role) {
+  var userRole = (role || '').toLowerCase();
 
+  var menus = {
+    dashboard: document.getElementById('nav-dashboard'),
+    siswa: document.getElementById('nav-siswa'),
+    absensi: document.getElementById('nav-absensi'),
+    pelanggaran: document.getElementById('nav-pelanggaran'),
+    prestasi: document.getElementById('nav-prestasi'),
+    perizinan: document.getElementById('nav-perizinan'),
+    bk: document.getElementById('nav-bk'),
+    kelas: document.getElementById('nav-kelas'),
+    pengguna: document.getElementById('nav-pengguna'),
+    laporan: document.getElementById('nav-laporan'),
+    pengaturan: document.getElementById('nav-pengaturan')
+  };
+
+  var btnGantiLogo = document.querySelector('button[onclick*="Logo"]');
+
+  // 1. Tampilkan semua menu terlebih dahulu
+  for (var key in menus) {
+    if (menus[key]) menus[key].style.display = '';
+  }
+  if (btnGantiLogo) btnGantiLogo.style.display = '';
+
+  // 2. Administrator: Akses penuh semua menu
+  if (userRole === 'admin' || userRole === 'administrator') {
+    return;
+  }
+
+  // 3. Sembunyikan menu sensitif untuk seluruh peran non-admin
+  if (menus.pengguna) menus.pengguna.style.display = 'none';
+  if (menus.pengaturan) menus.pengaturan.style.display = 'none';
+  if (btnGantiLogo) btnGantiLogo.style.display = 'none';
+
+  // 4. Pembatasan spesifik berdasarkan peran
+  if (userRole.indexOf('bk') !== -1 || userRole.indexOf('konseling') !== -1) {
+    if (menus.absensi) menus.absensi.style.display = 'none';
+  } else if (userRole.indexOf('mapel') !== -1) {
+    if (menus.absensi) menus.absensi.style.display = 'none';
+    if (menus.bk) menus.bk.style.display = 'none';
+    if (menus.laporan) menus.laporan.style.display = 'none';
+  } else if (userRole.indexOf('wali') !== -1) {
+    if (menus.bk) menus.bk.style.display = 'none';
+  } else if (userRole.indexOf('kepsek') !== -1 || userRole.indexOf('kepala') !== -1) {
+    // Kepala Sekolah dapat memantau seluruh modul (view only)
+  } else {
+    // Peran Guru Umum / Pendaftar Baru
+    if (menus.absensi) menus.absensi.style.display = 'none';
+    if (menus.bk) menus.bk.style.display = 'none';
+    if (menus.laporan) menus.laporan.style.display = 'none';
+  }
+}
 function syncCurrentUserDisplay() {
   const initials = appState.currentUser.nama.split(' ').map(function(n) { return n[0]; }).slice(0, 2).join('');
   document.getElementById('headerAvatarText').innerText = initials || 'RJ';
   document.getElementById('headerUserName').innerText = appState.currentUser.nama;
   document.getElementById('headerUserRole').innerText = appState.currentUser.jabatan;
   document.getElementById('dashboardBannerGreetingName').innerText = appState.currentUser.nama;
+  applyRoleAccess(appState.currentUser.role || appState.currentUser.jabatan);
 }
 
 
