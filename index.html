@@ -2147,23 +2147,26 @@ function applyRoleAccess(role) {
   if (btnGantiLogo) btnGantiLogo.style.display = 'none';
 
   // 4. Pembatasan spesifik berdasarkan peran
-  if (userRole.indexOf('bk') !== -1 || userRole.indexOf('konseling') !== -1) {
+if (userRole.indexOf('kepsek') !== -1 || userRole.indexOf('kepala') !== -1) {
+    // Kepala Sekolah: Buka semua modul pemantauan & laporan
+    return;
+  } else if (userRole.indexOf('bk') !== -1 || userRole.indexOf('konseling') !== -1) {
+    // BK: Tutup menu Absensi
     if (menus.absensi) menus.absensi.style.display = 'none';
+  } else if (userRole.indexOf('wali') !== -1) {
+    // Wali Kelas: Buka Absensi & Laporan kelas, tutup BK rahasia
+    if (menus.bk) menus.bk.style.display = 'none';
   } else if (userRole.indexOf('mapel') !== -1) {
+    // Guru Mapel: Tutup Absensi, BK, dan Laporan umum
     if (menus.absensi) menus.absensi.style.display = 'none';
     if (menus.bk) menus.bk.style.display = 'none';
     if (menus.laporan) menus.laporan.style.display = 'none';
-  } else if (userRole.indexOf('wali') !== -1) {
-    if (menus.bk) menus.bk.style.display = 'none';
-  } else if (userRole.indexOf('kepsek') !== -1 || userRole.indexOf('kepala') !== -1) {
-    // Kepala Sekolah dapat memantau seluruh modul (view only)
   } else {
-    // Peran Guru Umum / Pendaftar Baru
+    // Default Guru Biasa / Pengguna Baru
     if (menus.absensi) menus.absensi.style.display = 'none';
     if (menus.bk) menus.bk.style.display = 'none';
     if (menus.laporan) menus.laporan.style.display = 'none';
   }
-}
 function syncCurrentUserDisplay() {
   const initials = appState.currentUser.nama.split(' ').map(function(n) { return n[0]; }).slice(0, 2).join('');
   document.getElementById('headerAvatarText').innerText = initials || 'RJ';
