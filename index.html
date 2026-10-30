@@ -2137,10 +2137,9 @@ function applyRoleAccess(role) {
   if (btnGantiLogo) btnGantiLogo.style.display = '';
 
   // 2. Administrator: Akses penuh semua menu
-  if (userRole === 'admin' || userRole === 'administrator') {
+if (userRole === 'admin' || userRole === 'administrator' || userRole.indexOf('kesiswaan') !== -1) {
     return;
   }
-
   // 3. Sembunyikan menu sensitif untuk seluruh peran non-admin
   if (menus.pengguna) menus.pengguna.style.display = 'none';
   if (menus.pengaturan) menus.pengaturan.style.display = 'none';
