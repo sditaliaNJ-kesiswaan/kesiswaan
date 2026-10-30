@@ -2174,7 +2174,7 @@ function syncCurrentUserDisplay() {
   document.getElementById('headerUserName').innerText = appState.currentUser.nama;
   document.getElementById('headerUserRole').innerText = appState.currentUser.jabatan;
   document.getElementById('dashboardBannerGreetingName').innerText = appState.currentUser.nama;
-  applyRoleAccess(appState.currentUser.role || appState.currentUser.jabatan);
+ applyRoleAccess(appState.currentUser.jabatan || appState.currentUser.role);
 }
 
 
