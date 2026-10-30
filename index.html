@@ -3907,18 +3907,18 @@ firebase.auth().onAuthStateChanged(async function(user) {
         console.warn('Gagal sinkron data otomatis:', err);
       }
 } else {
-        // Pertahankan sesi jika pengguna login menggunakan akun database lokal
-        var savedUser = null;
-        try { savedUser = JSON.parse(localStorage.getItem('activeUser')); } catch(e){}
-        if (savedUser && savedUser.id) {
-            appState.currentUser = savedUser;
-            currentUserRole = savedUser.role || (savedUser.jabatan === 'Administrator' ? 'admin' : 'guru');
-            if (loginScreen) loginScreen.style.display = 'none';
-            if (typeof syncCurrentUserDisplay === 'function') syncCurrentUserDisplay();
-        } else {
-            if (loginScreen) loginScreen.style.display = 'flex';
-        }
+    // Jika tidak ada user login di Firebase Auth, paksa tampilkan layar login
+    if (loginScreen) {
+        loginScreen.style.display = 'flex';
     }
+    if (typeof appState !== 'undefined') {
+        appState.currentUser = null;
+    }
+    try {
+        localStorage.removeItem('activeUser');
+        localStorage.removeItem('currentUserRole');
+    } catch(e){}
+} 
 });
   </script>
   <!-- ================= MODAL CETAK PIAGAM PENGHARGAAN ================= -->
