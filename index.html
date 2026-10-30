@@ -3863,19 +3863,18 @@ firebase.auth().onAuthStateChanged(async function(user) {
             jabatan: 'Administrator',
             role: 'admin',
             status: 'Aktif'
-          };
-        } else if (!appState.currentUser || !appState.currentUser.nama) {
-          appState.currentUser = {
-            id: user.uid,
-            nama: user.displayName || user.email.split('@')[0],
-            username: user.email.split('@')[0],
-            jabatan: currentUserRole === 'admin' ? 'Administrator' : 'Guru',
-            role: currentUserRole,
-            status: 'Aktif'
-          };
-        }
-
-        // Simpan ke localStorage agar tidak reset
+};
+    } else {
+      appState.currentUser = {
+        id: user.uid,
+        nama: user.displayName || user.email.split('@')[0],
+        username: user.email.split('@')[0],
+        jabatan: currentUserRole === 'admin' ? 'Administrator' : 'Guru',
+        role: currentUserRole,
+        status: 'Aktif'
+      };
+    }          
+               // Simpan ke localStorage agar tidak reset
         try {
           localStorage.setItem('activeUser', JSON.stringify(appState.currentUser));
           localStorage.setItem('currentUserRole', currentUserRole);
