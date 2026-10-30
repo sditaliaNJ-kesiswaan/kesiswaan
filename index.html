@@ -1226,12 +1226,6 @@
           <option value="Nonaktif">Nonaktif</option>
         </select>
       </div>
-      <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl flex items-center space-x-2">
-        <input type="checkbox" id="editUserSetActive" class="w-4 h-4 text-brand-700 rounded border-purple-300 focus:ring-brand-500">
-        <label for="editUserSetActive" class="text-[11px] font-semibold text-brand-950 cursor-pointer">
-          Jadikan akun ini sebagai akun aktif saat ini (Login)
-        </label>
-      </div>
       <div class="pt-2 flex space-x-2">
         <button type="button" onclick="closeEditUserModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Batal</button>
         <button type="submit" class="w-1/2 py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-xl shadow transition">Simpan Perubahan</button>
@@ -1947,8 +1941,6 @@ window.editUser = function(userId) {
   document.getElementById('editUserUsername').value = u.username;
   document.getElementById('editUserJabatan').value = u.jabatan;
   document.getElementById('editUserStatus').value = u.status;
-  document.getElementById('editUserSetActive').checked = (u.username === appState.currentUser.username);
-
   const modal = document.getElementById('modalEditUser');
   if (modal) {
     modal.classList.remove('hidden');
@@ -1971,7 +1963,7 @@ window.handleSaveEditUser = async function(e) {
   const username = document.getElementById('editUserUsername').value.trim();
   const jabatan = document.getElementById('editUserJabatan').value;
   const status = document.getElementById('editUserStatus').value;
-  const setActive = document.getElementById('editUserSetActive').checked;
+  const setActive = false;
   const newPassword = (document.getElementById('editUserPassword')?.value || '').trim();
   // 1. Simpan perubahan ke Firestore
   try {
