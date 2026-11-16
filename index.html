@@ -471,7 +471,7 @@
           <div>
             <div class="text-[11px] font-bold text-slate-400 uppercase">Sakit</div>
             <div class="text-2xl font-black text-slate-800" id="dashCardSakit">0</div>
-            <div class="text-[11px] font-semibold text-amber-600">Santri sakit</div>
+            <div class="text-[11px] font-semibold text-amber-600">Murid sakit</div>
           </div>
         </div>
 
@@ -504,7 +504,7 @@
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-sm font-bold text-slate-800">Rekap Kehadiran 7 Hari Terakhir</h3>
-              <p class="text-[11px] text-slate-400">Monitoring kehadiran santri 25 rombel</p>
+              <p class="text-[11px] text-slate-400">Monitoring kehadiran murid 25 rombel</p>
             </div>
             <div class="flex items-center space-x-2 text-xs">
               <span class="inline-flex items-center text-slate-600 font-medium"><span class="w-2.5 h-2.5 rounded-full bg-brand-600 mr-1"></span> Hadir</span>
@@ -575,7 +575,7 @@
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Data Siswa</h2>
-          <p class="text-xs text-slate-500">Kelola data santri SDIT Alia Nurul Jihadi secara manual atau impor massal melalui file Excel/CSV.</p>
+          <p class="text-xs text-slate-500">Kelola data murid SDIT Alia Nurul Jihadi secara manual atau impor massal melalui file Excel/CSV.</p>
         </div>
         
         <!-- Action Buttons -->
@@ -643,7 +643,7 @@
           </table>
         </div>
         <div class="px-5 py-3.5 border-t border-purple-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-          <span id="studentCountInfo">Menampilkan data santri</span>
+          <span id="studentCountInfo">Menampilkan data murid</span>
         </div>
       </div>
     </section>
@@ -652,7 +652,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Presensi & Absensi Siswa</h2>
-          <p class="text-xs text-slate-500">Pencatatan kehadiran harian santri per rombel (25 rombel belajar).</p>
+          <p class="text-xs text-slate-500">Pencatatan kehadiran harian murid per rombel (25 rombel belajar).</p>
         </div>
         <div class="flex space-x-2">
           <button onclick="markAllAttendance('H')" class="px-3.5 py-2 text-xs font-bold bg-brand-100 text-brand-900 rounded-xl hover:bg-brand-200 transition">
@@ -706,7 +706,7 @@
 
             <!-- Judul Dokumen Rekap -->
             <div class="text-center mb-4">
-                <h3 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider underline">REKAPITULASI PRESENSI & KEHADIRAN SANTRI</h3>
+                <h3 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider underline">REKAPITULASI PRESENSI & KEHADIRAN MURID</h3>
                 <p class="text-[11px] text-slate-600 mt-1">
                     Kelas: <strong id="rekapSelectedClassText" class="text-purple-900 font-bold">-</strong> | Semester Ganjil TA 2026/2027
                 </p>
@@ -729,7 +729,7 @@
                     <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                         <tr>
                             <th class="py-2.5 px-3 w-12 text-center">No</th>
-                            <th class="py-2.5 px-4">Nama Santri</th>
+                            <th class="py-2.5 px-4">Nama Murid</th>
                             <th class="py-2.5 px-3 text-center">NIS</th>
                             <th class="py-2.5 px-3 text-center text-emerald-700">Hadir (H)</th>
                             <th class="py-2.5 px-3 text-center text-amber-700">Sakit (S)</th>
@@ -740,7 +740,7 @@
                         </tr>
                     </thead>
                     <tbody id="rekapTableBody" class="divide-y divide-slate-100">
-                        <!-- Data santri akan dirender via JavaScript -->
+                        <!-- Data murid akan dirender via JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -784,7 +784,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Pelanggaran & Kedisiplinan</h2>
-          <p class="text-xs text-slate-500">Pencatatan kedisiplinan dan pembinaan santri.</p>
+          <p class="text-xs text-slate-500">Pencatatan kedisiplinan dan pembinaan murid.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
         <button onclick="exportPelanggaranToExcel()" class="px-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
@@ -813,9 +813,9 @@
                     </div>
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs text-slate-500 font-medium">Santri Terbina</span>
+                    <span class="text-xs text-slate-500 font-medium">Murid Terbina</span>
                     <div class="mt-2 flex items-baseline justify-between">
-                        <span id="violationStatSantri" class="text-2xl font-bold text-slate-800">0</span>
+                        <span id="violationStatMurid" class="text-2xl font-bold text-slate-800">0</span>
                         <span class="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium">Anak</span>
                     </div>
                 </div>
@@ -863,8 +863,8 @@
     <section id="view-prestasi" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-2xl font-black text-slate-800">Prestasi Santri</h2>
-          <p class="text-xs text-slate-500">Rekam jejak tahfidz Qur'an, sains, pidato, dan seni santri.</p>
+          <h2 class="text-2xl font-black text-slate-800">Prestasi Murid</h2>
+          <p class="text-xs text-slate-500">Rekam jejak tahfidz Qur'an, sains, pidato, dan seni murid.</p>
         </div>
         <button onclick="openAddPrestasiModal()" class="px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition space-x-2">
           <i class="fa-solid fa-medal"></i>
@@ -877,8 +877,8 @@
     <section id="view-perizinan" class="view-panel space-y-6 hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-2xl font-black text-slate-800">Perizinan & Dispensasi Santri</h2>
-          <p class="text-xs text-slate-500">Penerbitan surat izin santri dan administrasi sekolah.</p>
+          <h2 class="text-2xl font-black text-slate-800">Perizinan & Dispensasi Murid</h2>
+          <p class="text-xs text-slate-500">Penerbitan surat izin murid dan administrasi sekolah.</p>
         </div>
         <button onclick="openAddIzinModal()" class="px-4 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow">
           <i class="fa-solid fa-plus mr-1.5"></i> Buat Surat Izin
@@ -900,11 +900,11 @@
           <tbody id="izinTableBody" class="divide-y divide-purple-50"></tbody>
         </table>
       </div>
-            <!-- REKAPITULASI PERIZINAN & DISPENSASI SANTRI -->
+            <!-- REKAPITULASI PERIZINAN & DISPENSASI MURID -->
   <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm space-y-5">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-purple-50 pb-4">
       <div>
-        <h3 class="text-base font-black text-slate-800">Rekapitulasi Perizinan &amp; Dispensasi Santri</h3>
+        <h3 class="text-base font-black text-slate-800">Rekapitulasi Perizinan &amp; Dispensasi Murid</h3>
         <p class="text-xs text-slate-500">Pantau total jumlah siswa yang izin dan riwayat penerbitan surat izin/pulang cepat.</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
@@ -994,7 +994,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-2xl font-black text-slate-800">Bimbingan & Konseling (BK)</h2>
-          <p class="text-xs text-slate-500">Membina santri dengan keakraban, kasih sayang, dan pendampingan wali.</p>
+          <p class="text-xs text-slate-500">Membina murid dengan keakraban, kasih sayang, dan pendampingan wali.</p>
         </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1015,7 +1015,7 @@
             </div>
             <div>
               <label class="font-bold text-slate-600 block mb-1">Pokok Bimbingan</label>
-              <textarea id="bkCatatanText" rows="3" placeholder="Tuliskan perkembangan adab & pembinaan santri..." required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></textarea>
+              <textarea id="bkCatatanText" rows="3" placeholder="Tuliskan perkembangan adab & pembinaan murid..." required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></textarea>
             </div>
             <button type="submit" class="w-full py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-xl shadow transition">Simpan Rekam Konseling</button>
           </form>
@@ -1095,7 +1095,7 @@
 
       <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm space-y-4">
         <div class="flex justify-between items-center border-b border-purple-50 pb-3">
-          <h3 class="text-sm font-bold text-slate-800">Rekapitulasi Kehadiran Santri</h3>
+          <h3 class="text-sm font-bold text-slate-800">Rekapitulasi Kehadiran Murid</h3>
           <span class="text-xs font-bold text-brand-700">September 2026</span>
         </div>
         <div class="h-64 relative">
@@ -1242,7 +1242,7 @@
 
       <div>
         <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa*</label>
-        <input type="text" id="manualSiswaNama" required placeholder="Nama lengkap santri" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        <input type="text" id="manualSiswaNama" required placeholder="Nama lengkap murid" class="w-full bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none">
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1361,7 +1361,7 @@
 <div id="modalAddViolation" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-rose-700 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Catat Pelanggaran Santri</h3>
+      <h3 class="font-bold text-sm">Catat Pelanggaran Murid</h3>
       <button onclick="closeAddViolationModal()" class="text-white hover:text-rose-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <form onsubmit="handleSaveViolation(event)" class="p-6 space-y-3 text-xs">
@@ -1370,7 +1370,7 @@
                         <select id="violationClassSelect" onchange="filterViolationStudentsByClass()" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl mb-3 font-semibold text-slate-700"></select>
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+                        <label class="block font-bold text-slate-600 mb-1">Pilih Murid*</label>
                         <select id="violationSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
                     </div>
       <div>
@@ -1403,12 +1403,12 @@
 <div id="modalAddPrestasi" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Catat Prestasi Santri</h3>
+      <h3 class="font-bold text-sm">Catat Prestasi Murid</h3>
       <button onclick="closeAddPrestasiModal()" class="text-white hover:text-purple-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <form onsubmit="handleSavePrestasi(event)" class="p-6 space-y-3 text-xs">
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+        <label class="block font-bold text-slate-600 mb-1">Pilih Murid*</label>
         <select id="prestasiSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
       </div>
       <div>
@@ -1459,12 +1459,12 @@
 <div id="modalAddIzin" class="fixed inset-0 z-50 bg-brand-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-100">
     <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Penerbitan Surat Izin Santri</h3>
+      <h3 class="font-bold text-sm">Penerbitan Surat Izin Murid</h3>
       <button onclick="closeAddIzinModal()" class="text-white hover:text-purple-200"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <form onsubmit="handleSaveIzin(event)" class="p-6 space-y-3 text-xs">
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Pilih Santri*</label>
+        <label class="block font-bold text-slate-600 mb-1">Pilih Murid*</label>
         <select id="izinSiswaSelect" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
       </div>
       <div>
@@ -1879,7 +1879,7 @@ window.downloadExcelTemplate = function() {
 
 window.deleteStudent = function(studentId) {
   const s = appState.students.find(function(x) { return x.id === studentId; });
-  const name = s ? s.nama : 'santri';
+  const name = s ? s.nama : 'murid';
   appState.students = appState.students.filter(function(x) { return x.id !== studentId; });
   savePersistedData();
   renderStudentTable();
@@ -1908,7 +1908,7 @@ function renderStudentTable() {
 
   if (filtered.length === 0) {
     tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada data siswa yang cocok. Klik tombol <strong>+ Tambah Siswa</strong> atau <strong>Upload Excel</strong>.</td></tr>';
-    document.getElementById('studentCountInfo').innerText = 'Menampilkan 0 dari ' + appState.students.length + ' santri';
+    document.getElementById('studentCountInfo').innerText = 'Menampilkan 0 dari ' + appState.students.length + ' murid';
     return;
   }
 
@@ -1926,7 +1926,7 @@ function renderStudentTable() {
     '</tr>';
   }).join('');
 
-  document.getElementById('studentCountInfo').innerText = 'Menampilkan ' + filtered.length + ' dari ' + appState.students.length + ' santri';
+  document.getElementById('studentCountInfo').innerText = 'Menampilkan ' + filtered.length + ' dari ' + appState.students.length + ' murid';
 }
 
 window.resetSiswaFilter = function() {
@@ -2275,7 +2275,7 @@ const classSelect = document.getElementById('attendanceClassSelect');
   let hadir = 0, sakit = 0, izin = 0, alfa = 0;
 
   if (studentsInClass.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada santri di Kelas ' + kelas + '. Tambahkan siswa terlebih dahulu.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada murid di Kelas ' + kelas + '. Tambahkan siswa terlebih dahulu.</td></tr>';
     document.getElementById('absensiSummaryBadge').innerText = '0 Hadir • 0 Sakit • 0 Izin';
     return;
   }
@@ -2407,7 +2407,7 @@ window.saveAttendanceRecord = function() {
             }
         });
 
-        console.log('Jumlah santri kelas terkirim:', recordsToSend.length);
+        console.log('Jumlah murid kelas terkirim:', recordsToSend.length);
 
         if (recordsToSend.length > 0) {
             const scriptURL = 'https://script.google.com/macros/s/AKfycbzOGd8GEsB0T8huNsEbs6EtYk5MOBCR9YH1N5_W4t8kXiezqe-FZIWQA_6TORZU5-4h/exec';
@@ -2527,7 +2527,7 @@ const dateInput = document.getElementById('attendanceDate') || document.querySel
         logoEl.src = activeLogo.src;
     }
 
-    const santriList = (appState.students || appState.santri || []).filter(function(s) {
+    const muridList = (appState.students || appState.murid || []).filter(function(s) {
         const sKelas = (s.kelas || s.rombel || '').replace(/^Kelas\s+/i, '').trim();
         return !cleanClass || sKelas === cleanClass || (s.kelas || s.rombel) === rawClass;
     });
@@ -2535,10 +2535,10 @@ const dateInput = document.getElementById('attendanceDate') || document.querySel
     const records = appState.attendanceRecords || {};
     let rowsHtml = '';
 
-    if (santriList.length === 0) {
-        rowsHtml = '<tr><td colspan="9" class="py-4 text-center text-slate-400">Tidak ada data santri untuk kelas ini.</td></tr>';
+    if (muridList.length === 0) {
+        rowsHtml = '<tr><td colspan="9" class="py-4 text-center text-slate-400">Tidak ada data murid untuk kelas ini.</td></tr>';
     } else {
-        santriList.forEach(function(s, idx) {
+        muridList.forEach(function(s, idx) {
             let h = 0, sakit = 0, iz = 0, a = 0;
             let notes = [];
 
@@ -2650,14 +2650,14 @@ const dateInput = document.getElementById('attendanceDate') || document.querySel
 
     htmlContent += '<div class="kop-line"></div>';
     htmlContent += '<div class="doc-title">';
-    htmlContent += '<h4>REKAPITULASI PRESENSI & KEHADIRAN SANTRI</h4>';
+    htmlContent += '<h4>REKAPITULASI PRESENSI & KEHADIRAN MURID</h4>';
     htmlContent += '<p style="margin: 2px 0 0 0; font-size: 9.5pt; font-weight: bold;">Kelas: ' + cleanClass + ' | Semester Ganjil TA 2026/2027</p>';
     htmlContent += '<p style="margin: 3px 0 0 0; font-size: 9pt; font-weight: normal; color: #333;">Tanggal Presensi: ' + tglPresensiStr + '</p>';
     htmlContent += '</div>';
 
     htmlContent += '<table class="data-table"><thead><tr>';
     htmlContent += '<th style="width: 35px;">No</th>';
-    htmlContent += '<th style="width: 220px; text-align: left; padding-left: 8px;">Nama Santri</th>';
+    htmlContent += '<th style="width: 220px; text-align: left; padding-left: 8px;">Nama Murid</th>';
     htmlContent += '<th style="width: 90px;">NIS</th>';
     htmlContent += '<th style="width: 50px;">Hadir (H)</th>';
     htmlContent += '<th style="width: 50px;">Sakit (S)</th>';
@@ -2706,7 +2706,7 @@ function renderKelasGrid(lvl) {
     return '<div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm hover:shadow-md transition">' +
       '<div class="flex items-center justify-between mb-3">' +
         '<span class="w-10 h-10 rounded-xl bg-purple-100 text-brand-800 font-black flex items-center justify-center text-sm">' + c + '</span>' +
-        '<span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">' + count + ' Santri</span>' +
+        '<span class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">' + count + ' Murid</span>' +
       '</div>' +
       '<h4 class="font-bold text-slate-800 text-sm">Kelas ' + c + '</h4>' +
       '<p class="text-[11px] text-slate-400 mt-0.5">Wali: Ust./Usth. Pengampu</p>' +
@@ -2745,12 +2745,12 @@ function renderViolationDashboard() {
     const totalPoin = list.reduce(function(acc, v) { return acc + (parseInt(v.poin || v.points, 10) || 0); }, 0);
 
     const elTotal = document.getElementById('violationStatTotal');
-    const elSantri = document.getElementById('violationStatSantri');
+    const elMurid = document.getElementById('violationStatMurid');
     const elPoin = document.getElementById('violationStatPoin');
     const container = document.getElementById('violationBarChartContainer');
 
     if (elTotal) elTotal.innerText = totalKasus;
-    if (elSantri) elSantri.innerText = uniqueStudents;
+    if (elMurid) elMurid.innerText = uniqueStudents;
     if (elPoin) elPoin.innerText = totalPoin;
 
     if (!container) return;
@@ -2882,9 +2882,9 @@ function printSuratPanggilan(index) {
     '</table>' +
     '<p style="font-size:14px;">Kepada Yth.<br><b>Bapak / Ibu Orang Tua / Wali dari ' + (v.studentName || '-') + '</b><br>di Tempat</p>' +
     '<p style="font-size:14px;"><i>Assalamu’alaikum Warahmatullahi Wabarakatuh,</i></p>' +
-    '<p style="font-size:14px; line-height:1.5;">Sehubungan dengan pembinaan kedisiplinan santri di SDIT Alia Nurul Jihadi, kami mengharap kehadiran Bapak/Ibu untuk bermusyawarah terkait perkembangan ananda:</p>' +
+    '<p style="font-size:14px; line-height:1.5;">Sehubungan dengan pembinaan kedisiplinan murid di SDIT Alia Nurul Jihadi, kami mengharap kehadiran Bapak/Ibu untuk bermusyawarah terkait perkembangan ananda:</p>' +
     '<table class="table-data">' +
-      '<tr><td><b>Nama Santri</b></td><td>:</td><td><b>' + (v.studentName || '-') + '</b></td></tr>' +
+      '<tr><td><b>Nama Murid</b></td><td>:</td><td><b>' + (v.studentName || '-') + '</b></td></tr>' +
       '<tr><td><b>Kelas</b></td><td>:</td><td>' + (v.kelas || v.className || '-') + '</td></tr>' +
       '<tr><td><b>Pelanggaran</b></td><td>:</td><td style="color:red; font-weight:bold;">' + (v.bentuk || v.violationType || '-') + '</td></tr>' +
       '<tr><td><b>Poin</b></td><td>:</td><td><b>' + (v.poin || v.points || 0) + ' Poin</b></td></tr>' +
@@ -2955,7 +2955,7 @@ function printRekapPelanggaran() {
       '<div class="al">Tangerang - Banten Telp./Fax. (021) 5420.4541</div>' +
       '<div class="ak">Terakreditasi A</div>' +
     '</div>' +
-    '<h3 style="text-align:center; margin-bottom:10px;">REKAPITULASI PELANGGARAN & KEDISIPLINAN SANTRI</h3>' +
+    '<h3 style="text-align:center; margin-bottom:10px;">REKAPITULASI PELANGGARAN & KEDISIPLINAN MURID</h3>' +
     '<table><thead><tr><th>No</th><th>Tanggal</th><th>Nama Siswa</th><th>Kelas</th><th>Bentuk Pelanggaran</th><th>Poin</th><th>Tindak Lanjut</th><th>Status</th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>' +
     '</body></html>';
@@ -2966,7 +2966,7 @@ function printRekapPelanggaran() {
   setTimeout(function() { w.print(); }, 500);
 }
 
-// Fungsi filter nama santri berdasarkan kelas yang dipilih
+// Fungsi filter nama murid berdasarkan kelas yang dipilih
 window.filterViolationStudentsByClass = function() {
     const classSelect = document.getElementById('violationClassSelect');
     const siswaSelect = document.getElementById('violationSiswaSelect');
@@ -2982,7 +2982,7 @@ window.filterViolationStudentsByClass = function() {
             return '<option value="' + s.id + '">' + s.nama + ' - NIS: ' + (s.nis || '-') + '</option>';
         }).join('');
     } else {
-        siswaSelect.innerHTML = '<option value="">(Tidak ada santri di kelas ini)</option>';
+        siswaSelect.innerHTML = '<option value="">(Tidak ada murid di kelas ini)</option>';
     }
 };
 
@@ -2999,7 +2999,7 @@ window.openAddViolationModal = function() {
                 return '<option value="' + k + '">Kelas ' + k + '</option>';
             }).join('');
             
-            // Otomatis filter santri untuk kelas pertama
+            // Otomatis filter murid untuk kelas pertama
             window.filterViolationStudentsByClass();
         }
     }
@@ -3016,7 +3016,7 @@ window.handleSaveViolation = function(e) {
   appState.violations.unshift({
     id: Date.now(),
     date: document.getElementById('violationTanggal').value,
-    studentName: st ? st.nama : 'Santri',
+    studentName: st ? st.nama : 'Murid',
     kelas: st ? st.kelas : '1A',
     bentuk: document.getElementById('violationBentuk').value,
     poin: parseInt(document.getElementById('violationPoin').value, 10) || 5,
@@ -3026,7 +3026,7 @@ window.handleSaveViolation = function(e) {
   savePersistedData();
   renderViolations();
   window.closeAddViolationModal();
-  window.showToast('Pelanggaran santri berhasil dicatat!');
+  window.showToast('Pelanggaran murid berhasil dicatat!');
 };
 window.deleteViolationRecord = function(id) {
     if (confirm('Apakah Anda yakin ingin menghapus catatan pelanggaran ini?')) {
@@ -3094,7 +3094,7 @@ const actionBtn = isAdm ?
             '<h4 class="font-bold text-slate-800 text-sm leading-snug break-words">' + p.judul + '</h4>' +
           '</div>' +
         '</div>' +
-        '<p class="text-xs text-slate-600">Santri: <strong class="text-slate-800">' + p.studentName + '</strong> (' + p.kelas + ')</p>' +
+        '<p class="text-xs text-slate-600">Murid: <strong class="text-slate-800">' + p.studentName + '</strong> (' + p.kelas + ')</p>' +
         '<div class="mt-1 flex flex-wrap gap-1">' + periodeBadge + pelatihBadge + '</div>' +
       '</div>' +
       actionBtn +
@@ -3118,7 +3118,7 @@ window.openEditPrestasiModal = function(id) {
     if (form) form.dataset.editId = id;
     
     const sId = document.getElementById('prestasiSiswaSelect');
-    if (sId) sId.value = item.studentId || item.santriId || '';
+    if (sId) sId.value = item.studentId || item.muridId || '';
     
     const jdl = document.getElementById('prestasiJudul') || document.querySelector('input[name="judul"]');
     if (jdl) jdl.value = item.judul || '';
@@ -3151,7 +3151,7 @@ window.handleSavePrestasi = function(e) {
   appState.prestasi.unshift({
     id: Date.now(),
     studentId: sId,
-    studentName: st ? st.nama : 'Santri',
+    studentName: st ? st.nama : 'Murid',
     nis: st ? (st.nis || '-') : '-',
     kelas: st ? st.kelas : '1A',
     judul: judulVal,
@@ -3170,7 +3170,7 @@ window.handleSavePrestasi = function(e) {
   if (document.getElementById('prestasiPeriode')) document.getElementById('prestasiPeriode').value = '';
   if (document.getElementById('prestasiPelatih')) document.getElementById('prestasiPelatih').value = '';
 
-  window.showToast('Prestasi santri berhasil dicatat!');
+  window.showToast('Prestasi murid berhasil dicatat!');
 };
 function renderPerizinan() {
   const tb = document.getElementById('izinTableBody');
@@ -3261,19 +3261,19 @@ window.cetakSuratIzin = function(noSurat) {
 
     '</div>' +
     '<div class="judul">' +
-      '<h3>SURAT KETERANGAN IZIN / DISPENSASI SANTRI</h3>' +
+      '<h3>SURAT KETERANGAN IZIN / DISPENSASI MURID</h3>' +
       '<p>Nomor: <strong>' + (iz.noSurat || '-') + '</strong></p>' +
     '</div>' +
     '<p style="font-size:14px;"><i>Assalamu’alaikum Warahmatullahi Wabarakatuh,</i></p>' +
-    '<p style="font-size:14px;">Yang bertanda tangan di bawah ini Bidang Kesiswaan SDIT Alia Nurul Jihadi menerangkan bahwa santri tersebut di bawah ini:</p>' +
+    '<p style="font-size:14px;">Yang bertanda tangan di bawah ini Bidang Kesiswaan SDIT Alia Nurul Jihadi menerangkan bahwa murid tersebut di bawah ini:</p>' +
     '<table class="table-data">' +
-      '<tr><td style="width:160px;">Nama Santri</td><td style="width:15px;">:</td><td><strong>' + (iz.studentName || '-') + '</strong></td></tr>' +
+      '<tr><td style="width:160px;">Nama Murid</td><td style="width:15px;">:</td><td><strong>' + (iz.studentName || '-') + '</strong></td></tr>' +
       '<tr><td>Kelas</td><td>:</td><td><strong>' + (iz.kelas || '-') + '</strong></td></tr>' +
       '<tr><td>Jenis Perizinan</td><td>:</td><td>' + (iz.jenis || '-') + '</td></tr>' +
       '<tr><td>Tanggal / Durasi</td><td>:</td><td>' + (iz.tanggal || '-') + '</td></tr>' +
       '<tr><td>Status Validasi</td><td>:</td><td>' + (iz.status || '-') + '</td></tr>' +
     '</table>' +
-    '<p style="font-size:14px;">Demikian surat keterangan izin / dispensasi ini diterbitkan untuk dipergunakan sebagaimana mestinya (termasuk sebagai bukti izin meninggalkan lingkungan sekolah apabila santri pulang lebih awal).</p>' +
+    '<p style="font-size:14px;">Demikian surat keterangan izin / dispensasi ini diterbitkan untuk dipergunakan sebagaimana mestinya (termasuk sebagai bukti izin meninggalkan lingkungan sekolah apabila murid pulang lebih awal).</p>' +
     '<p style="font-size:14px;"><i>Wassalamu’alaikum Warahmatullahi Wabarakatuh.</i></p>' +
     '<div class="ttd">' +
       '<div class="ttd-box">' +
@@ -3396,7 +3396,7 @@ window.handleSaveIzin = function(e) {
   appState.perizinan.unshift({
     id: Date.now(),
     noSurat: 'IZN/' + year + '/' + month + '/' + num,
-    studentName: st ? st.nama : 'Santri',
+    studentName: st ? st.nama : 'Murid',
     kelas: st ? st.kelas : '1A',
     jenis: document.getElementById('izinJenis').value,
     tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
@@ -3405,7 +3405,7 @@ window.handleSaveIzin = function(e) {
   savePersistedData();
   renderPerizinan();
   window.closeAddIzinModal();
-  window.showToast('Surat izin santri berhasil dibuat!');
+  window.showToast('Surat izin murid berhasil dibuat!');
 };
 
 function renderBK() {
@@ -3430,14 +3430,14 @@ window.handleNewBKNote = function(e) {
   appState.bkList.unshift({
     id: Date.now(),
     date: new Date().toLocaleDateString('id-ID'),
-    studentName: st ? st.nama : 'Santri',
+    studentName: st ? st.nama : 'Murid',
     konselor: document.getElementById('bkKonselor').value,
     catatan: document.getElementById('bkCatatanText').value
   });
   savePersistedData();
   renderBK();
   document.getElementById('bkCatatanText').value = '';
-  window.showToast('Rekam konseling santri tersimpan.');
+  window.showToast('Rekam konseling murid tersimpan.');
 };
 
 
@@ -3612,7 +3612,7 @@ window.handleRestoreBackup = function(e) {
 window.exportToExcel = function() {
   const wb = XLSX.utils.book_new();
 
-  // SHEET 1: REKAPITULASI KEHADIRAN SANTRI
+  // SHEET 1: REKAPITULASI KEHADIRAN MURID
   const sheetKehadiran = [
     { Periode: 'September 2026 - Minggu 1', 'Rata-rata Hadir (%)': 96.5 },
     { Periode: 'September 2026 - Minggu 2', 'Rata-rata Hadir (%)': 95.8 },
@@ -3747,9 +3747,9 @@ function updateDashboardStats() {
   document.getElementById('dashCountP').innerText = countP + ' (' + (total ? Math.round(countP / total * 100) : 0) + '%)';
 
   document.getElementById('dashTotalStudentsStatus').innerText = total;
-  document.getElementById('dashCountAktif').innerText = aktif + ' santri';
-  document.getElementById('dashCountPindah').innerText = pindah + ' santri';
-  document.getElementById('dashCountLulus').innerText = lulus + ' santri';
+  document.getElementById('dashCountAktif').innerText = aktif + ' murid';
+  document.getElementById('dashCountPindah').innerText = pindah + ' murid';
+  document.getElementById('dashCountLulus').innerText = lulus + ' murid';
 }
 
 
@@ -4316,7 +4316,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
       <div class="bg-brand-800 text-white p-4 px-6 flex justify-between items-center flex-shrink-0">
         <div class="flex items-center space-x-2">
           <i class="fa-solid fa-award text-amber-300 text-lg"></i>
-          <h3 class="font-bold text-sm sm:text-base">Cetak Piagam Penghargaan Santri</h3>
+          <h3 class="font-bold text-sm sm:text-base">Cetak Piagam Penghargaan Murid</h3>
         </div>
         <button onclick="window.closeCertificateModal()" class="text-white/80 hover:text-white transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
@@ -4375,7 +4375,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
               <input type="text" id="certCustomFont" placeholder="Ketik nama font di PC..." oninput="window.updateCertTypography()" class="border border-purple-200 rounded-md px-2 py-1 bg-white text-xs w-40 text-slate-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
             </div>
 
-            <!-- Pengatur Ukuran Nama Santri -->
+            <!-- Pengatur Ukuran Nama Murid -->
             <div class="flex items-center gap-1.5 ml-2">
               <i class="fa-solid fa-text-height text-slate-500"></i>
               <label class="font-bold text-slate-700">Ukuran Nama:</label>
@@ -4605,7 +4605,7 @@ const activeFrame = window.selectedCertFrame || 'none';
 
 '<div style="text-align: center; margin: 4px 0;">' +
                 '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
-                '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + luxuryConfig.accent + '; text-underline-offset: 4px;">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
+                '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + luxuryConfig.accent + '; text-underline-offset: 4px;">' + (p.namaMurid || 'Nama Murid') + '</h3>' +
                 '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
               '</div>' +
 
@@ -4687,7 +4687,7 @@ return;
 
         '<div style="text-align: center; margin: 18px 0;">' +
           '<p style="font-size: 12px; color: #334155; margin: 0 0 4px 0;">Diberikan dengan rasa bangga dan apresiasi setinggi-tingginya kepada:</p>' +
-          '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + borderColor + ';">' + (p.namaSantri || 'Nama Santri') + '</h3>' +
+          '<h3 style="font-size: ' + activeNameSize + 'px; font-weight: 900; color: #0f172a; margin: 6px 0; text-decoration: underline; text-decoration-color: ' + borderColor + ';">' + (p.namaMurid || 'Nama Murid') + '</h3>' +
           '<p style="font-size: 11px; font-weight: 600; color: #475569; margin: 0;">' + nisText + 'Kelas: ' + (p.kelas || '-') + '</p>' +
         '</div>' +
 
@@ -4722,7 +4722,7 @@ window.printCertificateDoc = function() {
     if (!content) return;
 
     const printWindow = window.open('', '_blank', 'width=950,height=700');
-    printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Santri') + '</title>');
+    printWindow.document.write('<!DOCTYPE html><html><head><title>Piagam Penghargaan - ' + (window.currentCertData ? window.currentCertData.studentName : 'Murid') + '</title>');
       printWindow.document.write('<style>');
       printWindow.document.write('@page { size: landscape; margin: 10mm; }');
       printWindow.document.write('body { margin: 0; padding: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: ui-sans-serif, system-ui, sans-serif; display: flex; justify-content: center; align-items: center; }');
