@@ -899,6 +899,94 @@
           <tbody id="izinTableBody" class="divide-y divide-purple-50"></tbody>
         </table>
       </div>
+            <!-- REKAPITULASI PERIZINAN & DISPENSASI SANTRI -->
+  <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-purple-50 pb-4">
+      <div>
+        <h3 class="text-base font-black text-slate-800">Rekapitulasi Perizinan &amp; Dispensasi Santri</h3>
+        <p class="text-xs text-slate-500">Pantau total jumlah siswa yang izin dan riwayat penerbitan surat izin/pulang cepat.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="filterRekapIzinKelas" onchange="renderRekapPerizinan()" class="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-xl text-xs font-bold text-brand-900">
+          <option value="ALL">Semua Kelas</option>
+        </select>
+        <select id="filterRekapIzinJenis" onchange="renderRekapPerizinan()" class="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-xl text-xs font-bold text-brand-900">
+          <option value="ALL">Semua Jenis</option>
+          <option value="Sakit">Sakit</option>
+          <option value="Izin">Izin / Pulang Cepat</option>
+          <option value="Dispensasi">Dispensasi</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Kartu Ringkasan Angka -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="p-3.5 rounded-xl bg-purple-50/70 border border-purple-100">
+        <p class="text-[11px] font-bold text-slate-500 uppercase">Total Surat Izin</p>
+        <p id="statIzinTotal" class="text-2xl font-black text-brand-900 mt-1">0</p>
+      </div>
+      <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-100">
+        <p class="text-[11px] font-bold text-amber-700 uppercase">Izin Sakit</p>
+        <p id="statIzinSakit" class="text-2xl font-black text-amber-800 mt-1">0</p>
+      </div>
+      <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-100">
+        <p class="text-[11px] font-bold text-sky-700 uppercase">Izin / Pulang Cepat</p>
+        <p id="statIzinKeperluan" class="text-2xl font-black text-sky-800 mt-1">0</p>
+      </div>
+      <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
+        <p class="text-[11px] font-bold text-emerald-700 uppercase">Dispensasi</p>
+        <p id="statIzinDispensasi" class="text-2xl font-black text-emerald-800 mt-1">0</p>
+      </div>
+    </div>
+
+    <!-- Tab Mode Tampilan Tabel -->
+    <div class="flex space-x-2 border-b border-slate-100 pb-2">
+      <button id="btnTabRekapSiswa" onclick="switchRekapIzinTab('siswa')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-brand-800 text-white transition">
+        Rekap per Siswa (Siapa Saja yang Izin)
+      </button>
+      <button id="btnTabRekapLog" onclick="switchRekapIzinTab('log')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-purple-50 transition">
+        Log Rincian Surat (Kronologis)
+      </button>
+    </div>
+
+    <!-- Tabel A: Rekap per Siswa -->
+    <div id="panelRekapIzinSiswa" class="overflow-x-auto rounded-xl border border-purple-100">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-purple-50/80 text-brand-950 font-bold uppercase tracking-wider text-[11px]">
+          <tr>
+            <th class="py-3 px-4">No</th>
+            <th class="py-3 px-4">Nama Siswa</th>
+            <th class="py-3 px-4">Kelas</th>
+            <th class="py-3 px-4 text-center">Sakit</th>
+            <th class="py-3 px-4 text-center">Izin / Pulang</th>
+            <th class="py-3 px-4 text-center">Dispensasi</th>
+            <th class="py-3 px-4 text-center">Total Izin</th>
+            <th class="py-3 px-4">Terakhir Izin</th>
+          </tr>
+        </thead>
+        <tbody id="rekapIzinSiswaBody" class="divide-y divide-purple-50"></tbody>
+      </table>
+    </div>
+
+    <!-- Tabel B: Log Rincian Surat -->
+    <div id="panelRekapIzinLog" class="hidden overflow-x-auto rounded-xl border border-purple-100">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-purple-50/80 text-brand-950 font-bold uppercase tracking-wider text-[11px]">
+          <tr>
+            <th class="py-3 px-4">No. Surat</th>
+            <th class="py-3 px-4">Tanggal</th>
+            <th class="py-3 px-4">Nama Siswa</th>
+            <th class="py-3 px-4">Kelas</th>
+            <th class="py-3 px-4">Jenis</th>
+            <th class="py-3 px-4">Status</th>
+            <th class="py-3 px-4 text-right">Cetak</th>
+          </tr>
+        </thead>
+        <tbody id="rekapIzinLogBody" class="divide-y divide-purple-50"></tbody>
+      </table>
+    </div>
+  </div>
+
     </section>
 
     <section id="view-bk" class="view-panel space-y-6 hidden">
@@ -1013,93 +1101,6 @@
           <canvas id="monthlyAttendanceChart"></canvas>
         </div>
       </div>
-      <!-- REKAPITULASI PERIZINAN & DISPENSASI SANTRI -->
-  <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm space-y-5">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-purple-50 pb-4">
-      <div>
-        <h3 class="text-base font-black text-slate-800">Rekapitulasi Perizinan &amp; Dispensasi Santri</h3>
-        <p class="text-xs text-slate-500">Pantau total jumlah siswa yang izin dan riwayat penerbitan surat izin/pulang cepat.</p>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <select id="filterRekapIzinKelas" onchange="renderRekapPerizinan()" class="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-xl text-xs font-bold text-brand-900">
-          <option value="ALL">Semua Kelas</option>
-        </select>
-        <select id="filterRekapIzinJenis" onchange="renderRekapPerizinan()" class="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-xl text-xs font-bold text-brand-900">
-          <option value="ALL">Semua Jenis</option>
-          <option value="Sakit">Sakit</option>
-          <option value="Izin">Izin / Pulang Cepat</option>
-          <option value="Dispensasi">Dispensasi</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Kartu Ringkasan Angka -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div class="p-3.5 rounded-xl bg-purple-50/70 border border-purple-100">
-        <p class="text-[11px] font-bold text-slate-500 uppercase">Total Surat Izin</p>
-        <p id="statIzinTotal" class="text-2xl font-black text-brand-900 mt-1">0</p>
-      </div>
-      <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-100">
-        <p class="text-[11px] font-bold text-amber-700 uppercase">Izin Sakit</p>
-        <p id="statIzinSakit" class="text-2xl font-black text-amber-800 mt-1">0</p>
-      </div>
-      <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-100">
-        <p class="text-[11px] font-bold text-sky-700 uppercase">Izin / Pulang Cepat</p>
-        <p id="statIzinKeperluan" class="text-2xl font-black text-sky-800 mt-1">0</p>
-      </div>
-      <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
-        <p class="text-[11px] font-bold text-emerald-700 uppercase">Dispensasi</p>
-        <p id="statIzinDispensasi" class="text-2xl font-black text-emerald-800 mt-1">0</p>
-      </div>
-    </div>
-
-    <!-- Tab Mode Tampilan Tabel -->
-    <div class="flex space-x-2 border-b border-slate-100 pb-2">
-      <button id="btnTabRekapSiswa" onclick="switchRekapIzinTab('siswa')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-brand-800 text-white transition">
-        Rekap per Siswa (Siapa Saja yang Izin)
-      </button>
-      <button id="btnTabRekapLog" onclick="switchRekapIzinTab('log')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-purple-50 transition">
-        Log Rincian Surat (Kronologis)
-      </button>
-    </div>
-
-    <!-- Tabel A: Rekap per Siswa -->
-    <div id="panelRekapIzinSiswa" class="overflow-x-auto rounded-xl border border-purple-100">
-      <table class="w-full text-left text-xs text-slate-600">
-        <thead class="bg-purple-50/80 text-brand-950 font-bold uppercase tracking-wider text-[11px]">
-          <tr>
-            <th class="py-3 px-4">No</th>
-            <th class="py-3 px-4">Nama Siswa</th>
-            <th class="py-3 px-4">Kelas</th>
-            <th class="py-3 px-4 text-center">Sakit</th>
-            <th class="py-3 px-4 text-center">Izin / Pulang</th>
-            <th class="py-3 px-4 text-center">Dispensasi</th>
-            <th class="py-3 px-4 text-center">Total Izin</th>
-            <th class="py-3 px-4">Terakhir Izin</th>
-          </tr>
-        </thead>
-        <tbody id="rekapIzinSiswaBody" class="divide-y divide-purple-50"></tbody>
-      </table>
-    </div>
-
-    <!-- Tabel B: Log Rincian Surat -->
-    <div id="panelRekapIzinLog" class="hidden overflow-x-auto rounded-xl border border-purple-100">
-      <table class="w-full text-left text-xs text-slate-600">
-        <thead class="bg-purple-50/80 text-brand-950 font-bold uppercase tracking-wider text-[11px]">
-          <tr>
-            <th class="py-3 px-4">No. Surat</th>
-            <th class="py-3 px-4">Tanggal</th>
-            <th class="py-3 px-4">Nama Siswa</th>
-            <th class="py-3 px-4">Kelas</th>
-            <th class="py-3 px-4">Jenis</th>
-            <th class="py-3 px-4">Status</th>
-            <th class="py-3 px-4 text-right">Cetak</th>
-          </tr>
-        </thead>
-        <tbody id="rekapIzinLogBody" class="divide-y divide-purple-50"></tbody>
-      </table>
-    </div>
-  </div>
     </section>
 
     <section id="view-pengaturan" class="view-panel space-y-6 hidden">
