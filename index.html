@@ -1922,7 +1922,7 @@ function renderStudentTable() {
       '<td class="py-3 px-4 text-center"><span class="inline-block w-6 h-6 rounded-full text-[10px] font-bold leading-6 ' + (s.jk === 'L' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700') + '">' + s.jk + '</span></td>' +
       '<td class="py-3 px-4 text-slate-500 truncate max-w-xs">' + s.alamat + '</td>' +
       '<td class="py-3 px-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ' + (s.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600') + '">' + s.status + '</span></td>' +
-      '<td class="py-3 px-4 text-center"><button onclick="deleteStudent(' + s.id + ')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Hapus Siswa"><i class="fa-regular fa-trash-can"></i></button></td>' +
+      '<td class="py-3 px-4 text-center"><button onclick="deleteStudent(' + s.id + ')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Hapus Murid"><i class="fa-regular fa-trash-can"></i></button></td>' +
     '</tr>';
   }).join('');
 
@@ -3699,7 +3699,7 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 function populateStudentSelectOptions() {
-  const selects = ['violationSiswaSelect', 'prestasiSiswaSelect', 'izinSiswaSelect', 'bkSiswaSelect'];
+  const selects = ['violationMuridSelect', 'prestasiMuridSelect', 'izinMuridSelect', 'bkMuridSelect'];
   selects.forEach(function(id) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3736,7 +3736,7 @@ function updateDashboardStats() {
   const pindah = appState.students.filter(function(s) { return s.status === 'Pindah'; }).length;
   const lulus = appState.students.filter(function(s) { return s.status === 'Lulus'; }).length;
 
-  document.getElementById('dashCardTotalSiswa').innerText = total;
+  document.getElementById('dashCardTotalMurid').innerText = total;
   document.getElementById('dashCardHadir').innerText = total > 0 ? Math.max(0, total - 2) : 0;
   document.getElementById('dashCardSakit').innerText = total > 0 ? 1 : 0;
   document.getElementById('dashCardIzin').innerText = total > 0 ? 1 : 0;
@@ -3861,8 +3861,8 @@ window.handleGlobalSearch = function(e) {
   const query = e.target.value.toLowerCase().trim();
   if (!query) return;
   if (e.key === 'Enter') {
-    window.navigateTo('siswa');
-    const input = document.getElementById('siswaSearchInput');
+    window.navigateTo('murid');
+    const input = document.getElementById('muridSearchInput');
     if (input) {
       input.value = query;
       renderStudentTable();
@@ -4274,7 +4274,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
         syncCurrentUserDisplay();
       }
 
-      // Muat ulang data terbaru dari Firestore (Siswa & Pengguna)
+      // Muat ulang data terbaru dari Firestore (Murid & Pengguna)
       try {
         if (typeof window.loadInitialDataFromFirestore === 'function') {
           await window.loadInitialDataFromFirestore();
