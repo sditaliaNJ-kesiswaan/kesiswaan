@@ -1002,24 +1002,89 @@
           <h3 class="text-sm font-bold text-slate-800 mb-3">Agenda & Catatan Konseling</h3>
           <div class="space-y-3 text-xs" id="bkListContainer"></div>
         </div>
-        <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-800 mb-3">Catat Sesi Bimbingan Baru</h3>
-          <form onsubmit="handleNewBKNote(event)" class="space-y-3 text-xs">
+<div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm">
+      <h3 class="text-sm font-bold text-slate-800 mb-3">Catat Sesi Bimbingan Baru</h3>
+      <form onsubmit="handleNewBKNote(event)" class="space-y-3 text-xs">
+        <div class="p-3 bg-purple-50/40 rounded-xl border border-purple-100 space-y-2.5">
+          <p class="text-[11px] font-black text-brand-900 uppercase tracking-wider">I. Identitas Klien & Sesi</p>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Pilih Murid (Nama & Kelas)</label>
+            <select id="bkMuridSelect" class="w-full bg-white border border-purple-100 p-2 rounded-xl"></select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label class="font-bold text-slate-600 block mb-1">Pilih Murid</label>
-              <select id="bkMuridSelect" class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></select>
+              <label class="font-bold text-slate-600 block mb-1">Tanggal Konseling</label>
+              <input type="date" id="bkTanggal" required class="w-full bg-white border border-purple-100 p-2 rounded-xl">
             </div>
             <div>
-              <label class="font-bold text-slate-600 block mb-1">Guru Pembimbing / Konselor</label>
-              <input type="text" id="bkKonselor" value="Ust. Mahmud, S. Pd.I" required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl">
+              <label class="font-bold text-slate-600 block mb-1">Pertemuan Sesi Ke-</label>
+              <select id="bkSesiKe" class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+                <option value="Sesi 1 (Pertemuan Pertama)">Sesi 1 (Pertemuan Pertama)</option>
+                <option value="Sesi 2 (Lanjutan)">Sesi 2 (Lanjutan)</option>
+                <option value="Sesi 3 (Evaluasi)">Sesi 3 (Evaluasi)</option>
+                <option value="Sesi Lanjutan / Khusus">Sesi Lanjutan / Khusus</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="font-bold text-slate-600 block mb-1">Jenis Layanan</label>
+              <select id="bkJenisLayanan" class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+                <option value="Konseling Individu">Konseling Individu</option>
+                <option value="Konseling Kelompok">Konseling Kelompok</option>
+                <option value="Bimbingan Pribadi & Adab">Bimbingan Pribadi & Adab</option>
+                <option value="Bimbingan Belajar">Bimbingan Belajar</option>
+                <option value="Konsultasi Orang Tua / Wali">Konsultasi Orang Tua / Wali</option>
+              </select>
             </div>
             <div>
-              <label class="font-bold text-slate-600 block mb-1">Pokok Bimbingan</label>
-              <textarea id="bkCatatanText" rows="3" placeholder="Tuliskan perkembangan adab & pembinaan murid..." required class="w-full bg-purple-50/50 border border-purple-100 p-2 rounded-xl"></textarea>
+              <label class="font-bold text-slate-600 block mb-1">Konselor / Pembimbing</label>
+              <input type="text" id="bkKonselor" value="Ust. Mahmud, S. Pd.I" required class="w-full bg-white border border-purple-100 p-2 rounded-xl">
             </div>
-            <button type="submit" class="w-full py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-xl shadow transition">Simpan Rekam Konseling</button>
-          </form>
+          </div>
         </div>
+
+        <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
+          <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">II. Analisis & Deskripsi Masalah</p>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Keluhan Utama (Subjective)</label>
+            <textarea id="bkSubjective" rows="2" placeholder="Keluhan atau permasalahan yang disampaikan murid/wali/guru..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Hasil Observasi & Asesmen (Objective)</label>
+            <textarea id="bkObjective" rows="2" placeholder="Kondisi perilaku, emosi, atau fakta yang diamati saat konseling..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Analisis Masalah (Assessment)</label>
+            <textarea id="bkAssessment" rows="2" placeholder="Akar penyebab masalah dan kesimpulan asesmen konselor..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2">
+          <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">III. Intervensi & Penanganan</p>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Rencana Aksi Klien (Action Plan)</label>
+            <textarea id="bkActionPlan" rows="2" placeholder="Langkah konkret yang disepakati bersama murid..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
+          <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">IV. Evaluasi & Tindak Lanjut</p>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Catatan Perkembangan</label>
+            <textarea id="bkPerkembangan" rows="2" placeholder="Respon, pemahaman, dan komitmen murid selama sesi..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 block mb-1">Rekomendasi Tindak Lanjut</label>
+            <textarea id="bkTindakLanjut" rows="2" placeholder="Jadwal follow-up berikutnya atau koordinasi dengan wali kelas/orang tua..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-xl shadow transition">
+          <i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Laporan Sesi Konseling
+        </button>
+      </form>
+    </div>
       </div>
     </section>
 
@@ -3409,16 +3474,37 @@ window.handleSaveIzin = function(e) {
 };
 
 function renderBK() {
+  const tglInput = document.getElementById('bkTanggal');
+  if (tglInput && !tglInput.value) {
+    tglInput.value = new Date().toISOString().split('T')[0];
+  }
   const c = document.getElementById('bkListContainer');
   if (!c) return;
   c.innerHTML = appState.bkList.map(function(b) {
-    return '<div class="p-3.5 bg-purple-50/50 rounded-xl border border-purple-100 space-y-1">' +
-      '<div class="flex justify-between items-center">' +
-        '<strong class="text-slate-800">' + b.studentName + '</strong>' +
-        '<span class="font-mono text-[10px] text-slate-400">' + b.date + '</span>' +
+    const ringkasan = b.subjective || b.catatan || '-';
+    const badgeSesi = b.sesiKe ? '<span class="px-2 py-0.5 bg-purple-100 text-brand-900 rounded font-bold text-[10px]">' + b.sesiKe + '</span>' : '';
+    const badgeLayanan = b.jenisLayanan ? '<span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-bold text-[10px]">' + b.jenisLayanan + '</span>' : '';
+    const infoKelas = b.kelas ? ' (' + b.kelas + ')' : '';
+    return '<div class="p-4 bg-purple-50/40 rounded-xl border border-purple-100 space-y-2">' +
+      '<div class="flex justify-between items-start gap-2">' +
+        '<div>' +
+          '<strong class="text-slate-800 text-sm">' + b.studentName + infoKelas + '</strong>' +
+          '<div class="flex flex-wrap gap-1.5 mt-1">' + badgeSesi + badgeLayanan + '</div>' +
+        '</div>' +
+        '<span class="font-mono text-[11px] text-slate-500 whitespace-nowrap">' + (b.date || '-') + '</span>' +
       '</div>' +
-      '<p class="text-slate-600">' + b.catatan + '</p>' +
-      '<div class="text-[10px] text-brand-700 font-semibold pt-1">Konselor: ' + b.konselor + '</div>' +
+      '<p class="text-slate-600 text-xs leading-relaxed">' + ringkasan + '</p>' +
+      '<div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-purple-100/80">' +
+        '<span class="text-[11px] text-brand-700 font-semibold">Konselor: ' + (b.konselor || '-') + '</span>' +
+        '<div class="flex items-center gap-1.5">' +
+          '<button onclick="cetakLaporanBK(' + b.id + ')" title="Cetak Laporan Sesi Konseling" class="px-2.5 py-1 bg-purple-100 hover:bg-brand-800 text-brand-900 hover:text-white rounded-lg text-[11px] font-bold transition">' +
+            '<i class="fa-solid fa-print mr-1"></i>Print Laporan' +
+          '</button>' +
+          '<button onclick="handleDeleteBK(' + b.id + ')" title="Hapus Catatan BK" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-lg text-[11px] font-bold transition">' +
+            '<i class="fa-solid fa-trash"></i>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
@@ -3427,17 +3513,128 @@ window.handleNewBKNote = function(e) {
   e.preventDefault();
   const sId = parseInt(document.getElementById('bkMuridSelect').value, 10);
   const st = appState.students.find(function(x) { return x.id === sId; });
+  const rawDate = document.getElementById('bkTanggal').value;
+  let formattedDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (rawDate) {
+    const parts = rawDate.split('-');
+    const dtObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    formattedDate = dtObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  const subj = document.getElementById('bkSubjective').value.trim();
+  const obj = document.getElementById('bkObjective').value.trim();
+  const ass = document.getElementById('bkAssessment').value.trim();
+  const act = document.getElementById('bkActionPlan').value.trim();
+  const perk = document.getElementById('bkPerkembangan').value.trim();
+  const tind = document.getElementById('bkTindakLanjut').value.trim();
+
   appState.bkList.unshift({
     id: Date.now(),
-    date: new Date().toLocaleDateString('id-ID'),
+    date: formattedDate,
     studentName: st ? st.nama : 'Murid',
-    konselor: document.getElementById('bkKonselor').value,
-    catatan: document.getElementById('bkCatatanText').value
+    kelas: st ? (st.kelas || '-') : '-',
+    sesiKe: document.getElementById('bkSesiKe').value,
+    jenisLayanan: document.getElementById('bkJenisLayanan').value,
+    konselor: document.getElementById('bkKonselor').value.trim(),
+    subjective: subj,
+    objective: obj,
+    assessment: ass,
+    actionPlan: act,
+    perkembangan: perk,
+    tindakLanjut: tind,
+    catatan: subj
   });
   savePersistedData();
   renderBK();
-  document.getElementById('bkCatatanText').value = '';
-  window.showToast('Rekam konseling murid tersimpan.');
+  ['bkSubjective', 'bkObjective', 'bkAssessment', 'bkActionPlan', 'bkPerkembangan', 'bkTindakLanjut'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  window.showToast('Laporan sesi konseling berhasil disimpan.');
+};
+
+window.handleDeleteBK = function(id) {
+  if (!confirm('Hapus catatan sesi konseling ini?')) return;
+  appState.bkList = appState.bkList.filter(function(x) { return x.id !== id; });
+  savePersistedData();
+  renderBK();
+  window.showToast('Catatan sesi konseling dihapus.');
+};
+
+window.cetakLaporanBK = function(id) {
+  const b = (appState.bkList || []).find(function(item) { return item.id === id; });
+  if (!b) return;
+  const st = (appState.students || []).find(function(s) { return s.nama === b.studentName; });
+  const kelasFinal = b.kelas || (st ? st.kelas : '-');
+  const win = window.open('', '_blank');
+  const html = '<!DOCTYPE html><html><head><title>Laporan Sesi Konseling - ' + (b.studentName || '') + '</title>' +
+    '<style>' +
+    'body { font-family: "Times New Roman", serif; padding: 20px 35px; color: #000; line-height: 1.4; font-size: 13px; }' +
+    '.kop { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 10px; margin-bottom: 16px; }' +
+    '.kop img { position: absolute; left: 10px; top: 0; width: 85px; }' +
+    '.kop .t1 { font-size: 17px; margin: 0; }' +
+    '.kop .brand { font-size: 28px; font-weight: 900; color: #ff0000; margin: 1px 0; letter-spacing: 2px; }' +
+    '.kop .sub { font-size: 14px; font-weight: bold; margin-bottom: 2px; }' +
+    '.kop .iz { font-size: 12px; font-weight: bold; margin: 2px 0; }' +
+    '.kop .al { font-size: 11px; margin: 1px 0; }' +
+    '.judul { text-align: center; margin-bottom: 14px; }' +
+    '.judul h3 { margin: 0; font-size: 15px; letter-spacing: 0.5px; }' +
+    '.judul h4 { margin: 2px 0 0 0; font-size: 14px; text-decoration: underline; }' +
+    '.sec-title { font-weight: bold; background: #f2f2f2; padding: 5px 8px; border: 1px solid #000; border-bottom: none; margin-top: 10px; font-size: 13px; }' +
+    'table.bk-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; }' +
+    'table.bk-tbl td { border: 1px solid #000; padding: 6px 8px; vertical-align: top; }' +
+    'table.bk-tbl td.lbl { width: 34%; font-weight: bold; background: #fafafa; }' +
+    '.ttd-wrap { margin-top: 28px; display: flex; justify-content: flex-end; }' +
+    '.ttd-box { width: 240px; text-align: center; }' +
+    '@media print { @page { size: portrait; margin: 12mm; } }' +
+    '</style></head><body>' +
+    '<div class="kop">' +
+      '<img src="Logo SDIT Transparan HD.png" onerror="this.src=\'Logo.png\'">' +
+      '<div class="t1">Sekolah Dasar Islam Terpadu</div>' +
+      '<div class="brand">ALIA</div>' +
+      '<div class="sub">NURUL JIHADI</div>' +
+      '<div class="iz">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>' +
+      '<div class="al">Perum Dasana Indah Blok SO - RT. 05/016 Kel. Bojong Nangka - Kec. Kelapa Dua</div>' +
+      '<div class="al">Tangerang - Banten Telp./Fax. (021) 5420.4541</div>' +
+    '</div>' +
+    '<div class="judul">' +
+      '<h3>BIMBINGAN DAN KONSELING</h3>' +
+      '<h4>LAPORAN SESI KONSELING</h4>' +
+    '</div>' +
+    '<div class="sec-title">I. IDENTITAS KLIEN &amp; SESI</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Nama Lengkap</td><td><strong>' + (b.studentName || '-') + '</strong></td></tr>' +
+      '<tr><td class="lbl">Kelas</td><td>' + (kelasFinal || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Tanggal Konseling</td><td>' + (b.date || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Pertemuan Sesi Ke-</td><td>' + (b.sesiKe || 'Sesi 1 (Pertemuan Pertama)') + '</td></tr>' +
+      '<tr><td class="lbl">Jenis Layanan</td><td>' + (b.jenisLayanan || 'Konseling Individu') + '</td></tr>' +
+      '<tr><td class="lbl">Konselor / Pembimbing</td><td>' + (b.konselor || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="sec-title">II. ANALISIS &amp; DESKRIPSI MASALAH</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Keluhan Utama (Subjective)</td><td>' + (b.subjective || b.catatan || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Hasil Observasi &amp; Asesmen (Objective)</td><td>' + (b.objective || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Analisis Masalah (Assessment)</td><td>' + (b.assessment || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="sec-title">III. INTERVENSI DAN PENANGANAN KONSELING</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Rencana Aksi Klien (Action Plan)</td><td>' + (b.actionPlan || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="sec-title">IV. EVALUASI DAN TINDAK LANJUT</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Catatan Perkembangan</td><td>' + (b.perkembangan || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Rekomendasi Tindak Lanjut</td><td>' + (b.tindakLanjut || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="ttd-wrap">' +
+      '<div class="ttd-box">' +
+        '<p>Tangerang, ' + (b.date || '................ 2026') + '<br>Konselor / Pembimbing,</p>' +
+        '<br><br><br>' +
+        '<p><strong>( ' + (b.konselor || '________________________') + ' )</strong><br>NIP / NIY. ..............................</p>' +
+      '</div>' +
+    '</div>' +
+    '<script>window.onload = function() { window.print(); };<\/script>' +
+    '</body></html>';
+  win.document.write(html);
+  win.document.close();
 };
 
 
