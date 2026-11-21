@@ -3614,7 +3614,7 @@ window.cetakLaporanBK = function(id) {
     'table.bk-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; }' +
     'table.bk-tbl td { border: 1px solid #000; padding: 6px 8px; vertical-align: top; }' +
     'table.bk-tbl td.lbl { width: 34%; font-weight: bold; background: #fafafa; }' +
-    '.ttd-wrap { margin-top: 28px; display: flex; justify-content: flex-end; }' +
+    '.ttd-wrap { margin-top: 22px; display: flex; justify-content: space-between; align-items: flex-start; page-break-inside: avoid; }' +
     '.ttd-box { width: 240px; text-align: center; }' +
     '@media print { @page { size: portrait; margin: 12mm; } }' +
     '</style></head><body>' +
@@ -3655,14 +3655,18 @@ window.cetakLaporanBK = function(id) {
       '<tr><td class="lbl">Catatan Perkembangan</td><td>' + (b.perkembangan || '-') + '</td></tr>' +
       '<tr><td class="lbl">Rekomendasi Tindak Lanjut</td><td>' + (b.tindakLanjut || '-') + '</td></tr>' +
     '</table>' +
-    '<div class="ttd-wrap">' +
-      '<div class="ttd-box">' +
-        '<p>Tangerang, ' + (b.date || '................ 2026') + '<br>Konselor / Pembimbing,</p>' +
-        '<br><br><br>' +
-        '<p><strong>( ' + (b.konselor || '________________________') + ' )</strong><br>NIP / NIY. ..............................</p>' +
-      '</div>' +
-    '</div>' +
-    '<script>window.onload = function() { window.print(); };<\/script>' +
+'<div class="ttd-wrap">' +
+   '<div class="ttd-box">' +
+     '<p>Mengetahui,<br>Kepala SDIT Alia Nurul Jihadi</p>' +
+     '<br><br><br>' +
+     '<p><strong>( ........................................ )</strong><br>NIP / NIY. ..............................</p>' +
+   '</div>' +
+   '<div class="ttd-box">' +
+     '<p>Tangerang, ' + (b.date || '................ 2026') + '<br>Konselor / Pembimbing,</p>' +
+     '<br><br><br>' +
+     '<p><strong>( ' + (b.konselor || '________________________') + ' )</strong><br>NIP / NIY. ..............................</p>' +
+   '</div>' +
+ '</div>' +    '<script>window.onload = function() { window.print(); };<\/script>' +
     '</body></html>';
   win.document.write(html);
   win.document.close();
