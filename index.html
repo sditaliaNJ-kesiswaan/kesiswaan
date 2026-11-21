@@ -1007,10 +1007,18 @@
       <form onsubmit="handleNewBKNote(event)" class="space-y-3 text-xs">
         <div class="p-3 bg-purple-50/40 rounded-xl border border-purple-100 space-y-2.5">
           <p class="text-[11px] font-black text-brand-900 uppercase tracking-wider">I. Identitas Klien & Sesi</p>
-          <div>
-            <label class="font-bold text-slate-600 block mb-1">Pilih Murid (Nama & Kelas)</label>
-            <select id="bkMuridSelect" class="w-full bg-white border border-purple-100 p-2 rounded-xl"></select>
-          </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+         <div>
+           <label class="font-bold text-slate-600 block mb-1">1. Pilih Kelas</label>
+           <select id="bkKelasSelect" onchange="filterMuridBKByKelas()" class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+             <option value="">-- Semua Kelas --</option>
+           </select>
+         </div>
+         <div>
+           <label class="font-bold text-slate-600 block mb-1">2. Pilih Nama Murid</label>
+           <select id="bkMuridSelect" required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></select>
+         </div>
+       </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <label class="font-bold text-slate-600 block mb-1">Tanggal Konseling</label>
@@ -3473,10 +3481,33 @@ window.handleSaveIzin = function(e) {
   window.showToast('Surat izin murid berhasil dibuat!');
 };
 
+window.filterMuridBKByKelas = function() {
+  const kelasSel = document.getElementById('bkKelasSelect');
+  const muridSel = document.getElementById('bkMuridSelect');
+  if (!kelasSel || !muridSel) return;
+  const selectedKelas = kelasSel.value;
+  const students = appState.students || [];
+  const filtered = selectedKelas
+    ? students.filter(function(s) { return s.kelas === selectedKelas; })
+    : students;
+  muridSel.innerHTML = filtered.map(function(s) {
+    return '<option value="' + s.id + '">' + s.nama + (selectedKelas ? '' : ' (' + (s.kelas || '-') + ')') + ' - NIS: ' + (s.nis || '-') + '</option>';
+  }).join('');
+};
+
 function renderBK() {
   const tglInput = document.getElementById('bkTanggal');
   if (tglInput && !tglInput.value) {
     tglInput.value = new Date().toISOString().split('T')[0];
+  }
+  const kelasSel = document.getElementById('bkKelasSelect');
+  if (kelasSel) {
+    const currentVal = kelasSel.value;
+    const daftarKelas = [...new Set((appState.students || []).map(function(s) { return s.kelas; }).filter(Boolean))].sort();
+    kelasSel.innerHTML = '<option value="">-- Pilih Kelas (25 Rombel) --</option>' +
+      daftarKelas.map(function(k) { return '<option value="' + k + '">' + k + '</option>'; }).join('');
+    if (currentVal && daftarKelas.includes(currentVal)) kelasSel.value = currentVal;
+    filterMuridBKByKelas();
   }
   const c = document.getElementById('bkListContainer');
   if (!c) return;
