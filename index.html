@@ -1047,7 +1047,7 @@
             </div>
             <div>
               <label class="font-bold text-slate-600 block mb-1">Konselor / Pembimbing</label>
-              <input type="text" id="bkKonselor" value="Ust. Mahmud, S. Pd.I" required class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+<input type="text" id="bkKonselor" placeholder="Nama Konselor / Pembimbing" required class="w-full bg-white border border-purple-100 p-2 rounded-xl">
             </div>
           </div>
         </div>
@@ -3741,7 +3741,7 @@ function getOfficialsConfig() {
     appState.officials = {
       kepsek: { nama: '', nip: '', ttd: '' },
       kesiswaan: { nama: '', nip: '', ttd: '' },
-      konselor: { nama: 'Ust. Mahmud, S. Pd.I', nip: '', ttd: '' }
+konselor: { nama: '', nip: '', ttd: '' }
     };
   }
   return appState.officials;
@@ -3774,9 +3774,9 @@ function renderOfficialsSettings() {
       }
     }
   });
-  const bkKonselorInput = document.getElementById('bkKonselor');
-  if (bkKonselorInput && off.konselor && off.konselor.nama) {
-    bkKonselorInput.value = off.konselor.nama;
+const bkKonselorInput = document.getElementById('bkKonselor');
+  if (bkKonselorInput) {
+    bkKonselorInput.value = (off.konselor && off.konselor.nama) ? off.konselor.nama : '';
   }
 }
 
