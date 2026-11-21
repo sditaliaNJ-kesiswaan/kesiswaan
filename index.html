@@ -1281,6 +1281,70 @@
           </form>
         </div>
       </div>
+      <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm space-y-5">
+    <div class="border-b border-purple-50 pb-3 flex flex-wrap justify-between items-center gap-2">
+      <div>
+        <h3 class="text-sm font-bold text-slate-800">Pejabat Sekolah &amp; Tanda Tangan Digital</h3>
+        <p class="text-[11px] text-slate-500">Otomatis muncul pada cetak laporan BK, surat perizinan, dan dokumen resmi.</p>
+      </div>
+      <button type="button" onclick="simpanPengaturanPejabat()" class="px-4 py-2 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow transition">
+        <i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Data Pejabat
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <!-- 1. Kepala Sekolah -->
+      <div class="p-4 bg-purple-50/40 rounded-xl border border-purple-100 space-y-2.5">
+        <p class="font-black text-brand-900 uppercase text-[11px] tracking-wider">1. Kepala Sekolah</p>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Nama Lengkap &amp; Gelar</label>
+          <input type="text" id="setKepsekNama" placeholder="Contoh: Drs. H. Ahmad, M.Pd." class="w-full bg-white border border-purple-100 p-2 rounded-xl font-semibold">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">NIP / NIY</label>
+          <input type="text" id="setKepsekNip" placeholder="Contoh: 19750101 200501 1 001" class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Tanda Tangan (PNG/JPG)</label>
+          <div class="h-16 bg-white border border-dashed border-purple-200 rounded-xl flex items-center justify-center overflow-hidden mb-1.5 p-1">
+            <img id="prevTtdKepsek" src="" alt="Belum ada TTD" class="max-h-14 object-contain hidden">
+            <span id="txtTtdKepsek" class="text-[10px] text-slate-400">Belum diunggah</span>
+          </div>
+          <div class="flex gap-1.5">
+            <label class="flex-1 text-center py-1.5 bg-purple-100 hover:bg-purple-200 text-brand-900 font-bold rounded-lg cursor-pointer transition">
+              <i class="fa-solid fa-upload mr-1"></i>Unggah
+              <input type="file" accept="image/*" onchange="uploadTtdPejabat(event, 'kepsek')" class="hidden">
+            </label>
+            <button type="button" onclick="hapusTtdPejabat('kepsek')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg transition" title="Hapus TTD">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Bidang Kesiswaan -->
+      <div class="p-4 bg-purple-50/40 rounded-xl border border-purple-100 space-y-2.5">
+        <p class="font-black text-brand-900 uppercase text-[11px] tracking-wider">2. Bidang Kesiswaan</p>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Nama Lengkap &amp; Gelar</label>
+          <input type="text" id="setKesiswaanNama" placeholder="Contoh: Riandy, S.Pd." class="w-full bg-white border border-purple-100 p-2 rounded-xl font-semibold">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">NIP / NIY</label>
+          <input type="text" id="setKesiswaanNip" placeholder="NIP / NIY Kesiswaan" class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Tanda Tangan (PNG/JPG)</label>
+          <div class="h-16 bg-white border border-dashed border-purple-200 rounded-xl flex items-center justify-center overflow-hidden mb-1.5 p-1">
+            <img id="prevTtdKesiswaan" src="" alt="Belum ada TTD" class="max-h-14 object-contain hidden">
+            <span id="txtTtdKesiswaan" class="text-[10px] text-slate-400">Belum diunggah</span>
+          </div>
+          <div class="flex gap-1.5">
+            <label class="flex-1 text-center py-1.5 bg-purple-100 hover:bg-purple-200 text-brand-900 font-bold rounded-lg cursor-pointer transition">
+              <i class="fa-solid fa-upload mr-1"></i>Unggah
+              <input type="file" accept="image/*" onchange="uploadTtdPejabat(event, 'kesiswaan')" class="hidden">
+            </label>
+            <button type="button" onclick="hapusTtdPejabat('kesiswaan')" class="
     </section>
 
   </main>
@@ -3672,7 +3736,196 @@ window.cetakLaporanBK = function(id) {
   win.document.close();
 };
 
+function getOfficialsConfig() {
+  if (!appState.officials) {
+    appState.officials = {
+      kepsek: { nama: '', nip: '', ttd: '' },
+      kesiswaan: { nama: '', nip: '', ttd: '' },
+      konselor: { nama: 'Ust. Mahmud, S. Pd.I', nip: '', ttd: '' }
+    };
+  }
+  return appState.officials;
+}
 
+function renderOfficialsSettings() {
+  const off = getOfficialsConfig();
+  const mapRoles = [
+    { key: 'kepsek', namaId: 'setKepsekNama', nipId: 'setKepsekNip', imgId: 'prevTtdKepsek', txtId: 'txtTtdKepsek' },
+    { key: 'kesiswaan', namaId: 'setKesiswaanNama', nipId: 'setKesiswaanNip', imgId: 'prevTtdKesiswaan', txtId: 'txtTtdKesiswaan' },
+    { key: 'konselor', namaId: 'setKonselorNama', nipId: 'setKonselorNip', imgId: 'prevTtdKonselor', txtId: 'txtTtdKonselor' }
+  ];
+  mapRoles.forEach(function(r) {
+    const data = off[r.key] || { nama: '', nip: '', ttd: '' };
+    const nEl = document.getElementById(r.namaId);
+    const pEl = document.getElementById(r.nipId);
+    const imgEl = document.getElementById(r.imgId);
+    const txtEl = document.getElementById(r.txtId);
+    if (nEl) nEl.value = data.nama || '';
+    if (pEl) pEl.value = data.nip || '';
+    if (imgEl && txtEl) {
+      if (data.ttd) {
+        imgEl.src = data.ttd;
+        imgEl.classList.remove('hidden');
+        txtEl.classList.add('hidden');
+      } else {
+        imgEl.src = '';
+        imgEl.classList.add('hidden');
+        txtEl.classList.remove('hidden');
+      }
+    }
+  });
+  const bkKonselorInput = document.getElementById('bkKonselor');
+  if (bkKonselorInput && off.konselor && off.konselor.nama) {
+    bkKonselorInput.value = off.konselor.nama;
+  }
+}
+
+window.uploadTtdPejabat = function(e, role) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxW = 320;
+      const scale = img.width > maxW ? (maxW / img.width) : 1;
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png');
+      const off = getOfficialsConfig();
+      off[role].ttd = dataUrl;
+      savePersistedData();
+      renderOfficialsSettings();
+      window.showToast('Tanda tangan berhasil diunggah.');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.hapusTtdPejabat = function(role) {
+  const off = getOfficialsConfig();
+  off[role].ttd = '';
+  savePersistedData();
+  renderOfficialsSettings();
+  window.showToast('Tanda tangan dihapus.');
+};
+
+window.simpanPengaturanPejabat = function() {
+  const off = getOfficialsConfig();
+  off.kepsek.nama = (document.getElementById('setKepsekNama')?.value || '').trim();
+  off.kepsek.nip = (document.getElementById('setKepsekNip')?.value || '').trim();
+  off.kesiswaan.nama = (document.getElementById('setKesiswaanNama')?.value || '').trim();
+  off.kesiswaan.nip = (document.getElementById('setKesiswaanNip')?.value || '').trim();
+  off.konselor.nama = (document.getElementById('setKonselorNama')?.value || '').trim();
+  off.konselor.nip = (document.getElementById('setKonselorNip')?.value || '').trim();
+  savePersistedData();
+  renderOfficialsSettings();
+  window.showToast('Data pejabat & tanda tangan berhasil disimpan.');
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(renderOfficialsSettings, 400);
+});
+
+window.cetakLaporanBK = function(id) {
+  const b = (appState.bkList || []).find(function(item) { return item.id === id; });
+  if (!b) return;
+  const st = (appState.students || []).find(function(s) { return s.nama === b.studentName; });
+  const kelasFinal = b.kelas || (st ? st.kelas : '-');
+  const off = getOfficialsConfig();
+  const kepsekNama = off.kepsek.nama || '........................................';
+  const kepsekNip = off.kepsek.nip ? 'NIP / NIY. ' + off.kepsek.nip : 'NIP / NIY. ..............................';
+  const kepsekTtdImg = off.kepsek.ttd
+    ? '<div style="height:58px;display:flex;align-items:center;justify-content:center;"><img src="' + off.kepsek.ttd + '" style="max-height:55px;max-width:170px;object-fit:contain;"></div>'
+    : '<br><br><br>';
+
+  const konselorNama = b.konselor || off.konselor.nama || '________________________';
+  const konselorNip = off.konselor.nip ? 'NIP / NIY. ' + off.konselor.nip : 'NIP / NIY. ..............................';
+  const konselorTtdImg = off.konselor.ttd
+    ? '<div style="height:58px;display:flex;align-items:center;justify-content:center;"><img src="' + off.konselor.ttd + '" style="max-height:55px;max-width:170px;object-fit:contain;"></div>'
+    : '<br><br><br>';
+
+  const win = window.open('', '_blank');
+  const html = '<!DOCTYPE html><html><head><title>Laporan Sesi Konseling - ' + (b.studentName || '') + '</title>' +
+    '<style>' +
+    'body { font-family: "Times New Roman", serif; padding: 18px 32px; color: #000; line-height: 1.38; font-size: 13px; }' +
+    '.kop { text-align: center; position: relative; border-bottom: 4px double #000; padding-bottom: 8px; margin-bottom: 14px; }' +
+    '.kop img { position: absolute; left: 10px; top: 0; width: 82px; }' +
+    '.kop .t1 { font-size: 16px; margin: 0; }' +
+    '.kop .brand { font-size: 26px; font-weight: 900; color: #ff0000; margin: 1px 0; letter-spacing: 2px; }' +
+    '.kop .sub { font-size: 14px; font-weight: bold; margin-bottom: 2px; }' +
+    '.kop .iz { font-size: 11px; font-weight: bold; margin: 2px 0; }' +
+    '.kop .al { font-size: 11px; margin: 1px 0; }' +
+    '.judul { text-align: center; margin-bottom: 12px; }' +
+    '.judul h3 { margin: 0; font-size: 14px; letter-spacing: 0.5px; }' +
+    '.judul h4 { margin: 2px 0 0 0; font-size: 13px; text-decoration: underline; }' +
+    '.sec-title { font-weight: bold; background: #f2f2f2; padding: 4px 8px; border: 1px solid #000; border-bottom: none; margin-top: 8px; font-size: 12.5px; }' +
+    'table.bk-tbl { width: 100%; border-collapse: collapse; margin-bottom: 6px; }' +
+    'table.bk-tbl td { border: 1px solid #000; padding: 5px 8px; vertical-align: top; }' +
+    'table.bk-tbl td.lbl { width: 34%; font-weight: bold; background: #fafafa; }' +
+    '.ttd-wrap { margin-top: 18px; display: flex; justify-content: space-between; align-items: flex-start; page-break-inside: avoid; }' +
+    '.ttd-box { width: 250px; text-align: center; }' +
+    '.ttd-box p { margin: 2px 0; }' +
+    '@media print { @page { size: portrait; margin: 10mm; } }' +
+    '</style></head><body>' +
+    '<div class="kop">' +
+      '<img src="Logo SDIT Transparan HD.png" onerror="this.src=\'Logo.png\'">' +
+      '<div class="t1">Sekolah Dasar Islam Terpadu</div>' +
+      '<div class="brand">ALIA</div>' +
+      '<div class="sub">NURUL JIHADI</div>' +
+      '<div class="iz">IZIN DIKNAS No. 421.2.420.2/1748-DISPENDIK</div>' +
+      '<div class="al">Perum Dasana Indah Blok SO - RT. 05/016 Kel. Bojong Nangka - Kec. Kelapa Dua</div>' +
+      '<div class="al">Tangerang - Banten Telp./Fax. (021) 5420.4541</div>' +
+    '</div>' +
+    '<div class="judul">' +
+      '<h3>BIMBINGAN DAN KONSELING</h3>' +
+      '<h4>LAPORAN SESI KONSELING</h4>' +
+    '</div>' +
+    '<div class="sec-title">I. IDENTITAS KLIEN &amp; SESI</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Nama Lengkap</td><td><strong>' + (b.studentName || '-') + '</strong></td></tr>' +
+      '<tr><td class="lbl">Kelas</td><td>' + (kelasFinal || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Tanggal Konseling</td><td>' + (b.date || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Pertemuan Sesi Ke-</td><td>' + (b.sesiKe || 'Sesi 1 (Pertemuan Pertama)') + '</td></tr>' +
+      '<tr><td class="lbl">Jenis Layanan</td><td>' + (b.jenisLayanan || 'Konseling Individu') + '</td></tr>' +
+      '<tr><td class="lbl">Konselor / Pembimbing</td><td>' + (b.konselor || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="sec-title">II. ANALISIS &amp; DESKRIPSI MASALAH</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Keluhan Utama (Subjective)</td><td>' + (b.subjective || b.catatan || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Hasil Observasi &amp; Asesmen (Objective)</td><td>' + (b.objective || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Analisis Masalah (Assessment)</td><td>' + (b.assessment || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="sec-title">III. INTERVENSI DAN PENANGANAN KONSELING</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Rencana Aksi Klien (Action Plan)</td><td>' + (b.actionPlan || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="sec-title">IV. EVALUASI DAN TINDAK LANJUT</div>' +
+    '<table class="bk-tbl">' +
+      '<tr><td class="lbl">Catatan Perkembangan</td><td>' + (b.perkembangan || '-') + '</td></tr>' +
+      '<tr><td class="lbl">Rekomendasi Tindak Lanjut</td><td>' + (b.tindakLanjut || '-') + '</td></tr>' +
+    '</table>' +
+    '<div class="ttd-wrap">' +
+      '<div class="ttd-box">' +
+        '<p>Mengetahui,<br>Kepala SDIT Alia Nurul Jihadi</p>' +
+        kepsekTtdImg +
+        '<p><strong>( ' + kepsekNama + ' )</strong><br>' + kepsekNip + '</p>' +
+      '</div>' +
+      '<div class="ttd-box">' +
+        '<p>Tangerang, ' + (b.date || '................ 2026') + '<br>Konselor / Pembimbing,</p>' +
+        konselorTtdImg +
+        '<p><strong>( ' + konselorNama + ' )</strong><br>' + konselorNip + '</p>' +
+      '</div>' +
+    '</div>' +
+    '<script>window.onload = function() { window.print(); };<\/script>' +
+    '</body></html>';
+  win.document.write(html);
+  win.document.close();
+};
 function setupOfficialBranding() {
   const containers = [
     document.getElementById('schoolLogoContainer'),
