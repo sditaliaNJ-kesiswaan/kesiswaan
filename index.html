@@ -1344,7 +1344,43 @@
               <i class="fa-solid fa-upload mr-1"></i>Unggah
               <input type="file" accept="image/*" onchange="uploadTtdPejabat(event, 'kesiswaan')" class="hidden">
             </label>
-            <button type="button" onclick="hapusTtdPejabat('kesiswaan')" class="
+<button type="button" onclick="hapusTtdPejabat('kesiswaan')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg transition" title="Hapus TTD">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Konselor / Guru BK -->
+      <div class="p-4 bg-purple-50/40 rounded-xl border border-purple-100 space-y-2.5">
+        <p class="font-black text-brand-900 uppercase text-[11px] tracking-wider">3. Konselor / Guru BK</p>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Nama Default Konselor</label>
+          <input type="text" id="setKonselorNama" placeholder="Contoh: Ust. Mahmud, S.Pd.I" class="w-full bg-white border border-purple-100 p-2 rounded-xl font-semibold">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">NIP / NIY</label>
+          <input type="text" id="setKonselorNip" placeholder="NIP / NIY Konselor" class="w-full bg-white border border-purple-100 p-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Tanda Tangan (PNG/JPG)</label>
+          <div class="h-16 bg-white border border-dashed border-purple-200 rounded-xl flex items-center justify-center overflow-hidden mb-1.5 p-1">
+            <img id="prevTtdKonselor" src="" alt="Belum ada TTD" class="max-h-14 object-contain hidden">
+            <span id="txtTtdKonselor" class="text-[10px] text-slate-400">Belum diunggah</span>
+          </div>
+          <div class="flex gap-1.5">
+            <label class="flex-1 text-center py-1.5 bg-purple-100 hover:bg-purple-200 text-brand-900 font-bold rounded-lg cursor-pointer transition">
+              <i class="fa-solid fa-upload mr-1"></i>Unggah
+              <input type="file" accept="image/*" onchange="uploadTtdPejabat(event, 'konselor')" class="hidden">
+            </label>
+            <button type="button" onclick="hapusTtdPejabat('konselor')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg transition" title="Hapus TTD">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
     </section>
 
   </main>
