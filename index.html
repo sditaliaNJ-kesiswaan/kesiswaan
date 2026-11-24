@@ -1077,7 +1077,13 @@
         </div>
 
         <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
-          <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">IV. Evaluasi & Tindak Lanjut</p>
+<div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-[11px] font-black text-slate-700 uppercase tracking-wider">IV. Evaluasi &amp; Tindak Lanjut</p>
+            <button type="button" id="btnGenerateBkAI" onclick="generateBKEvaluasiAI()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-800 hover:to-indigo-700 text-white text-[11px] font-bold rounded-lg shadow-xs transition cursor-pointer">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Generate AI</span>
+            </button>
+          </div>
           <div>
             <label class="font-bold text-slate-600 block mb-1">Catatan Perkembangan</label>
             <textarea id="bkPerkembangan" rows="2" placeholder="Respon, pemahaman, dan komitmen murid selama sesi..." required class="w-full bg-white border border-purple-100 p-2 rounded-xl"></textarea>
@@ -3639,7 +3645,81 @@ function renderBK() {
     '</div>';
   }).join('');
 }
+window.generateBKEvaluasiAI = function() {
+  const muridSel = document.getElementById('bkMuridSelect');
+  const rawMuridText = muridSel && muridSel.options[muridSel.selectedIndex]
+    ? muridSel.options[muridSel.selectedIndex].text
+    : 'Ananda';
+  const namaMurid = rawMuridText.split('(')[0].split('-')[0].trim() || 'Ananda';
+  const jenisLayanan = (document.getElementById('bkJenisLayanan')?.value || 'Konseling Individu').trim();
+  const sesiKe = (document.getElementById('bkSesiKe')?.value || 'Sesi 1').trim();
 
+  const subj = (document.getElementById('bkSubjective')?.value || '').trim();
+  const obj = (document.getElementById('bkObjective')?.value || '').trim();
+  const ass = (document.getElementById('bkAssessment')?.value || '').trim();
+  const act = (document.getElementById('bkActionPlan')?.value || '').trim();
+
+  if (!subj && !obj && !ass && !act) {
+    window.showToast('Isi minimal Keluhan Utama atau Analisis Masalah terlebih dahulu sebelum klik Generate AI.');
+    return;
+  }
+
+  const btn = document.getElementById('btnGenerateBkAI');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Menganalisis...</span>';
+  }
+
+  setTimeout(function() {
+    const gabungan = (subj + ' ' + obj + ' ' + ass + ' ' + act).toLowerCase();
+
+    let fokusKategori = 'pembinaan karakter, adab, dan regulasi diri';
+    let saranKolaborasi = 'wali kelas dan orang tua/wali murid untuk pendampingan pembiasaan positif di kelas maupun di rumah';
+
+    if (/hafal|tahfidz|tilawah|quran|mengaji|murojaah/.test(gabungan)) {
+      fokusKategori = 'penguatan konsentrasi, motivasi, dan kedisiplinan murojaah tahfidz Al-Qur\'an';
+      saranKolaborasi = 'guru tahfidz, wali kelas, dan orang tua untuk menyelaraskan target harian serta jadwal murojaah di rumah';
+    } else if (/belajar|nilai|tugas|pr|malas|fokus|konsentrasi|pelajaran|akademik/.test(gabungan)) {
+      fokusKategori = 'peningkatan fokus belajar, manajemen waktu, dan kemandirian menyelesaikan tugas sekolah';
+      saranKolaborasi = 'wali kelas dan orang tua dalam memantau rutinitas belajar harian serta memberikan apresiasi atas progres kecil ananda';
+    } else if (/teman|bertengkar|ejek|bully|perundungan|pukul|emosi|marah|nangis|menangis|sosial/.test(gabungan)) {
+      fokusKategori = 'pengelolaan emosi, empati sosial, dan komunikasi santun dengan teman sebaya';
+      saranKolaborasi = 'wali kelas untuk observasi interaksi sosial di kelas serta komunikasi hangat dengan orang tua terkait penguatan adab pergaulan';
+    } else if (/terlambat|disiplin|aturan|seragam|bolos|izin|tanggung jawab/.test(gabungan)) {
+      fokusKategori = 'penumbuhan kesadaran disiplin, tanggung jawab pribadi, dan kepatuhan terhadap tata tertib sekolah';
+      saranKolaborasi = 'wali kelas dan orang tua/wali untuk menyepakati rutinitas persiapan pagi dan pemantauan kehadiran harian';
+    }
+
+    const ringkasSubj = subj ? subj.replace(/\.$/, '') : 'permasalahan yang dihadapi';
+    const ringkasObj = obj ? ' Berdasarkan observasi konselor (' + obj.replace(/\.$/, '') + '), ananda' : ' Selama sesi berlangsung, ananda';
+    const ringkasAss = ass ? ' dengan akar persoalan pada ' + ass.charAt(0).toLowerCase() + ass.slice(1).replace(/\.$/, '') + '.' : '.';
+    const ringkasAct = act
+      ? ' Ananda memahami langkah perbaikan yang dibahas dan berkomitmen menjalankan rencana aksi berupa: ' + act.replace(/\.$/, '') + '.'
+      : ' Ananda menunjukkan sikap terbuka, kooperatif, dan bersedia mencoba langkah perbaikan bertahap.';
+
+    const hasilPerkembangan =
+      'Pada pelaksanaan ' + jenisLayanan + ' (' + sesiKe + '), ' + namaMurid +
+      ' merespons pendekatan keakraban dan kasih sayang dengan baik terkait ' + ringkasSubj + '.' +
+      ringkasObj + ' mulai menyadari dampak perilaku tersebut' + ringkasAss +
+      ringkasAct + ' Fokus utama evaluasi diarahkan pada ' + fokusKategori + '.';
+
+    const hasilTindakLanjut =
+      '1. Melakukan pemantauan perkembangan perilaku dan komitmen ' + namaMurid + ' selama 1–2 pekan ke depan pada aspek ' + fokusKategori + '.\n' +
+      '2. Berkoordinasi dengan ' + saranKolaborasi + '.\n' +
+      '3. Menjadwalkan sesi konseling lanjutan/evaluasi untuk meninjau capaian rencana aksi serta memberikan penguatan positif.';
+
+    const elPerk = document.getElementById('bkPerkembangan');
+    const elTind = document.getElementById('bkTindakLanjut');
+    if (elPerk) elPerk.value = hasilPerkembangan;
+    if (elTind) elTind.value = hasilTindakLanjut;
+
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Generate AI</span>';
+    }
+    window.showToast('Catatan Perkembangan & Rekomendasi Tindak Lanjut berhasil disusun AI!');
+  }, 450);
+};
 window.handleNewBKNote = function(e) {
   e.preventDefault();
   const sId = parseInt(document.getElementById('bkMuridSelect').value, 10);
